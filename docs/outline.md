@@ -141,6 +141,7 @@ which are two separate ideas.  Unscalable is my approximation]
 - Show simple mutation
   - introduce aliasing and how it creates preconditions, giving us a platform
     for value semantics
+  - aliasing is an unscalable construct
 ...
 - Show how algorithms compose
   - Show some examples of how to decompose real things into other algorithms
