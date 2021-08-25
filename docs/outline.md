@@ -130,6 +130,12 @@ which are two separate ideas.  Unscalable is my approximation]
   - maintainability
   - local reasoning
 
+### Flow
+
+- Every function is an algorithm
+- Trivial example (e.g. find an `int`)
+- Find a `double`
+
 ## Types
 
 ## Material to be Reviewed / Added
