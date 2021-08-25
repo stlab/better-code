@@ -134,7 +134,22 @@ which are two separate ideas.  Unscalable is my approximation]
 
 - Every function is an algorithm
 - Trivial example (e.g. find an `int`)
-- Find a `double`
+- Show a precondition (find a `double`; no NaNs).
+- Show genericity
+  - show lifting of EqualityComparable concept
+  - show how genericity aids readability
+- Show simple mutation
+  - introduce aliasing and how it creates preconditions, giving us a platform
+    for value semantics
+...
+- Show how algorithms compose
+  - Show some examples of how to decompose real things into other algorithms
+    - Gather (case-wise)
+    - Elementwise
+      - Relate back to find, which is elementwise composition with itself
+      - Rotate on forward iterators, a beautiful and more complicated example
+    - Stable partition (top-down divide-and-conquer rotates)
+    - Reverse (bottom-up)
 
 ## Types
 
