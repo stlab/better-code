@@ -124,7 +124,7 @@ which are two separate ideas.  Unscalable is my approximation]
   are an abstraction of computation. Doing so has consequences:
   - Naming
   - Documentation
-:  - Complexity analysis
+  - Complexity analysis
 - Doing so serves:
   - efficiency
   - maintainability
