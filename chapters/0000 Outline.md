@@ -1,9 +1,9 @@
-# Better Code
+## Outline
 
-## Introduction
+### Introduction
 This is a course/book on engineering
   
-### Definition of Engineering:
+#### Definition of Engineering:
 
 > The creative application of scientific principles to design or develop
 > structures, machines, apparatus, or manufacturing processes, or works
@@ -31,20 +31,20 @@ said to be the essence of the activity.
 > Engineering is making informed tradeoffs to produce the best design or
 > artifact possible given a set of constraints.
 
-### Instructor/Author Bias
+#### Instructor/Author Bias
 
 We hope this course/book is generally applicable, but of course we come from a
 set of experiences that will color what we think is important.  We've attempted
 to be responsible for our biases.  In full disclosure, you can read our
 backgrounds from the overleaf/here they are.
 
-### Truth
+#### Truth
 
 One thing we both believe is that in grappling with problems, if you apply
 yourself, you can discover deep platonic truths.  This course/book is about
 finding deep truths about programming.
 
-### Better Code
+#### Better Code
 
 This is a course/book about producing better code.  To do that, we need to
 understand what good code is, and to do it together we need to agree on that
@@ -61,7 +61,7 @@ examples.
 DWA: Now we have a slide with a list of some properties of good code, which we
 said we weren't going to do.  Which is it?
 
-### On Readabilty
+#### On Readabilty
 
 Readability is often misunderstood as meaning “use of a primitive vocabulary.”
 This is like saying, “instead of calling `sort()` in the code, use loops,
@@ -77,7 +77,7 @@ priority over most other properties of good code, such as correctness or
 efficiency.  With sufficient time, readability and these other factors need not
 be mutually exclusive.
 
-### Software is Physics
+#### Software is Physics
 
 - Your code is (part of) a physical system
 - It is constrained by the laws of physics
@@ -85,18 +85,18 @@ be mutually exclusive.
 - We have to discover/document the laws of our code in order to explain that it
   works.
 
-### What to expect
-#### Programming Language
+#### What to expect
+##### Programming Language
 
 The principles of this course are not specific to any one programming language,
 Often we'll talk about some programming idea and then talk about the best way to
 render that idea in a given language. The fit will not always be elegant; this
 is an engineering reality (tradeoffs!)
 
-#### Structure of the Course
+##### Structure of the Course
 - Goals [should be positive things, e.g. not “no _________”]
-#### Conventions used throughout
-##### Unscalable constructs
+##### Conventions used throughout
+###### Unscalable constructs
 [This is what we were calling “raw.”  Unscalable is far from a perfect word.
 “Raw” connotes “unencapsulated” or “exposed” but Sean was also trying to get at
 a word for the property that causes us to *want* to encapsulate these things,
@@ -115,10 +115,10 @@ which are two separate ideas.  Unscalable is my approximation]
 
 - House of cards makes a good metaphor.
 
-#### Pointers to materials
-#### Useful tools
+##### Pointers to materials
+##### Useful tools
 
-## Algorithms
+### Algorithms
 
 - Let's honor what computers are actually all about: computation.  Algorithms
   are an abstraction of computation. Doing so has consequences:
@@ -130,7 +130,7 @@ which are two separate ideas.  Unscalable is my approximation]
   - maintainability
   - local reasoning
 
-### Flow
+#### Flow
 
 - Every function is an algorithm
 - Trivial example (e.g. find an `int`)
@@ -152,14 +152,14 @@ which are two separate ideas.  Unscalable is my approximation]
     - Stable partition (top-down divide-and-conquer rotates)
     - Reverse (bottom-up)
 
-## Types
+### Types
 
-## Material to be Reviewed / Added
+### Material to be Reviewed / Added
 
 Sections, thoughts, etc., that don't yet have an associated section in the
 outline.
 
-### Computational and efficient bases
+#### Computational and efficient bases
 
 - Must be measured relative to an intended abstraction.  A type with just
   zero, increment, and is_odd is a computationally complete boolean but not a
@@ -171,7 +171,7 @@ outline.
 - DWA: given that efficiency matters, is computational completeness, on its own,
   an interesting distinction?
 
-### Necessary ingredients for Scalable/Sustainable Software
+#### Necessary ingredients for Scalable/Sustainable Software
 
 If we can make this list long enough, it could be a theme threaded through the
 book.
@@ -179,7 +179,7 @@ book.
 - Local reasoning
 - Preconditions, postconditions, and invariants (techniques for local reasoning)
 
-### Definition of “safe”
+#### Definition of “safe”
 
 We agreed that to define a “safe” operation as one that, when used according to
 contract, cannot result in undefined behavior, either immediately or after any
@@ -202,7 +202,7 @@ Some examples:
   move-assignment to leave its argument in a condition that does not satisfy
   invariants. See [Move semantics and invariants](#move-semantics-and-invariants).
 
-### Move Semantics and Invariants
+#### Move Semantics and Invariants
 
 C++ has non-destructive move semantics.  That was a mistake, but that's how it
 is. Unfortunately, there are some types (or some type invariants) for which no
