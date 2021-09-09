@@ -1,4 +1,5 @@
 ---
+layout: presentation
 ---
 
 <html>
@@ -9,8 +10,24 @@
   <body>
     <div class="reveal">
       <div class="slides">
-        <section>Slide 1</section>
-        <section>Slide 2</section>
+
+<section>
+
+
+## This is a header
+
+
+</header>
+
+</section>
+
+> blockquote
+with more text
+
+<section>
+
+
+</section>
       </div>
     </div>
     <script src="/reveal.js/dist/reveal.js"></script>
