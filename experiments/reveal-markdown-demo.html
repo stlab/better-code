@@ -1,3 +1,5 @@
+---
+---
 <!doctype html>
 <html lang="en">
 
@@ -19,6 +21,11 @@
 			<div class="slides">
 
                 <!-- Use external markdown resource, separate slides by three newlines; vertical slides by two newlines -->
+                {% comment %}
+                N.B. this feature will only work if pages are being served by a
+                webserver, i.e. you can't just open this file directly in your
+                browser.
+                {% endcomment %}
                 <section data-markdown="markdown.md" data-separator="^\n\n\n" data-separator-vertical="^\n\n">
                 </section>
 
