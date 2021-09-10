@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% seo %}
+    <link rel="stylesheet" href="/reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="/reveal.js/dist/theme/white.css">
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown>
+          {{content}}
+        </section>
+      </div>
+    </div>
+    <script src="/reveal.js/dist/reveal.js"></script>
+<script src="/reveal.js/plugin/markdown/markdown.js"></script>
+<script>
+  Reveal.initialize({
+    plugins: [ RevealMarkdown ]
+  });
+</script>
+  </body>
+</html>

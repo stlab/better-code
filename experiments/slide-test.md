@@ -2,7 +2,6 @@
 layout: presentation
 ---
 
-
 <section markdown="1">
 
 
@@ -15,6 +14,5 @@ Some text with **bold**.
 
 > blockquote
 with more text
-
 
 </section>
