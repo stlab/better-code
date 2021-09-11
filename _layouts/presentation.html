@@ -24,11 +24,13 @@
     </div>
     {{ site.livereload_script }}
     <script src="/reveal.js/dist/reveal.js"></script>
+    <script src="/reveal.js/plugin/highlight/highlight.js"></script>
     <script>
       Reveal.initialize({
       hash: 'true',
       hashOneBasedIndex: 'true',
       fragmentInURL: 'true',
+      slideNumber: 'true',
 	  transition: 'fade',
 	  backgroundTransition: 'fade'
           });
