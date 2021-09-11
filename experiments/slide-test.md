@@ -1,5 +1,5 @@
 ---
-layout: presentation
+layout: slideshow
 ---
 {% include slideshow.liquid %}
 
