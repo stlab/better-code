@@ -4,3 +4,6 @@ remote_theme: pages-themes/minimal
 theme_name: jekyll-theme-minimal
 title: Better Code
 description: STLab Better Code course
+
+exclude:
+  - materials
