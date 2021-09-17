@@ -2,7 +2,7 @@
 
 ### Introduction
 This is a course/book on engineering
-  
+
 #### Definition of Engineering:
 
 > The creative application of scientific principles to design or develop
@@ -179,22 +179,59 @@ book.
 - Local reasoning
 - Preconditions, postconditions, and invariants (techniques for local reasoning)
 
-#### Definition of “safe”
+#### Safety
 
-We agreed that to define a “safe” operation as one that, when used according to
-contract, cannot result in undefined behavior, either immediately or after any
-arbitrary sequence of other safe operations used according to contract.
+We define a function or method as safe if it cannot cause undefined behavior in
+a single-threaded program. This is close to the traditional meaning of “type
+safe and memory safe.”
 
-- DWA: For C++ we might need to exempt things due to “implementation limits,”
-  e.g., running out of stack space.
-- An “safe” operation can have an unspecified (a.k.a. meaningless) result.
-- This definition is on a continuum with type-safety.
-- DWA: Perhaps we need some qualifier analogous to “type-” to go with this kind
-  of safety?
+[Undefined behavior may manifest at an arbitrary time in the future, so if an
+operation X can cause later safe operations to manifest undefined behavior, X is
+unsafe.  This reasoning allows us to classify `std::move` as unsafe in C++. See
+below for more.]
 
-Some examples:
+A safe operation can have preconditions, but its response to preconditions being
+violated must be defined or unspecified, not undefined.
 
-- All built-in casts are potentially-unsafe.
+- Note: unspecified outcomes are needed because
+  - Completely specifying the possible results of a failed operation, such as a
+    sort, often creates complexity and has no upside (thus the “basic guarantee”).
+  - Sometimes even in the case of success, completely specifying the result might
+    be the wrong thing, e.g. the tail of the original sequence after a
+    `std::remove` should maybe not be specified.
+
+##### C++ limitations on safety
+
+Safety for C++ is complicated because common coding patterns, such as mutation,
+depend on fundamentally unsafe constructs like pointers and references.
+Therefore we define “C++-safety,” and a set of C++-safety rules that, if
+followed, make the use of “C++-safe” operations, actually safe by the
+definition above.
+
+A C++-safe function or method may generally assume:
+
+- A parameter passed by `const` reference, or `*this` in a `const` method, will
+  not be mutated during the call, including by operations on the call's other
+  parameters such as function objects. In other words, a `const` reference
+  parameter can be treated as though it was passed by-value; passing by `const`
+  reference is merely a way of optimizing away the copy.
+
+- An object to be mutated will not be observed or mutated through multiple
+  accessed paths.  For example, a function with the signature of `std::swap` can
+  assume it is passed references to distinct objects, and a function with the
+  signature of `std::iter_swap` can assume it is passed iterators to distinct
+  objects.  A function that copies an element from offset `i` to offset `j` in
+  an array can assume `i != j`.  This guarantee is analogous to Swift's “law of
+  exclusivity.”
+
+A safe operation is free to make additional guarantees, e.g. specifying
+well-defined behavior if some of its reference arguments are aliased.
+
+C++ has “implementation limits,” such as stack depth, which, when exceeded, can
+cause undefined behavior. We have no special strategies for mitigating the risk
+of exceeding these limits; C++-safety depends on staying within them.
+
+- All built-in casts are unsafe for some combinations of arguments.
 - An object upcast is safe.  A pointer or reference upcast is unsafe because,
   e.g., it allows the base part of an object to be subsequently modified or
   destroyed.
@@ -223,7 +260,7 @@ Instead, we can observe that move operations in code without `std::move` (or
 some equivalent cast) are only applied to rvalues: the language prevents the
 moved-from state from being observed except by the destructor that is about to
 run, and once the object is destroyed, the temporary breakage of invariants is
-irrelevant. Therefore, as long as the destructor is written to deal with 
+irrelevant. Therefore, as long as the destructor is written to deal with
 moved-from states, we can view the fused move+destroy as being safe.
 
 That leaves only moves from lvalues, which occur only after calls to `std::move`
