@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/assets/js/reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="/assets/js/reveal.js/dist/theme/white.css">
 	<link rel="stylesheet" href="/assets/css/highlight-styles/vs.css">
+    <link rel="stylesheet" href="/assets/css/navigation.css">
 
     <script src="/assets/js/reveal.js/dist/reveal.js"></script>
 	<script src="/assets/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
@@ -71,15 +72,16 @@
 	      backgroundTransition: 'fade',
 		  menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
 			  themes: false,
+              themesPath: '/assets/js/reveal.js/dist/theme/',
 			  transitions: false,
 			  markers: true,
 			  hideMissingTitles: true,
-			  keyboard: true
+			  keyboard: true,
 
-//			  custom: [
-//				  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: 'navigation.html' },
-//				  { title: 'About', icon: '<i class="fa fa-info"></i>', src: 'about.html' }
-//			  ]
+			  custom: [
+				  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: '/slides/slide-index.html' },
+				  { title: 'Home', icon: '<i class="fa fa-home"></i>', content: '<a href="/">course home</a>' },
+			  ]
 		  },
 		  plugins: [ /*RevealMarkdown, */RevealMenu, RevealHighlight/*, RevealFullscreen*/ ],
       });

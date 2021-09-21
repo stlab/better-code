@@ -1,10 +1,10 @@
-{% assign navigation_dir = page.navigation_dir | default: '/chapters/' %}
-{%
-  assign chapters = site.pages
-      | where_exp: "p", "p.dir == navigation_dir"
-      | where_exp: "p", "p.include_in_navigation != false"
-      | sort: "path"
+{% assign chapters = include.chapters
+  | default: site.pages
+  | where_exp: "p", "p.include_in_navigation != false"
+  | sort: "path"
 %}
+{% assign h_min = include.h_min | default: 3 %}
+{% assign h_max = include.h_max %}
 <ul class="navigation">
   {% for p in chapters %}
   <li>
@@ -16,7 +16,7 @@
       {% endcomment %}
       {% assign html_content = p.content | markdownify %}
 
-      {% include toc.html html=html_content baseurl=page_url h_min=3 %}
+      {% include toc.html html=html_content baseurl=page_url h_min=h_min h_max=h_max %}
     </details>
   </li>
   {% endfor %}
