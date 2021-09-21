@@ -1,6 +1,8 @@
-{% 
+{% assign navigation_dir = page.navigation_dir | default: '/chapters/' %}
+{%
   assign chapters = site.pages
-      | where_exp: "p", "p.dir == '/chapters/'"
+      | where_exp: "p", "p.dir == navigation_dir"
+      | where_exp: "p", "p.include_in_navigation != false"
       | sort: "path"
 %}
 <ul class="navigation">
@@ -8,7 +10,7 @@
   <li>
     <details {% if p.url == page.url %}open{% endif %}>
       {% assign page_url = p.url | relative_url %}
-      <summary><a href="{{page_url}}">{{p.title}}</a></summary> 
+      <summary><a href="{{page_url}}">{{p.title}}</a></summary>
       {% comment %}
         p.content may not have been rendered into html depending on context
       {% endcomment %}
@@ -19,4 +21,3 @@
   </li>
   {% endfor %}
 </ul>
-

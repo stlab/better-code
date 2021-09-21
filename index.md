@@ -4,9 +4,13 @@
 
 Stuff that goes on the front page
 
+## Slides
+
+The course slides are available [here](/slides/).
+
 ### Subsection 1
 
 ### Etc.
 
-The source for this document is developed in the
+The source for this site is developed in the
 [better-code](https://github.com/stlab/better-code) project.

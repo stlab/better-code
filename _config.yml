@@ -1,3 +1,10 @@
+#
+# NOTE: If you are serving the site using jekyll serve (or docker compose up),
+# you must "rm -rf _site" and then restart the server when this file is edited.
+#
+# TODO: somebody figure out how to fix this!
+#
+
 # Use the latest version of the theme; GitHub serves an outdated one.
 remote_theme: pages-themes/minimal
 # The theme is not called "minimal"
@@ -7,3 +14,11 @@ description: STLab Better Code course
 
 exclude:
   - materials
+  - assets/js/**/*.md
+
+defaults:
+  -
+    scope:
+      path: "slides/[0-9]*"
+    values:
+      layout: slideshow # overrides previous default layout
