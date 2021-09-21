@@ -3,11 +3,46 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
 {% seo %}
     <link rel="stylesheet" href="/assets/js/reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="/assets/js/reveal.js/dist/theme/white.css">
+	<link rel="stylesheet" href="/assets/css/highlight-styles/vs.css">
+
+    <script src="/assets/js/reveal.js/dist/reveal.js"></script>
+	<script src="/assets/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
+    <script src="/assets/js/reveal.js/plugin/highlight/highlight.js"></script>
+
+{% comment %}
+    <link rel="stylesheet" href="/assets/js/rajgoel-reveal.js-plugins/reveal.js-plugins/chalkboard/style.css">
+	<script src="/assets/js/rajgoel-reveal.js-plugins/chalkboard/plugin.js"></script>
+
+	<script src="/assets/js/rajgoel-reveal.js-plugins/animate/plugin.js"></script>
+	<script src="/assets/js/rajgoel-reveal.js-plugins/animate/svg.min.js"></script>
+
+	<script src="/assets/js/rajgoel-reveal.js-plugins/anything/plugin.js"></script>
+
+	<script src="/assets/js/rajgoel-reveal.js-plugins/audio-slideshow/RecordRTC.js"></script>
+	<script src="/assets/js/rajgoel-reveal.js-plugins/audio-slideshow/plugin.js"></script>
+	<script src="/assets/js/rajgoel-reveal.js-plugins/audio-slideshow/recorder.js"></script>
+
+	<script src="/assets/js/rajgoel-reveal.js-plugins/chart/plugin.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"></script>
+
+	<script src="/assets/js/rajgoel-reveal.js-plugins/customcontrols/plugin.js"></script>
+	<script src="/assets/js/rajgoel-reveal.js-plugins/embed-tweet/plugin.js"></script>
+	<script src="/assets/js/rajgoel-reveal.js-plugins/fullscreen/plugin.js"></script>
+	<script src="/assets/js/reveal.js/plugin/highlight/highlight.js"></script>
+	<script src="/assets/js/reveal.js/plugin/math/math.js"></script>
+    <script src="/assets/js/reveal.js/plugin/markdown/markdown.js"></script>
+{% endcomment %}
+
+	<!-- Font awesome -->
+	<link rel="stylesheet" href="/assets/js/rajgoel-reveal.js-plugins/menu/font-awesome/css/fontawesome.css">
 
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -23,17 +58,31 @@
       </div>
     </div>
     {{ site.livereload_script }}
-    <script src="/assets/js/reveal.js/dist/reveal.js"></script>
-    <script src="/assets/js/reveal.js/plugin/highlight/highlight.js"></script>
     <script>
       Reveal.initialize({
-      hash: 'true',
-      hashOneBasedIndex: 'true',
-      fragmentInURL: 'true',
-      slideNumber: 'true',
-	  transition: 'fade',
-	  backgroundTransition: 'fade'
-          });
+		  controls: false,
+		  progress: true,
+		  history: true,
+          hash: 'true',
+          hashOneBasedIndex: 'true',
+          fragmentInURL: 'true',
+          slideNumber: 'true',
+	      transition: 'fade',
+	      backgroundTransition: 'fade',
+		  menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
+			  themes: false,
+			  transitions: false,
+			  markers: true,
+			  hideMissingTitles: true,
+			  keyboard: true
+
+//			  custom: [
+//				  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: 'navigation.html' },
+//				  { title: 'About', icon: '<i class="fa fa-info"></i>', src: 'about.html' }
+//			  ]
+		  },
+		  plugins: [ /*RevealMarkdown, */RevealMenu, RevealHighlight/*, RevealFullscreen*/ ],
+      });
     </script>
   </body>
 </html>
