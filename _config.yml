@@ -14,6 +14,7 @@ description: STLab Better Code course
 
 exclude:
   - materials
+  - assets/js/**/*.md
 
 defaults:
   -
