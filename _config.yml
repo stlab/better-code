@@ -22,3 +22,15 @@ defaults:
       path: "slides/[0-9]*"
     values:
       layout: slideshow # overrides previous default layout
+
+# These settings are forced by GH Pages.  As long as Jekyll is being run by GH
+# Pages, they must remain unchanged
+lsi: false
+safe: true
+incremental: false
+highlighter: rouge
+gist:
+  noscript: false
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
