@@ -22,6 +22,12 @@ This is a speaker note.  In theory it is supposed to
 
 {{ __ }}
 
+<pre><code class="language-c++" data-trim data-line-numbers="1|2">
+int x = 3;
+auto y = &x;
+</code>
+</pre>
+
 ### Stick around
 
 There's more to come!
