@@ -83,7 +83,8 @@
 
 			  custom: [
 				  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: '/slides/slide-index.html' },
-				  { title: 'Home', icon: '<i class="fa fa-home"></i>', content: '<a href="/">course home</a>' },
+				  { title: 'Home', icon: '<i class="fa fa-home"></i>', content:
+				  '<a href="{{ site.url }}{{ site.baseurl }}">course home</a>' },
 			  ]
 		  },
 		  plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, /*RevealHighlight, RevealFullscreen*/ ],
