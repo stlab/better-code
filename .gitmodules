@@ -4,3 +4,6 @@
 [submodule "rajgoel-reveal.js-plugins"]
 	path = assets/js/rajgoel-reveal.js-plugins
 	url = https://github.com/rajgoel/reveal.js-plugins.git
+[submodule "jekyll-pygments-themes"]
+	path = assets/css/jekyll-pygments-themes
+	url = https://github.com/jwarby/jekyll-pygments-themes.git

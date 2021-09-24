@@ -12,12 +12,12 @@
 {% seo %}
     <link rel="stylesheet" href="{{ assets }}/js/reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="{{ assets }}/js/reveal.js/dist/theme/white.css">
-	<link rel="stylesheet" href="{{ assets }}/css/highlight-styles/vs.css">
+	<link rel="stylesheet" href="{{ assets }}/css/jekyll-pygments-themes/github.css">
     <link rel="stylesheet" href="{{ assets }}/css/navigation.css">
 
     <script src="{{ assets }}/js/reveal.js/dist/reveal.js"></script>
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
-    <script src="{{ assets }}/js/reveal.js/plugin/highlight/highlight.js"></script>
+
     <script src="{{ assets }}/js/reveal.js/plugin/notes/notes.js"></script>
 
 {% comment %}
@@ -28,6 +28,7 @@
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/animate/svg.min.js"></script>
 
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/anything/plugin.js"></script>
+    <script src="{{ assets }}/js/reveal.js/plugin/highlight/highlight.js"></script>
 
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/RecordRTC.js"></script>
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/plugin.js"></script>
@@ -85,7 +86,7 @@
 				  { title: 'Home', icon: '<i class="fa fa-home"></i>', content: '<a href="/">course home</a>' },
 			  ]
 		  },
-		  plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, RevealHighlight/*, RevealFullscreen*/ ],
+		  plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, /*RevealHighlight, RevealFullscreen*/ ],
       });
     </script>
   </body>
