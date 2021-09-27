@@ -44,6 +44,19 @@ struct transcribe_iterator {
     }
 ```
 
+<script>
+// Create an instance of mark.js and pass an argument containing
+// the DOM object of the context (where to search for matches)
+var markInstance = new Mark(document);
+// Remove previous marked elements and mark
+// the new keyword inside the context
+markInstance.unmark({
+	done: function(){
+  	markInstance.mark("constexpr", {});
+  }
+});
+</script>
+
 There's more to come!
 
 {{ endslide }}
