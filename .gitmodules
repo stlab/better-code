@@ -7,3 +7,6 @@
 [submodule "jekyll-pygments-themes"]
 	path = assets/css/jekyll-pygments-themes
 	url = https://github.com/jwarby/jekyll-pygments-themes.git
+[submodule "mark.js"]
+	path = assets/js/mark.js
+	url = https://github.com/julmot/mark.js.git
