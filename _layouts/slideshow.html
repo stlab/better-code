@@ -19,7 +19,12 @@
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
 
     <script src="{{ assets }}/js/reveal.js/plugin/notes/notes.js"></script>
-    <script src="{{ assets }}/js/mark.js/dist/mark.min.js"></script>
+    <!-- <script src="{{ assets }}/js/reveal-mark-plugin/plugin.js"></script> -->
+    {% comment %}
+    Until https://github.com/julmot/mark.js/issues/446 is fixed, must import
+    this here instead of in the plugin.
+    {% endcomment %}
+    <script src="{{ assets }}/js/reveal-mark-plugin/mark.js/dist/mark.es6.js"></script>
 
 {% comment %}
     <link rel="stylesheet" href="{{ assets }}/js/rajgoel-reveal.js-plugins/reveal.js-plugins/chalkboard/style.css">
@@ -29,7 +34,6 @@
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/animate/svg.min.js"></script>
 
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/anything/plugin.js"></script>
-    <script src="{{ assets }}/js/reveal.js/plugin/highlight/highlight.js"></script>
 
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/RecordRTC.js"></script>
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/plugin.js"></script>
@@ -63,7 +67,8 @@
       </div>
     </div>
     {{ site.livereload_script }}
-    <script>
+    <script type="module">
+      import RevealMark from "{{ assets }}/js/reveal-mark-plugin/plugin.js";
       Reveal.initialize({
 		  controls: false,
 		  progress: true,
@@ -88,7 +93,7 @@
 				  '<a href="{{ "/" | absolute_url }}">course home</a>' },
 			  ]
 		  },
-		  plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, /*RevealHighlight, RevealFullscreen*/ ],
+		  plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, RevealMark/*, RevealFullscreen*/ ],
       });
     </script>
   </body>
