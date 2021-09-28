@@ -52,7 +52,7 @@ const Plugin = {
 
 			var scrollState = { currentBlock: block };
 
-			// If there is at least one mark step, generate
+			// If there is more than one mark step, generate
 			// fragments
 			var markSteps = Plugin.deserializeMarkSteps( block.getAttribute( 'data-mark' ) );
 			if( markSteps.length > 1 ) {
