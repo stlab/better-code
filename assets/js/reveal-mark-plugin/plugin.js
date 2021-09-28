@@ -230,12 +230,8 @@ const Plugin = {
                     r,
                     {
                         acrossElements: true, ignoreGroups: 1, className: 'mark-line',
-                        'each' : function(elem, info) {
-                            console.log('elem:', elem, 'info:', info);
-                            if (info.matchNodeIndex === 0) {
-                                r.lastIndex = 10000000000; // Number.INFINITY;
-                            }
-                        }
+                        // Prevent any further matches.
+                        'each' : function(elem, info) { r.lastIndex = Infinity; }
                     });
 			} );
 
