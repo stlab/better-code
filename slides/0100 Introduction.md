@@ -23,7 +23,32 @@ This is a speaker note.  In theory it is supposed to
 
 {{ __ }}
 
-### Stick around
+### Stick around 0
+
+```c++
+x = 1;
+y = 2;
+z = 3;
+```
+
+There's more to come!
+
+{{ __ }}
+
+### Stick around 1
+
+```c++
+x = 1;
+y = 2;
+z = 3;
+```
+{: data-mark="1" }
+
+There's more to come!
+
+{{ __ }}
+
+### Stick around 2
 
 ```c++
 x = 1;
