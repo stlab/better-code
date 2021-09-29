@@ -55,6 +55,7 @@ const Plugin = {
 			// If there is more than one mark step, generate
 			// fragments
 			var markSteps = Plugin.deserializeMarkSteps( block.getAttribute( 'data-mark' ) );
+
 			if( markSteps.length > 1 ) {
 
                 // Wrap the block and its clones in a parent div
@@ -78,9 +79,7 @@ const Plugin = {
                     var fragmentBlock = block.cloneNode( true );
                     fragmentBlock.setAttribute( 'data-mark', Plugin.serializeMarkSteps( [ mark ] ) );
                     fragmentBlock.classList.add( 'fragment' );
-
-                    // Insert the fragment just after the original block
-                    block.parentNode.insertBefore( fragmentBlock, block.nextSibling );
+                    wrapper.appendChild( fragmentBlock );
 
                     Plugin.markLines( fragmentBlock );
 
@@ -101,7 +100,7 @@ const Plugin = {
 				block.removeAttribute( 'data-fragment-index' );
 				block.setAttribute( 'data-mark', Plugin.serializeMarkSteps( [ markSteps[0] ] ) );
 
-            }
+			}
 
 			// Scroll the first mark into view when the slide
 			// becomes visible. Note supported in IE11 since it lacks
@@ -118,6 +117,7 @@ const Plugin = {
 			Plugin.markLines( block );
 
 		}
+
 	},
 
 	/**
@@ -224,12 +224,12 @@ const Plugin = {
 				if( typeof mark.end !== 'number' ) {
                     mark.end = mark.start
                 }
-				if( typeof mark.start === 'number' ) {
-                    pattern = '^('
-                        + '.*\n'.repeat(mark.start - 1)
-                        + ')'
-                        + '(.*(\n|$))'.repeat(mark.end - mark.start + 1) + '';
-                }
+				if( typeof mark.start !== 'number' ) { return }
+                pattern = '^('
+                    + '.*\n'.repeat(mark.start - 1)
+                    + ')'
+                    + '('
+                    + '.*(\n|$)'.repeat(mark.end - mark.start + 1) + ')';
                 var r = new RegExp(pattern, 'y');
                 new Mark(block).markRegExp(
                     r,
@@ -241,6 +241,7 @@ const Plugin = {
 			} );
 
 		}
+
 	},
 
 	/**
