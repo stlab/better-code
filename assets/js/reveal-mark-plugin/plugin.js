@@ -57,6 +57,13 @@ const Plugin = {
 			var markSteps = Plugin.deserializeMarkSteps( block.getAttribute( 'data-mark' ) );
 			if( markSteps.length > 1 ) {
 
+                // Wrap the block and its clones in a parent div
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('mark-fragments');
+                block.parentNode.insertBefore(wrapper, block);
+                wrapper.appendChild(block);
+
+
 				// If the original block has a fragment-index,
 				// each clone should follow in an incremental sequence
 				var fragmentIndex = parseInt( block.getAttribute( 'data-fragment-index' ), 10 );
@@ -71,7 +78,10 @@ const Plugin = {
                     var fragmentBlock = block.cloneNode( true );
                     fragmentBlock.setAttribute( 'data-mark', Plugin.serializeMarkSteps( [ mark ] ) );
                     fragmentBlock.classList.add( 'fragment' );
+
+                    // Insert the fragment just after the original block
                     block.parentNode.insertBefore( fragmentBlock, block.nextSibling );
+
                     Plugin.markLines( fragmentBlock );
 
 					if( typeof fragmentIndex === 'number' ) {
@@ -88,7 +98,7 @@ const Plugin = {
 
 				} );
 
-				block.removeAttribute( 'data-fragment-index' )
+				block.removeAttribute( 'data-fragment-index' );
 				block.setAttribute( 'data-mark', Plugin.serializeMarkSteps( [ markSteps[0] ] ) );
 
             }

@@ -14,15 +14,15 @@
     <link rel="stylesheet" href="{{ assets }}/js/reveal.js/dist/theme/white.css">
 	<link rel="stylesheet" href="{{ assets }}/css/jekyll-pygments-themes/github.css">
     <link rel="stylesheet" href="{{ assets }}/css/navigation.css">
+    <link rel="stylesheet" href="{{ assets }}/js/reveal-mark-plugin/style.css">
 
     <script src="{{ assets }}/js/reveal.js/dist/reveal.js"></script>
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
 
     <script src="{{ assets }}/js/reveal.js/plugin/notes/notes.js"></script>
-    <!-- <script src="{{ assets }}/js/reveal-mark-plugin/plugin.js"></script> -->
     {% comment %}
-    Until https://github.com/julmot/mark.js/issues/446 is fixed, must import
-    this here instead of in the plugin.
+    Until https://github.com/julmot/mark.js/issues/446 is fixed, must inject
+    this here instead of importing it in the plugin.
     {% endcomment %}
     <script src="{{ assets }}/js/reveal-mark-plugin/mark.js/dist/mark.es6.js"></script>
 
