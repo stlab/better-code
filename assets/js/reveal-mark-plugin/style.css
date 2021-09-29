@@ -1,6 +1,5 @@
 .reveal div.mark-fragments {
     position: relative;
-	overflow: auto;
 }
 
 .reveal div.mark-fragments [data-mark].fragment {
@@ -10,4 +9,8 @@
     width: 100%;
     box-sizing:border-box;
     background-color: #fff; // FIXME: should be derived from the slide theme somehow.
+}
+
+.reveal div.mark-fragments [data-mark].fragment * {
+    margin-top: 0;
 }

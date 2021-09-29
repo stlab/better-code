@@ -59,4 +59,27 @@ z = 3;
 
 There's more to come!
 
+{{ __ }}
+
+### Stick around 3
+
+This:
+
+```c++
+A = 1;
+B = 2;
+C = 3;
+```
+{: data-mark="1|2-3" }
+
+then this:
+
+```c++
+X = 1;
+Y = 2;
+Z = 3;
+```
+{: data-mark="3|2|1" }
+
+
 {{ endslide }}
