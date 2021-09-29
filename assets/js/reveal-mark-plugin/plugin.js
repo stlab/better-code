@@ -211,15 +211,10 @@ const Plugin = {
 	 * Visually emphasize specific regions within a block.
 	 *
 	 * @param {HTMLElement} block a <... data-mark=...> block
-	 * @param {String} [linesToMark] The lines that should be
-	 * marked in this format:
-	 * "1" 		= marks line 1
-	 * "2,5"	= marks lines 2 & 5
-	 * "2,5-7"	= marks lines 2, 5, 6 & 7
 	 */
-	markLines: function( block, linesToMark ) {
+	markLines: function( block ) {
 
-		var markSteps = Plugin.deserializeMarkSteps( linesToMark || block.getAttribute( 'data-mark' ) );
+		var markSteps = Plugin.deserializeMarkSteps( block.getAttribute( 'data-mark' ) );
 
 		if( markSteps.length ) {
 
