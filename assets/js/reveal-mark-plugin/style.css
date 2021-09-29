@@ -13,4 +13,7 @@
 
 .reveal div.mark-fragments [data-mark].fragment * {
     margin-top: 0;
+    margin-bottom: 0;
+    // FIXME: see https://github.com/stlab/better-code/issues/2
+    box-shadow: none;
 }
