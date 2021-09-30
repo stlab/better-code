@@ -191,7 +191,7 @@ const Plugin = {
 
 	getMarkedLineBounds: function( block ) {
 
-		var markedLines = block.querySelectorAll( '.mark-line' );
+		var markedLines = block.querySelectorAll( 'mark[data-markjs=true]' );
 		if( markedLines.length === 0 ) {
 			return { top: 0, bottom: 0 };
 		}
