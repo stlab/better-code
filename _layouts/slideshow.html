@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ assets }}/js/reveal.js/dist/theme/white.css">
 	<link rel="stylesheet" href="{{ assets }}/css/jekyll-pygments-themes/github.css">
     <link rel="stylesheet" href="{{ assets }}/css/navigation.css">
-    <link rel="stylesheet" href="{{ assets }}/js/reveal-mark-plugin/style.css">
+    <link rel="stylesheet" href="{{ assets }}/js/reveal-mark-plugin/mark-reveal.css">
 
     <script src="{{ assets }}/js/reveal.js/dist/reveal.js"></script>
 	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
@@ -68,7 +68,7 @@
     </div>
     {{ site.livereload_script }}
     <script type="module">
-      import RevealMark from "{{ assets }}/js/reveal-mark-plugin/plugin.js";
+      import RevealMark from "{{ assets }}/js/reveal-mark-plugin/mark-reveal.js";
       Reveal.initialize({
 		  controls: false,
 		  progress: true,
