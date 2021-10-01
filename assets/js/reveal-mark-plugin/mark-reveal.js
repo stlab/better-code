@@ -132,7 +132,7 @@ const Plugin = {
         Plugin.asyncReplaceMarks(
             scrollState.currentBlock, markProvider.getAttribute( 'data-mark' ),
             function () {
-                Plugin.scrollMarkedLineIntoView.bind(scrollState.currentBlock, scrollState, !animateScroll)
+                Plugin.scrollMarkedLineIntoView(scrollState.currentBlock, scrollState, !animateScroll)
             } );
     },
 

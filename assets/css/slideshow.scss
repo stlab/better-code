@@ -1,0 +1,26 @@
+---
+---
+{% include common.liquid %}
+@import "{{ assets }}/js/reveal.js/dist/reveal.css";
+@import "{{ assets }}/js/reveal.js/dist/theme/white.css";
+
+// Move reveal styling from code blocks to their enclosures because we are using
+// jekyll/rouge highlighting, which generates a pair of <div> wrappers for each
+// highlighted code example.  Tempted to just remove these with JS.
+.reveal div.highlighter-rouge > div.highlight > pre.highlight {
+	box-shadow: initial;
+}
+
+.reveal div.highlighter-rouge {
+	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.reveal div[data-mark].highlighter-rouge > div.highlight > pre.highlight code {
+	overflow: initial;
+	max-height: initial;
+}
+
+.reveal div[data-mark].highlighter-rouge {
+	max-height: 400px;
+    overflow: auto;
+}
