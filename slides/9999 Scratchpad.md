@@ -25,6 +25,22 @@ This is a speaker note.  In theory it is supposed to
 
 {{ __ }}
 
+### Something with Fragments
+
+1. First Item
+{:.fragment}
+2. Second Item
+3. Third Item
+{:.fragment }
+
+<ol>
+<li class="fragment">Fourth</li>
+<li>Fifth</li>
+<li class="fragment">Sixth</li>
+</ol>
+
+{{ __ }}
+
 ### Stick around 0
 
 ```c++
