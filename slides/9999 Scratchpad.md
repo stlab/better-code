@@ -27,17 +27,16 @@ This is a speaker note.  In theory it is supposed to
 
 ### Something with Fragments
 
-1. First Item
-{:.fragment}
+1. {:.fragment}First Item
 2. Second Item
-3. Third Item
-{:.fragment }
+3. {:.fragment }Third Item
 
-<ol>
-<li class="fragment">Fourth</li>
-<li>Fifth</li>
-<li class="fragment">Sixth</li>
-</ol>
+
+```c++
+// A code fragment
+auto f() -> int { return 4; }
+```
+{:.fragment }
 
 {{ __ }}
 
