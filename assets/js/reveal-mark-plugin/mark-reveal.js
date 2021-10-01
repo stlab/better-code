@@ -43,8 +43,9 @@ const Plugin = {
 	/**
 	 * Marks a block having the data-mark attribute.
 	 *
-	 * If the block contains multiple line mark steps,
-	 * we clone the block and create a fragment for each step.
+	 * If the block contains multiple mark steps, insert a (following) sibling
+	 * fragment for each step and respond to the fragment's appearance by
+	 * re-marking.
 	 */
 	markBlock: function( block ) {
 
@@ -58,30 +59,27 @@ const Plugin = {
 
 			if( markSteps.length > 1 ) {
 
-                // Wrap the block and its clones in a parent div
+                // Wrap the block and its fragments in a parent div
                 const wrapper = document.createElement('div');
                 wrapper.classList.add('mark-fragments');
                 block.parentNode.insertBefore(wrapper, block);
                 wrapper.appendChild(block);
 
-
 				// If the original block has a fragment-index,
-				// each clone should follow in an incremental sequence
+				// each mark fragment should follow in an incremental sequence
 				var fragmentIndex = parseInt( block.getAttribute( 'data-fragment-index' ), 10 );
 
 				if( typeof fragmentIndex !== 'number' || isNaN( fragmentIndex ) ) {
 					fragmentIndex = null;
 				}
 
-				// Generate fragments for all steps except the original block
+				// Append fragments for all steps except the original block
 				markSteps.slice(1).forEach( function( mark ) {
 
-                    var fragmentBlock = block.cloneNode( true );
+                    const fragmentBlock = document.createElement('div');
+                    fragmentBlock.classList.add('fragment');
                     fragmentBlock.setAttribute( 'data-mark', Plugin.serializeMarkSteps( [ mark ] ) );
-                    fragmentBlock.classList.add( 'fragment' );
                     wrapper.appendChild( fragmentBlock );
-
-                    Plugin.markLines( fragmentBlock );
 
 					if( typeof fragmentIndex === 'number' ) {
 						fragmentBlock.setAttribute( 'data-fragment-index', fragmentIndex );
@@ -91,10 +89,16 @@ const Plugin = {
 						fragmentBlock.removeAttribute( 'data-fragment-index' );
 					}
 
-					// Scroll marks into view as we step through them
-					fragmentBlock.addEventListener( 'visible', Plugin.scrollMarkedLineIntoView.bind( Plugin, fragmentBlock, scrollState ) );
-					fragmentBlock.addEventListener( 'hidden', Plugin.scrollMarkedLineIntoView.bind( Plugin, fragmentBlock.previousSibling, scrollState ) );
+					// Re-do the marks as we step forward...
+					fragmentBlock.addEventListener(
+                        'visible', Plugin.asyncMarkAndScroll.bind(
+                            Plugin, fragmentBlock, scrollState, true ) );
 
+                    // ...or backward.
+					fragmentBlock.addEventListener(
+                        'hidden',
+                        Plugin.asyncMarkAndScroll.bind(
+                            Plugin, fragmentBlock.previousSibling, scrollState, true ) );
 				} );
 
 				block.removeAttribute( 'data-fragment-index' );
@@ -108,17 +112,29 @@ const Plugin = {
 			var slide = typeof block.closest === 'function' ? block.closest( 'section:not(.stack)' ) : null;
 			if( slide ) {
 				var scrollFirstMarkIntoView = function() {
-					Plugin.scrollMarkedLineIntoView( block, scrollState, true );
+					Plugin.asyncMarkAndScroll( block, scrollState, false );
 					slide.removeEventListener( 'visible', scrollFirstMarkIntoView );
 				}
 				slide.addEventListener( 'visible', scrollFirstMarkIntoView );
 			}
-
-			Plugin.markLines( block );
+            else {
+			    Plugin.asyncReplaceMarks( block, Plugin.deserializeMarkSteps( block.getAttribute( 'data-mark' ) ) );
+            }
 
 		}
 
 	},
+
+    // Re-marks scrollState.currentBlock according to the data-mark attribute of
+    // markProvider, and scrolls the marks into view, animating the scroll iff
+    // animateScroll.
+	asyncMarkAndScroll: function( markProvider, scrollState, animateScroll ) {
+        Plugin.asyncReplaceMarks(
+            scrollState.currentBlock, markProvider.getAttribute( 'data-mark' ),
+            function () {
+                Plugin.scrollMarkedLineIntoView.bind(scrollState.currentBlock, scrollState, !animateScroll)
+            } );
+    },
 
 	/**
 	 * Animates scrolling to the first marked line
@@ -207,41 +223,49 @@ const Plugin = {
 
 	},
 
-	/**
-	 * Visually emphasize specific regions within a block.
-	 *
-	 * @param {HTMLElement} block a <... data-mark=...> block
-	 */
-	markLines: function( block ) {
+    // Uses marker to apply the given marks to block, calling done on completion.
+	asyncApplyMarks: function( block, marker, marks, done ) {
+        if ( marks.length === 0 ) {
+            return done();
+        }
 
-		var markSteps = Plugin.deserializeMarkSteps( block.getAttribute( 'data-mark' ) );
+        const mark = marks[0]
+		var pattern = '';
+		if( typeof mark.end !== 'number' ) {
+            mark.end = mark.start
+        }
+		if( typeof mark.start !== 'number' ) {
+            return Plugin.asyncApplyMarks(block, marker, marks.slice(1), done)
+        }
 
-		if( markSteps.length ) {
+        pattern = '^('
+            + '.*\n'.repeat(mark.start - 1)
+            + ')'
+            + '('
+            + '.*(\n|$)'.repeat(mark.end - mark.start + 1) + ')';
+        var r = new RegExp(pattern, 'y');
 
-			markSteps[0].forEach( function( mark ) {
+        marker.markRegExp(
+            r,
+            {
+                acrossElements: true, ignoreGroups: 1, className: 'mark-line',
+                // Prevent any further matches.
+                'each' : function(elem, info) { r.lastIndex = Infinity; },
+                done: function() { Plugin.asyncApplyMarks(block, marker, marks.slice(1), done) }
+            });
+    },
 
-				var pattern = '';
-				if( typeof mark.end !== 'number' ) {
-                    mark.end = mark.start
-                }
-				if( typeof mark.start !== 'number' ) { return }
-                pattern = '^('
-                    + '.*\n'.repeat(mark.start - 1)
-                    + ')'
-                    + '('
-                    + '.*(\n|$)'.repeat(mark.end - mark.start + 1) + ')';
-                var r = new RegExp(pattern, 'y');
-                new Mark(block).markRegExp(
-                    r,
-                    {
-                        acrossElements: true, ignoreGroups: 1, className: 'mark-line',
-                        // Prevent any further matches.
-                        'each' : function(elem, info) { r.lastIndex = Infinity; }
-                    });
-			} );
+    // Removes any marks from block and applies the given
+    // serializedMarks, calling done on completion.
+	asyncReplaceMarks: function( block, serializedMarks, done ) {
 
-		}
-
+        const marker = new Mark(block);
+        marker.unmark({
+            done: function() {
+                Plugin.asyncApplyMarks(
+                    block, marker,
+                    Plugin.deserializeMarkSteps( serializedMarks )[0], done)
+                } } );
 	},
 
 	/**
