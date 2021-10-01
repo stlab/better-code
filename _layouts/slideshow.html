@@ -4,13 +4,13 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 {% seo %}
-	<link rel="stylesheet" href="{{ assets }}/css/jekyll-pygments-themes/github.css">
+    <link rel="stylesheet" href="{{ assets }}/css/jekyll-pygments-themes/github.css">
     <link rel="stylesheet" href="{{ assets }}/css/slideshow.css">
     {% comment %}
     Styling for the "chapters" section of the menu
@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="{{ assets }}/css/navigation.css">
 
     <script src="{{ assets }}/js/reveal.js/dist/reveal.js"></script>
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
 
     <script src="{{ assets }}/js/reveal.js/plugin/notes/notes.js"></script>
     {% comment %}
@@ -29,30 +29,30 @@
 
 {% comment %}
     <link rel="stylesheet" href="{{ assets }}/js/rajgoel-reveal.js-plugins/reveal.js-plugins/chalkboard/style.css">
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/chalkboard/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/chalkboard/plugin.js"></script>
 
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/animate/plugin.js"></script>
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/animate/svg.min.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/animate/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/animate/svg.min.js"></script>
 
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/anything/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/anything/plugin.js"></script>
 
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/RecordRTC.js"></script>
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/plugin.js"></script>
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/recorder.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/RecordRTC.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/audio-slideshow/recorder.js"></script>
 
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/chart/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/chart/plugin.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"></script>
 
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/customcontrols/plugin.js"></script>
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/embed-tweet/plugin.js"></script>
-	<script src="{{ assets }}/js/rajgoel-reveal.js-plugins/fullscreen/plugin.js"></script>
-	<script src="{{ assets }}/js/reveal.js/plugin/highlight/highlight.js"></script>
-	<script src="{{ assets }}/js/reveal.js/plugin/math/math.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/customcontrols/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/embed-tweet/plugin.js"></script>
+    <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/fullscreen/plugin.js"></script>
+    <script src="{{ assets }}/js/reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="{{ assets }}/js/reveal.js/plugin/math/math.js"></script>
     <script src="{{ assets }}/js/reveal.js/plugin/markdown/markdown.js"></script>
 {% endcomment %}
 
-	<!-- Font awesome -->
-	<link rel="stylesheet" href="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/font-awesome/css/fontawesome.css">
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/font-awesome/css/fontawesome.css">
 
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -71,30 +71,30 @@
     <script type="module">
       import RevealMark from "{{ assets }}/js/reveal-mark-plugin/mark-reveal.js";
       Reveal.initialize({
-		  controls: false,
-		  progress: true,
-		  history: true,
+          controls: false,
+          progress: true,
+          history: true,
           hash: 'true',
           hashOneBasedIndex: 'true',
           fragmentInURL: 'true',
           slideNumber: 'true',
-	      transition: 'fade',
-	      backgroundTransition: 'fade',
-		  menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
-			  themes: false,
+          transition: 'fade',
+          backgroundTransition: 'fade',
+          menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
+              themes: false,
               themesPath: '/assets/js/reveal.js/dist/theme/',
-			  transitions: false,
-			  markers: true,
-			  hideMissingTitles: true,
-			  keyboard: true,
+              transitions: false,
+              markers: true,
+              hideMissingTitles: true,
+              keyboard: true,
 
-			  custom: [
-				  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: '/slides/slide-index.html' },
-				  { title: 'Home', icon: '<i class="fa fa-home"></i>', content:
-				  '<a href="{{ "/" | absolute_url }}">course home</a>' },
-			  ]
-		  },
-		  plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, RevealMark/*, RevealFullscreen*/ ],
+              custom: [
+                  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: '/slides/slide-index.html' },
+                  { title: 'Home', icon: '<i class="fa fa-home"></i>', content:
+                  '<a href="{{ "/" | absolute_url }}">course home</a>' },
+              ]
+          },
+          plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, RevealMark/*, RevealFullscreen*/ ],
       });
     </script>
   </body>
