@@ -21,7 +21,7 @@
 }
 
 .reveal div[data-mark].highlighter-rouge {
-	max-height: 400px;
+	max-height: 550px; // upstream theme says 400.
     overflow: auto;
 }
 
