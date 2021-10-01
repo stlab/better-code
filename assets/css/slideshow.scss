@@ -24,3 +24,10 @@
 	max-height: 400px;
     overflow: auto;
 }
+
+div.reveal div.slides > section.present {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}

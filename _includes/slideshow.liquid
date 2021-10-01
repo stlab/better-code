@@ -1,6 +1,6 @@
-{% assign __ = '</section><section markdown="1">' %}
-{% assign endslide = '</section>' %}
-
+{% comment %}The empty div allows flex space-between to nicely space most slides.{% endcomment %}
+{% assign endslide = '<div></div></section>' %}
+{% capture __ %}{{endslide}}<section markdown="1">{% endcapture %}
 {% assign note = '<aside class="notes" data-markdown="1">' %}
 {% assign endnote = '</aside>' %}
 {% comment %}Begin the first slide{% endcomment %}
