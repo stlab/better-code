@@ -247,10 +247,10 @@ const Plugin = {
         }
 
         pattern = '^('
-            + '.*\n'.repeat(mark.start - 1)
+            + '(?:.*\n){' + (mark.start - 1) + '}'
             + ')'
             + '('
-            + '.*(\n|$)'.repeat(mark.end - mark.start + 1) + ')';
+            + '(?:.*(\n|$)){' + (mark.end - mark.start + 1) + '})';
         var r = new RegExp(pattern, 'y');
 
         marker.markRegExp(
