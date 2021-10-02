@@ -2,9 +2,11 @@ const Plugin = {
 
 	id: 'mark',
 
-	MARK_STEP_DELIMITER: '|',
-	MARK_LINE_DELIMITER: ',',
-	MARK_LINE_RANGE_DELIMITER: '-',
+    // If you need to write | followed by a digit or a | in a regexp pattern,
+    // you can follow it with a non-capturing group, e.g.
+	STEP_DELIMITER: '|',
+	REGION_DELIMITER: ',',
+	LINE_RANGE_DELIMITER: '-',
 
     Mark: window.Mark,
 
@@ -17,6 +19,12 @@ const Plugin = {
 	 * @param {Reveal} reveal the reveal.js instance
 	 */
 	init: function( reveal ) {
+
+        // Prepare regexps based on the constants for later parsing.
+        for (const i of ['STEP', 'REGION', 'LINE_RANGE']) {
+            Plugin[i + '_DELIMITER_P']
+                = RegExp( '\\s*\\' + Plugin[i + '_DELIMITER'] + '\\s*', '' );
+        }
 
 		// Read the plugin config options and provide fallbacks
 		let config = reveal.getConfig().mark || {};
@@ -268,9 +276,37 @@ const Plugin = {
                 } } );
 	},
 
+    parseLineSpec: function( input ) {
+        const oldInput = input[0];
+        const start = parseInt( dropLeading( input, /\d+/ ), 10 );
+        if ( isNaN( start ) ) { return null; }
+
+        const end = dropLeading( input, Plugin.LINE_RANGE_DELIMITER_P )
+              ? parseInt( dropLeading( input, /\d+/ ), 10 ) : start;
+        if ( isNaN(end) ) { return null; }
+        return {
+            start: start, end: end,
+            text: oldInput.slice(0, oldInput.length - (input[0].length))
+        };
+    },
+
+    parseRegExp: function( input ) {
+        const r = dropLeading(
+            input, /(.)(?:\\.|(?!\1)[^\\])*\1[dgimsuy]*/s );
+        if ( r === null ) return null;
+
+        const delimiter = r[0]
+        const patternEnd = r.lastIndexOf( delimiter )
+
+        const pattern = r.slice( 1, patternEnd )
+        // Un-escape any escaped delimiters.
+              .replace( '\\' + delimiter, delimiter );
+        const flags = r.slice( patternEnd + 1 );
+        return { pattern: pattern, flags: flags, text: r };
+    },
+
 	/**
-	 * Parses and formats a user-defined string of line
-	 * numbers to mark.
+	 * Parses and formats a user-defined string of marking steps.
 	 *
 	 * @example
 	 * Plugin.deserializeMarkSteps( '1,2|3,5-10' )
@@ -279,50 +315,38 @@ const Plugin = {
 	 * //   [ { start: 3 }, { start: 5, end: 10 } ]
 	 * // ]
 	 */
-	deserializeMarkSteps: function( markSteps ) {
+	deserializeMarkSteps: function( serialized ) {
 
-		// Remove whitespace
-		markSteps = markSteps.replace( /\s/g, '' );
+        const steps = []
+        const input = [ serialized.trimStart() ];
+        var lastLength = Infinity;
 
-		// Divide up our line number groups
-		markSteps = markSteps.split( Plugin.MARK_STEP_DELIMITER );
+        do { // parse a step
+            const regions = [];
+            steps.push(regions);
 
-		return markSteps.map( function( marks ) {
+            // Check that we're actually consuming the input.
+            if ( input[0].length >= lastLength ) {
+                console.assert( input[0].length < lastLength );
+                return [];
+            }
+            lastLength = input[0].length;
 
-			return marks.split( Plugin.MARK_LINE_DELIMITER ).map( function( mark ) {
+            if ( startsWith( input, Plugin.STEP_DELIMITER_P ) ) continue;
 
-				// Parse valid line numbers
-				if( /^[\d-]+$/.test( mark ) ) {
-
-					mark = mark.split( Plugin.MARK_LINE_RANGE_DELIMITER );
-
-					var lineStart = parseInt( mark[0], 10 ),
-						lineEnd = parseInt( mark[1], 10 );
-
-					if( isNaN( lineEnd ) ) {
-						return {
-							start: lineStart
-						};
-					}
-					else {
-						return {
-							start: lineStart,
-							end: lineEnd
-						};
-					}
-
-				}
-				// If no line numbers are provided, no code will be marked
-				else {
-
-					return {};
-
-				}
-
-			} );
-
-		} );
-
+            do {  // parse a step
+                const region = Plugin.parseLineSpec( input )
+                      || Plugin.parseRegExp( input );
+                if ( !region ) break;
+                regions.push( region );
+            }
+            while( dropLeading( input, Plugin.REGION_DELIMITER_P ) );
+        }
+        while( dropLeading( input, Plugin.STEP_DELIMITER_P ) );
+        // console.log(
+        //     'deserialized', serialized, 'to',
+        //     Plugin.serializeMarkSteps( steps ));
+        return steps;
 	},
 
 	/**
@@ -333,27 +357,39 @@ const Plugin = {
 
 		return markSteps.map( function( marks ) {
 
-			return marks.map( function( mark ) {
+			return marks.map( function( mark ) { return mark.text } )
+		        .join( Plugin.REGION_DELIMITER );
 
-				// Line range
-				if( typeof mark.end === 'number' ) {
-					return mark.start + Plugin.MARK_LINE_RANGE_DELIMITER + mark.end;
-				}
-				// Single line
-				else if( typeof mark.start === 'number' ) {
-					return mark.start;
-				}
-				// All lines
-				else {
-					return '';
-				}
-
-			} ).join( Plugin.MARK_LINE_DELIMITER );
-
-		} ).join( Plugin.MARK_STEP_DELIMITER );
-
+		} ).join( Plugin.STEP_DELIMITER );
 	}
 
 }
+
+function dropLeading( s, pattern ) {
+    if ( typeof( pattern ) == 'string' ) {
+        if (s[0].startsWith( pattern )) {
+            s[0] = s[0].slice( pattern.length );
+            return pattern;
+        }
+    }
+    else {
+        const r = s[0].match(pattern);
+        if (r && r.index === 0) {
+            s[0] = s[0].slice(r[0].length);
+            return r[0];
+        }
+    }
+    return null;
+}
+
+function startsWith( s, pattern ) {
+    if ( typeof( pattern ) == 'string' ) {
+        return s[0].startsWith( pattern );
+    }
+    const r = s[0].match(pattern);
+    return r && r.index === 0;
+}
+
+
 
 export default () => Plugin;
