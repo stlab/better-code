@@ -231,49 +231,61 @@ const Plugin = {
 
 	},
 
-    // Uses marker to apply the given marks to block, calling done on completion.
-	asyncApplyMarks: function( block, marker, marks, done ) {
-        if ( marks.length === 0 ) {
+    // Uses marker to mark the given regions of block, calling done on
+    // completion.
+	asyncMarkRegions: function( block, marker, regions, done ) {
+        if ( regions.length === 0 ) {
             return done();
         }
-
-        const mark = marks[0]
-		var pattern = '';
-		if( typeof mark.end !== 'number' ) {
-            mark.end = mark.start
-        }
-		if( typeof mark.start !== 'number' ) {
-            return Plugin.asyncApplyMarks(block, marker, marks.slice(1), done)
+        function markTail() {
+            Plugin.asyncMarkRegions(block, marker, regions.slice(1), done);
         }
 
-        pattern = '^('
-            + '(?:.*\n){' + (mark.start - 1) + '}'
-            + ')'
-            + '('
-            + '(?:.*(\n|$)){' + (mark.end - mark.start + 1) + '})';
-        var r = new RegExp(pattern, 'y');
+        const region = regions[0];
+        var pattern = region.pattern;
+        var flags = region.flags;
 
+        if ( pattern === undefined ) {
+            // This is a line-based pattern.
+            pattern = '^('
+                + '(?:.*\n){' + (region.start - 1) + '}'
+                + ')'
+                + '('
+                + '(?:.*(\n|$)){' + (region.end - region.start + 1) + '})';
+            flags = 'dy';
+        }
+        else if ( !flags.includes( 'g' ) &&  !flags.includes( 'y' ) ) {
+            // ensure that the "each" trick for quitting matches actually works.
+            flags = flags + 'g';
+        }
+
+        var matcher = new RegExp(pattern, flags);
         marker.markRegExp(
-            r,
+            matcher,
             {
-                acrossElements: true, ignoreGroups: 1, className: 'mark-line',
+                acrossElements: true,
+                ignoreGroups: flags.includes('d') ? 1 : 0,
                 // Prevent any further matches.
-                'each' : function(elem, info) { r.lastIndex = Infinity; },
-                done: function() { Plugin.asyncApplyMarks(block, marker, marks.slice(1), done) }
-            });
+                'each' : function(elem, info) { matcher.lastIndex = Infinity; },
+                done: markTail
+            } );
     },
 
     // Removes any marks from block and applies the given
     // serializedMarks, calling done on completion.
+    //
+    // Requires: serializedMarks does not contain multiple marking steps.
 	asyncReplaceMarks: function( block, serializedMarks, done ) {
+        const steps = Plugin.deserializeMarkSteps( serializedMarks );
+        console.assert( steps.length == 1 );
+        const regions = steps[0];
 
         const marker = new Mark(block);
         marker.unmark({
             done: function() {
-                Plugin.asyncApplyMarks(
-                    block, marker,
-                    Plugin.deserializeMarkSteps( serializedMarks )[0], done)
-                } } );
+                Plugin.asyncMarkRegions(block, marker, regions, done)
+            }
+        } );
 	},
 
     parseLineSpec: function( input ) {
@@ -343,9 +355,9 @@ const Plugin = {
             while( dropLeading( input, Plugin.REGION_DELIMITER_P ) );
         }
         while( dropLeading( input, Plugin.STEP_DELIMITER_P ) );
-        // console.log(
-        //     'deserialized', serialized, 'to',
-        //     Plugin.serializeMarkSteps( steps ));
+        console.log(
+            'deserialized', serialized, 'to',
+            Plugin.serializeMarkSteps( steps ));
         return steps;
 	},
 

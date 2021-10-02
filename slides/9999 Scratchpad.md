@@ -72,7 +72,7 @@ x = 1;
 y = 2;
 z = 3;
 ```
-{: data-mark="|1-2|2-3|1,3" }
+{: data-mark="/y/|1-2|/(y.*)(=)/d|2-3|1,3" }
 
 There's more to come!
 
