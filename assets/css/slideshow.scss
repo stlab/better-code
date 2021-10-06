@@ -1,6 +1,7 @@
 ---
 ---
 {% include common.liquid %}
+@import "{{ assets }}/css/layout.css";
 @import "{{ assets }}/js/reveal.js/dist/reveal.css";
 @import "{{ assets }}/js/reveal.js/dist/theme/simple.css";
 
@@ -30,4 +31,16 @@ div.reveal div.slides > section.present {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+}
+
+//.reveal blockquote {
+//    width: 100%;
+//}
+
+//div.reveal .bottom-spacer {
+// Nothing I do here seems to keep it from being obscured when window is resized.
+//}
+
+.reveal figure img {
+    width: 100%;
 }

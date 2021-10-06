@@ -1,5 +1,6 @@
+{% include common.liquid %}
 {% comment %}The empty div allows flex space-between to nicely space most slides.{% endcomment %}
-{% assign endslide = '<div></div></section>' %}
+{% assign endslide = '<div class="bottom-spacer"></div></section>' %}
 {% capture __ %}{{endslide}}<section markdown="1">{% endcapture %}
 {% assign note = '<aside class="notes" data-markdown="1">' %}
 {% assign endnote = '</aside>' %}
