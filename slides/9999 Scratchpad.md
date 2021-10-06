@@ -72,7 +72,7 @@ x = 1;
 y = 2;
 z = 3;
 ```
-{: data-mark="/y/|1-2|/(y.*)(=)/d|2-3|1,3" }
+{: data-mark="/y/,/z/|1-2|/(y.*)(=)/d|2-3|1,3" }
 
 There's more to come!
 
@@ -155,6 +155,6 @@ private:
     std::size_t hash_m;
 };
 ```
-{: data-mark="10|20-22|30-35|48" }
+{: data-mark="10|20-22|/literals/|30-35|48" }
 
 {{ endslide }}
