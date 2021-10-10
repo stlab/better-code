@@ -3,7 +3,11 @@
 {% include common.liquid %}
 @import "{{ assets }}/css/layout.css";
 @import "{{ assets }}/js/reveal.js/dist/reveal.css";
-@import "{{ assets }}/js/reveal.js/dist/theme/simple.css";
+@import "{{ assets }}/js/reveal.js/dist/theme/white.css";
+
+:root {
+  --r-heading-text-transform: initial;
+}
 
 // Move reveal styling from code blocks to their enclosures because we are using
 // jekyll/rouge highlighting, which generates a pair of <div> wrappers for each
