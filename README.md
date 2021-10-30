@@ -23,12 +23,20 @@ currently being served by [GitHub Pages](https://pages.github.com).
 * Maintain stable file names and heading titles for linkability until another
   solution is in place.
 
-### Development Hints
+### Running a local server
+
+If you are able to install the necessary parts for jekyll,
+
+```
+bundle exec jekyll serve -l
+```
+
+will start a server for the site at http://localhost:4000.
 
 Creating a complete installation of jekyll and all the parts needed for github
 pages development can be fraught.  If you install
-[docker-compose](https://docs.docker.com/compose/), you can start a webserver
-serving the site at http://localhost:4000 by invoking
+[docker-compose](https://docs.docker.com/compose/), you can start the server
+by invoking
 
 ```
 docker-compose up
