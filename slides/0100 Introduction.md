@@ -13,8 +13,8 @@ title: Introduction
 ## About Your Hosts
 
 <div class="columns">
-{% include figure.html url='assets/img/dave.jpg' caption='Dave Abrahams' %}
-{% include figure.html url='assets/img/sean.jpg' caption='Sean Parent' %}
+{% include figure.html url='/assets/img/dave.jpg' caption='Dave Abrahams' %}
+{% include figure.html url='/assets/img/sean.jpg' caption='Sean Parent' %}
 </div>
 
 {{ __ }}
