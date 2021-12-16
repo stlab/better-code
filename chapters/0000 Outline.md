@@ -61,22 +61,6 @@ examples.
 DWA: Now we have a slide with a list of some properties of good code, which we
 said we weren't going to do.  Which is it?
 
-#### On Readabilty
-
-Readability is often misunderstood as meaning “use of a primitive vocabulary.”
-This is like saying, “instead of calling `sort()` in the code, use loops,
-iterate the elements, and place each one in the right place.”  Problems:
-
-1. Meaning is lost: reader must derive that the code sorts rather than plainly
-   seeing it, i.e. it's less readable.
-2. It's probably less efficient.
-3. It's probably not correct.
-
-Although it contributes to scalability, readability can't reasonably take
-priority over most other properties of good code, such as correctness or
-efficiency.  With sufficient time, readability and these other factors need not
-be mutually exclusive.
-
 #### Software is Physics
 
 - Your code is (part of) a physical system
@@ -95,8 +79,16 @@ is an engineering reality (tradeoffs!)
 
 ##### Structure of the Course
 - Goals [should be positive things, e.g. not “no _________”]
+- **DWA** come back to this
+
 ##### Conventions used throughout
 ###### Unscalable constructs
+
+“Fragile?”
+“Dodgy?”
+“inscrutable”
+“inexpressive”
+
 [This is what we were calling “raw.”  Unscalable is far from a perfect word.
 “Raw” connotes “unencapsulated” or “exposed” but Sean was also trying to get at
 a word for the property that causes us to *want* to encapsulate these things,
@@ -282,3 +274,8 @@ satisfied, but not these three.
 
 
 - A Big-O difference means “in practice it matters.”
+
+#### On Readabilty
+
+Too subjective on its own. This is verifiability, correctness is impossible
+without it...
