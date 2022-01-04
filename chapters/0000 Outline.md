@@ -1,7 +1,7 @@
 ## Outline
 
 ### Introduction
-This is a course/book on engineering
+Better Code is a course and book on engineering.
 
 #### Definition of Engineering:
 
