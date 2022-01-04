@@ -61,22 +61,6 @@ examples.
 DWA: Now we have a slide with a list of some properties of good code, which we
 said we weren't going to do.  Which is it?
 
-#### On Readabilty
-
-Readability is often misunderstood as meaning “use of a primitive vocabulary.”
-This is like saying, “instead of calling `sort()` in the code, use loops,
-iterate the elements, and place each one in the right place.”  Problems:
-
-1. Meaning is lost: reader must derive that the code sorts rather than plainly
-   seeing it, i.e. it's less readable.
-2. It's probably less efficient.
-3. It's probably not correct.
-
-Although it contributes to scalability, readability can't reasonably take
-priority over most other properties of good code, such as correctness or
-efficiency.  With sufficient time, readability and these other factors need not
-be mutually exclusive.
-
 #### Software is Physics
 
 - Your code is (part of) a physical system
@@ -95,8 +79,17 @@ is an engineering reality (tradeoffs!)
 
 ##### Structure of the Course
 - Goals [should be positive things, e.g. not “no _________”]
+- **DWA** come back to this
+
 ##### Conventions used throughout
 ###### Unscalable constructs
+
+“Fragile?”
+“Dodgy?”
+“inscrutable”
+“inexpressive”
+“unreadable”
+
 [This is what we were calling “raw.”  Unscalable is far from a perfect word.
 “Raw” connotes “unencapsulated” or “exposed” but Sean was also trying to get at
 a word for the property that causes us to *want* to encapsulate these things,
@@ -134,23 +127,57 @@ which are two separate ideas.  Unscalable is my approximation]
 
 - Every function is an algorithm
 - Trivial example (e.g. find an `int`)
-- Show a precondition (find a `double`; no NaNs).
+  - do this from `main`
+
+- Find a double
+  - Show a precondition (find a `double`; no NaNs).
+  - put them in the same program, use the same name as overloads
+  - provides a place to document the precondition
+  - hinting at no raw loops - show power of identifying the algorithms
+  - begin the discussion of documentation practice; identify as a thread that
+    will extend through everything we do.
+
 - Show genericity
   - show lifting of EqualityComparable concept
   - show how genericity aids readability
-- Show simple mutation
-  - introduce aliasing and how it creates preconditions, giving us a platform
-    for value semantics
+
+- Show simple mutation (e.g. replace first instance).
+  - introduce aliasing and how it creates preconditions (copy range to
+    overlapping-but-not-identical range), giving us a platform for value
+    semantics.
   - aliasing is an unscalable construct
-...
+
+- Understanding the domain
+  - The domain has started to become evident (example of discovery)
+  - There are other domains (numerics, graphs, ...); we are working with sequences.
+  - Discuss properties of sequences, half-open ranges, iterators
+
 - Show how algorithms compose
   - Show some examples of how to decompose real things into other algorithms
-    - Gather (case-wise)
+    - Slide (break down into three cases)
+      - Gather as an elaboration.
     - Elementwise
       - Relate back to find, which is elementwise composition with itself
       - Rotate on forward iterators, a beautiful and more complicated example
+         - Forward partition might be simpler...
     - Stable partition (top-down divide-and-conquer rotates)
     - Reverse (bottom-up)
+
+- (maybe with reverse) a conversation on complexity and efficiency
+  - Show quadradic (delete by predicate)
+  - You want contiguous memory, which has random access
+  - You don't want to use the random access (memory works like a tape drive)
+  - A few algorithms like reverse win by using bidirectional traversal \[benchmark\]
+  - Complexity goes in the documentation
+
+  - Below here goes someplace...
+  - limit the depth of undocumented preconditions as a way to introduce new
+    function boundaries.
+  - Discussion of
+    - insitu vs functional
+    - (functional) lazy vs eager
+  - in concurrency chapter show how more complex algorithms may parallelize
+    better and be more/less efficient
 
 ### Types
 
@@ -282,3 +309,8 @@ satisfied, but not these three.
 
 
 - A Big-O difference means “in practice it matters.”
+
+#### On Readabilty
+
+Too subjective on its own. This is verifiability, correctness is impossible
+without it...
