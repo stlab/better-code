@@ -169,6 +169,7 @@ which are two separate ideas.  Unscalable is my approximation]
   - You don't want to use the random access (memory works like a tape drive)
   - A few algorithms like reverse win by using bidirectional traversal \[benchmark\]
   - Complexity goes in the documentation
+  - What every programmer should know about memory (Drepper)
 
   - Below here goes someplace...
   - limit the depth of undocumented preconditions as a way to introduce new
@@ -179,6 +180,8 @@ which are two separate ideas.  Unscalable is my approximation]
   - in concurrency chapter show how more complex algorithms may parallelize
     better and be more/less efficient
 
+Tasks for Dave
+- [] incorporate material from Embracing Algorithms, particularly big-O
 ### Types
 
 ### Material to be Reviewed / Added

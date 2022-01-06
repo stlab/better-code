@@ -17,7 +17,7 @@ exclude:
   - assets/js/**/*.md
   - vendor
 
-gems:
+plugins:
   - jekyll-seo-tag
 
 defaults:
