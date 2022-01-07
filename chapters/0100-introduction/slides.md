@@ -13,10 +13,10 @@ title: Introduction
 {:.images-with-headers}
 
 Dave Abrahams
-: ![Dave Abrahams]({{assets}}/img/dave.jpg)
+: ![Dave Abrahams](img/dave.jpg)
 
 Sean Parent
-: ![Sean Parent]({{assets}}/img/sean.jpg)
+: ![Sean Parent](img/sean.jpg)
 
 # CVs
 
