@@ -10,3 +10,6 @@
 [submodule "mark.js"]
 	path = submodule/mark.js
 	url = https://github.com/julmot/mark.js.git
+[submodule "adobe-reveal-theme"]
+	path = submodule/adobe-reveal-theme
+	url = https://github.com/stlab/adobe-reveal-theme.git
