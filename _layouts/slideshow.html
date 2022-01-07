@@ -11,25 +11,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 {% seo %}
-    <link rel="stylesheet" href="{{submodule}}/jekyll-pygments-themes/github.css">
-    <link rel="stylesheet" href="{{ assets }}/css/slideshow.css">
-    {% comment %}
-    Styling for the "chapters" section of the menu
-    {% endcomment %}
-    <link rel="stylesheet" href="{{ assets }}/css/navigation.css">
+    <link rel="stylesheet"
+          href="{{submodule}}/jekyll-pygments-themes/github.css">
+    <link rel="stylesheet"
+          href="{{submodule}}/reveal.js/dist/reveal.css">
+    <link rel="stylesheet"
+          href="{{submodule}}/adobe-reveal-theme/jekyll-css/adobe-jekyll-reveal-theme-external.css">
+    <link rel="stylesheet"
+          href="{{submodule}}/rajgoel-reveal.js-plugins/menu/font-awesome/css/fontawesome.css">
 
     <script src="{{submodule}}/reveal.js/dist/reveal.js"></script>
     <script src="{{submodule}}/rajgoel-reveal.js-plugins/menu/menu.js"></script>
-
     <script src="{{submodule}}/reveal.js/plugin/notes/notes.js"></script>
+
     {% comment %}
     Until https://github.com/julmot/mark.js/issues/446 is fixed, must inject
     this here instead of importing it in the plugin.
     {% endcomment %}
     <script src="{{submodule}}/mark.js/dist/mark.es6.min.js"></script>
-
-    <!-- Font awesome -->
-    <link rel="stylesheet" href="{{submodule}}/rajgoel-reveal.js-plugins/menu/font-awesome/css/fontawesome.css">
 
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -44,10 +43,14 @@
 
       </div>
     </div>
+
     {{ site.livereload_script }}
+
     <script type="module">
-      import RevealMark from "{{ assets }}/js/reveal-mark-plugin/mark-plugin.js";
-      Reveal.initialize({
+        import adobeRevealConfig from "{{submodule}}/adobe-reveal-theme/js/reveal-config.js";
+        import revealize from "{{submodule}}/adobe-reveal-theme/js/revealize.js";
+        import RevealMark from "{{ assets }}/js/reveal-mark-plugin/mark-plugin.js";
+        Reveal.initialize({
           controls: false,
           progress: true,
           history: true,
@@ -55,40 +58,28 @@
           hashOneBasedIndex: 'true',
           fragmentInURL: 'true',
           slideNumber: 'true',
-          transition: 'fade',
-          backgroundTransition: 'fade',
-          display: null, // Don't hardcode display; get it from CSS!
-
-          // This is standard Keynote widescreen (1920x1080) scaled down
-          // to 75%. Adjustment affects relative font and image sizes, and this
-          // seemed OK to Dave---keep in mind other adjustments may be needed if
-          // we change these numbers.
-          width: 1440, height: 810,
-
-          // At the bottom of slides, especially, a little more room is needed
-          // than the default 0.04. We could expand just the bottom in CSS.
-          margin: 0.08,
 
           menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
-              themes: false,
-              themesPath: '{{submodule}}/reveal.js/dist/theme/',
-              transitions: false,
-              markers: true,
-              hideMissingTitles: true,
-              keyboard: true,
+            themes: false,
+            themesPath: '{{submodule}}/reveal.js/dist/theme/',
+            transitions: false,
+            markers: true,
+            hideMissingTitles: true,
+            keyboard: true,
 
-              custom: [
-                  { title: 'Home', icon: '<i id="reveal-menu-home-button" class="fa fa-home"></i>', content: '' },
-              ]
+            custom: [
+              { title: 'Home', icon: '<i id="reveal-menu-home-button" class="fa fa-home"></i>', content: '' },
+            ]
           },
-          plugins: [ RevealNotes, RevealMenu, RevealMark ],
-      });
+          plugins: [ revealize, RevealNotes, RevealMenu, RevealMark ],
+          ... adobeRevealConfig
+        });
 
-      // Make the home button go straight home. See
-      // https://github.com/denehyg/reveal.js-menu/issues/83
-      Reveal.addEventListener(
-        'menu-ready',
-        () => {
+        // Make the home button go straight home. See
+        // https://github.com/denehyg/reveal.js-menu/issues/83
+        Reveal.addEventListener(
+          'menu-ready',
+          () => {
             function homeOnClick(e) {
               if (e.nodeType == Node.ELEMENT_NODE) {
                 e.setAttribute('onclick', 'location.href = "{{ '/' | relative_url }}";');
@@ -97,11 +88,25 @@
             var b = document.getElementById('reveal-menu-home-button');
             homeOnClick(b.parentElement)
             do {
-                homeOnClick(b);
-                b = b.nextSibling;
+              homeOnClick(b);
+              b = b.nextSibling;
             }
             while (b);
-        });
+          });
+
+        // Add a way to see speaker notes in the same window.
+        Reveal.addKeyBinding(
+          { keyCode: 82, key: 'R', description: 'Toggle audience speaker notes' },
+          () => {
+              Reveal.configure(
+                  { showNotes: !Reveal.getConfig().showNotes });
+              Reveal.sync(); // force layout to adjust.
+          }
+        )
     </script>
   </body>
 </html>
+
+// Local Variables:
+// js-indent-level: 2
+// End:

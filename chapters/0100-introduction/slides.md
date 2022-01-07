@@ -1,67 +1,33 @@
 ---
 title: Introduction
 ---
-
-{% include slideshow.liquid %}
-
-<div><!-- Spacer on top that causes the title to be centered --></div>
+{% assign assets = "/assets" | relative_url %}
 
 # Welcome To *Better Code*
+{:.community-title-slide .zhu}
+## A programming course<br/>Adobe Software Technology Lab  |  https://stlab.cc
+{:.subtitle}
 
-{{ __ }}
 
 ## About Your Hosts
+{:.images-with-headers}
 
-<div class="columns">
-{% include figure.html url='/assets/img/dave.jpg' caption='Dave Abrahams' %}
-{% include figure.html url='/assets/img/sean.jpg' caption='Sean Parent' %}
-</div>
+Dave Abrahams
+: ![Dave Abrahams]({{assets}}/img/dave.jpg)
 
-{{ __ }}
+Sean Parent
+: ![Sean Parent]({{assets}}/img/sean.jpg)
 
-<div markdown=1 class="columns">
-<div markdown=1>
-## Dave
-- Thing 1 I did.
-- Thing 2 I did.
-- Thing 3 I did.
-- Thing 9 I did.
-</div>
-<div markdown=1>
-## Sean
-- Thing 1 he did.
-- Thing 2 he did.
-- Thing 3 he did.
-- Thing 9 he did.
-</div>
-</div>
+# CVs
 
-{{ note }}
-We hope this course/book is generally applicable, but of course we come from a
-set of experiences that will color what we think is important.  We've attempted
-to be responsible for our biases, but in full disclosure, here they are.
-{{ endnote }}
+***WRITEME: about our backgrounds***
 
-{{ __ }}
+> We hope this course/book is generally applicable, but of course we come from a
+> set of experiences that will color what we think is important.  We've
+> attempted to be responsible for our biases, but in full disclosure, here they
+> are.
 
 ## Engineering
-
-{{ note }}
-This is a course about engineering.  So what do we mean by that?
-
-- Consulting definitions very useful; we will do that a lot.
-- Wordy definition, but some standout features:
-  - it's a creative process
-  - Based on scientific principles
-  - to create predictable results
-  - subject to real-world constraints (functionality, economics, safety, shipping dates,
-    cost, Available tooling/hardware, laws of physics…)
-  - correctness is provisional. The fact that the computer might get struck by
-    lightning doesn't make your code unreliable. “specific:” the provisions are
-    *specified*
-{{ endnote }}
-
-<div markdown=1>
 
 > The creative application of scientific principles to design or develop
 > structures, machines, apparatus, or manufacturing processes, or works
@@ -69,7 +35,7 @@ This is a course about engineering.  So what do we mean by that?
 > with full cognizance of their design; or to forecast their behavior under
 > specific operating conditions; all as respects an intended function, economics
 > of operation and safety to life and property.
-{: data-mark='
+{:.blockquote data-mark='
 | /creative/, /design or develop/
 | /application of scientific principles/
 | /forecast their behavior/
@@ -80,7 +46,19 @@ This is a course about engineering.  So what do we mean by that?
 https://en.wikipedia.org/wiki/Engineering.
 </div>
 
-{{ __ }}
+> This is a course about engineering.  So what do we mean by that?
+>
+> - Consulting definitions very useful; we will do that a lot.
+> - Wordy definition, but some standout features:
+>   - it's a creative process
+>   - Based on scientific principles
+>   - to create predictable results
+>   - subject to real-world constraints (functionality, economics, safety, shipping dates,
+>     cost, Available tooling/hardware, laws of physics…)
+>   - correctness is provisional. The fact that the computer might get struck by
+>     lightning doesn't make your code unreliable. “specific:” the provisions are
+>     *specified*
+>
 
 ## Engineering
 
@@ -122,4 +100,8 @@ https://en.wikipedia.org/wiki/Engineering.
 
 </div>
 
-{{ __ }}
+## About the artist
+{:.community-about-slide .zhu}
+
+## The End
+{:.community-closer-slide .zhu}

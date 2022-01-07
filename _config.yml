@@ -20,6 +20,12 @@ exclude:
 plugins:
   - jekyll-seo-tag
 
+sass:
+  load_paths:
+      - /submodule/reveal.js
+      - /submodule/adobe-reveal-theme/css
+      - /submodule/adobe-reveal-theme/jekyll-css
+
 defaults:
   -
     scope:
