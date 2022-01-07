@@ -1,4 +1,4 @@
-{% include common.liquid %}
+{% assign assets = "/assets" | relative_url %}
 {% assign submodule = "/submodule" | relative_url %}
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: "en-US" }}">
@@ -71,7 +71,7 @@
 
           menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
               themes: false,
-              themesPath: '/assets/js/reveal.js/dist/theme/',
+              themesPath: '{{submodule}}/reveal.js/dist/theme/',
               transitions: false,
               markers: true,
               hideMissingTitles: true,
