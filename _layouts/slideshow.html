@@ -108,15 +108,24 @@
           plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, RevealMark/*, RevealFullscreen*/ ],
       });
 
-      // Make the home button go straight home
-      window.onload = function() {
-        var b = document.getElementById('reveal-menu-home-button');
-        do {
-          b.setAttribute('onclick', 'location.href = "{{ '/' | relative_url }}";');
-          b = b.nextSibling;
-        }
-        while (b);
-      }
+      // Make the home button go straight home. See
+      // https://github.com/denehyg/reveal.js-menu/issues/83
+      Reveal.addEventListener(
+        'menu-ready',
+        () => {
+            function homeOnClick(e) {
+              if (e.nodeType == Node.ELEMENT_NODE) {
+                e.setAttribute('onclick', 'location.href = "{{ '/' | relative_url }}";');
+              }
+            }
+            var b = document.getElementById('reveal-menu-home-button');
+            homeOnClick(b.parentElement)
+            do {
+                homeOnClick(b);
+                b = b.nextSibling;
+            }
+            while (b);
+        });
     </script>
   </body>
 </html>
