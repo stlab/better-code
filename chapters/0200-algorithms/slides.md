@@ -1,5 +1,6 @@
 ---
 title: Algorithms
+layout: slideshow
 ---
 
 {% include slideshow.liquid %}
