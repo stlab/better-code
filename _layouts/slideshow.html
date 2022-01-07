@@ -101,13 +101,21 @@
               keyboard: true,
 
               custom: [
-                  { title: 'Chapters', icon: '<i class="fa fa-external-link-alt"></i>', src: '/slides/slide-index.html' },
-                  { title: 'Home', icon: '<i class="fa fa-home"></i>', content:
-                  '<a href="{{ "/" | absolute_url }}">course home</a>' },
+                  { title: 'Home', icon: '<i id="reveal-menu-home-button" class="fa fa-home"></i>', content: '' },
               ]
           },
           plugins: [ /*RevealMarkdown, */RevealNotes, RevealMenu, RevealMark/*, RevealFullscreen*/ ],
       });
+
+      // Make the home button go straight home
+      window.onload = function() {
+        var b = document.getElementById('reveal-menu-home-button');
+        do {
+          b.setAttribute('onclick', 'location.href = "{{ '/' | relative_url }}";');
+          b = b.nextSibling;
+        }
+        while (b);
+      }
     </script>
   </body>
 </html>
