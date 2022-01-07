@@ -1,6 +1,5 @@
 ---
 title: Introduction
-layout: slideshow
 ---
 
 {% include slideshow.liquid %}

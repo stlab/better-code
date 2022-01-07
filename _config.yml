@@ -23,12 +23,12 @@ plugins:
 defaults:
   -
     scope:
-      path: "slides/[0-9]*"
+      path: "chapters/[^/]*/slides.md*"
     values:
       layout: slideshow # overrides previous default layout
 
 # These settings are forced by GH Pages.  As long as Jekyll is being run by GH
-# Pages, they must remain unchanged
+# Pages, they must remain unchanged, and LAST IN THIS FILE.
 lsi: false
 safe: true
 incremental: false
