@@ -26,7 +26,7 @@
     Until https://github.com/julmot/mark.js/issues/446 is fixed, must inject
     this here instead of importing it in the plugin.
     {% endcomment %}
-    <script src="{{submodule}}/mark.js/dist/mark.es6.min.js"></script>
+    <script src="{{submodule}}/reveal-mark-plugin/mark.js/dist/mark.es6.min.js"></script>
 
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -47,7 +47,7 @@
     <script type="module">
         import adobeRevealConfig from "{{submodule}}/adobe-reveal-theme/js/reveal-config.js";
         import revealize from "{{submodule}}/adobe-reveal-theme/js/revealize.js";
-        import RevealMark from "{{ assets }}/js/reveal-mark-plugin/mark-plugin.js";
+        import RevealMark from "{{submodule}}/reveal-mark-plugin/mark-plugin.js";
         Reveal.initialize({
           controls: false,
           progress: true,

@@ -4,9 +4,9 @@
 [submodule "rajgoel-reveal.js-plugins"]
 	path = submodule/rajgoel-reveal.js-plugins
 	url = https://github.com/rajgoel/reveal.js-plugins.git
-[submodule "mark.js"]
-	path = submodule/mark.js
-	url = https://github.com/julmot/mark.js.git
 [submodule "adobe-reveal-theme"]
 	path = submodule/adobe-reveal-theme
 	url = https://github.com/stlab/adobe-reveal-theme.git
+[submodule "reveal-mark-plugin"]
+	path = submodule/reveal-mark-plugin
+	url = https://github.com/stlab/reveal-mark-plugin
