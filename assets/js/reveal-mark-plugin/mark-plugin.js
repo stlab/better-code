@@ -355,9 +355,6 @@ const Plugin = {
             while( dropLeading( input, Plugin.REGION_DELIMITER_P ) );
         }
         while( dropLeading( input, Plugin.STEP_DELIMITER_P ) );
-        console.log(
-            'deserialized', serialized, 'to',
-            Plugin.serializeMarkSteps( steps ));
         return steps;
 	},
 

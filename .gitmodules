@@ -1,5 +1,5 @@
 [submodule "reveal.js"]
-	path = assets/js/reveal.js
+	path = submodule/reveal.js
 	url = https://github.com/hakimel/reveal.js.git
 [submodule "rajgoel-reveal.js-plugins"]
 	path = assets/js/rajgoel-reveal.js-plugins

@@ -1,4 +1,5 @@
 {% include common.liquid %}
+{% assign submodule = "/submodule" | relative_url %}
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: "en-US" }}">
   <head>
@@ -17,10 +18,10 @@
     {% endcomment %}
     <link rel="stylesheet" href="{{ assets }}/css/navigation.css">
 
-    <script src="{{ assets }}/js/reveal.js/dist/reveal.js"></script>
+    <script src="{{submodule}}/reveal.js/dist/reveal.js"></script>
     <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/menu/menu.js"></script>
 
-    <script src="{{ assets }}/js/reveal.js/plugin/notes/notes.js"></script>
+    <script src="{{submodule}}/reveal.js/plugin/notes/notes.js"></script>
     {% comment %}
     Until https://github.com/julmot/mark.js/issues/446 is fixed, must inject
     this here instead of importing it in the plugin.
@@ -46,9 +47,9 @@
     <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/customcontrols/plugin.js"></script>
     <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/embed-tweet/plugin.js"></script>
     <script src="{{ assets }}/js/rajgoel-reveal.js-plugins/fullscreen/plugin.js"></script>
-    <script src="{{ assets }}/js/reveal.js/plugin/highlight/highlight.js"></script>
-    <script src="{{ assets }}/js/reveal.js/plugin/math/math.js"></script>
-    <script src="{{ assets }}/js/reveal.js/plugin/markdown/markdown.js"></script>
+    <script src="{{submodule}}/reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="{{submodule}}/reveal.js/plugin/math/math.js"></script>
+    <script src="{{submodule}}/reveal.js/plugin/markdown/markdown.js"></script>
 {% endcomment %}
 
     <!-- Font awesome -->

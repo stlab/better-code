@@ -1,9 +1,7 @@
 ---
 ---
-{% include common.liquid %}
-@import "{{ assets }}/css/layout.css";
-@import "{{ assets }}/js/reveal.js/dist/reveal.css";
-@import "{{ assets }}/js/reveal.js/dist/theme/white.css";
+@import "{{'/submodule' | relative_url}}/reveal.js/dist/reveal.css";
+@import "{{'/submodule' | relative_url}}/reveal.js/dist/theme/white.css";
 
 :root {
   --r-heading-text-transform: initial;

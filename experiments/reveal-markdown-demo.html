@@ -1,5 +1,6 @@
 ---
 ---
+{% assign submodule = "/submodule" | relative_url %}
 <!doctype html>
 <html lang="en">
 
@@ -8,10 +9,10 @@
 
 		<title>reveal.js - Markdown Example</title>
 
-		<link rel="stylesheet" href="../assets/js/reveal.js/dist/reveal.css">
-		<link rel="stylesheet" href="../assets/js/reveal.js/dist/theme/white.css" id="theme">
+		<link rel="stylesheet" href="{{submodule}}/reveal.js/dist/reveal.css">
+		<link rel="stylesheet" href="{{submodule}}/reveal.js/dist/theme/white.css" id="theme">
 
-        <link rel="stylesheet" href="../assets/js/reveal.js/plugin/highlight/monokai.css">
+        <link rel="stylesheet" href="{{submodule}}/reveal.js/plugin/highlight/monokai.css">
 	</head>
 
 	<body>
