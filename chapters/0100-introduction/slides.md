@@ -27,14 +27,15 @@ Sean Parent
 > attempted to be responsible for our biases, but in full disclosure, here they
 > are.
 
-## Engineering
+## Definitions  |  Engineering, *n*
+{:data-auto-animate}
 
 > The creative application of scientific principles to design or develop
-> structures, machines, apparatus, or manufacturing processes, or works
-> utilizing them singly or in combination; or to construct or operate the same
-> with full cognizance of their design; or to forecast their behavior under
-> specific operating conditions; all as respects an intended function, economics
-> of operation and safety to life and property.
+> structures, machines, apparatus, or manufacturing processes, or works utilizing
+> them singly or in combination; or to construct or operate the same with full
+> cognizance of their design; or to forecast their behavior under specific
+> operating conditions; all as respects an intended function, economics of
+> operation and safety to life and property.
 {:.blockquote data-mark='
 | /creative/, /design or develop/
 | /application of scientific principles/
@@ -42,8 +43,15 @@ Sean Parent
 | /intended function/,/economics/,/safety/
 | /specific operating conditions/' }
 
-—American Engineers' Council for Professional Development, according to
-https://en.wikipedia.org/wiki/Engineering.
+—American Engineers' Council for Professional Development
+(per [wikipedia.org/wiki/Engineering](https://en.wikipedia.org/wiki/Engineering))
+
+<div class='fragment' markdown=1>
+> Making informed tradeoffs to produce the best design or artifact possible
+> given a set of constraints.
+{:.blockquote}
+
+—Sean
 </div>
 
 > This is a course about engineering.  So what do we mean by that?
@@ -59,46 +67,35 @@ https://en.wikipedia.org/wiki/Engineering.
 >     lightning doesn't make your code unreliable. “specific:” the provisions are
 >     *specified*
 >
+> As engineers we have to juggle all of this and make a set of informed
+> tradeoffs to find the best solution.  Real-world constraints mean engineers will
+> always confront trade-offs, so much so that making these trade-offs could be
+> said to be the essence of the activity.
 
-## Engineering
+## Definitions  |  Engineering, *n*
+{:data-auto-animate}
 
-<div markdown=1>
-> Making informed tradeoffs to produce the best design or
-> artifact possible given a set of constraints.
-
-—Sean
-</div>
-
-{{ note }}
-As engineers we have to juggle all of this and make a set of informed
-tradeoffs to find the best solution.  Real-world constraints mean engineers will
-always confront trade-offs, so much so that making these trade-offs could be
-said to be the essence of the activity.
-{{ endnote }}
-
-{{ __ }}
-
-## Truth
-
-{{ note }}
-One thing we both believe is that in grappling with problems, if you apply
-yourself, you can discover deep platonic truths.  This course/book is about
-finding deep truths about programming.
-{{ endnote }}
-
-<div markdown=1>
-> The creative application of scientific principles to discover <s>design or develop</s>
-> structures, machines, apparatus, or manufacturing processes, or works
-> utilizing them singly or in combination; or to construct or operate the same
-> with full cognizance of their design; or to forecast their behavior under
+> The creative application of scientific principles to <s>design or develop</s>
+> **discover** structures, machines, apparatus, or manufacturing processes, or
+> works utilizing them singly or in combination; or to construct or operate the
+> same with full cognizance of their design; or to forecast their behavior under
 > specific operating conditions; all as respects an intended function, economics
 > of operation and safety to life and property.
-{: data-mark='/discover/'}
+{:.blockquote}
 
-—American Engineers' Council for Professional Development, according to
-https://en.wikipedia.org/wiki/Engineering.
+—American Engineers' Council for Professional Development
+(per [wikipedia.org/wiki/Engineering](https://en.wikipedia.org/wiki/Engineering))
 
-</div>
+> Making informed tradeoffs to produce the best design or artifact possible
+> given a set of constraints.
+{:.blockquote}
+
+—Sean
+
+> One thing we both believe is that in grappling with problems, if you apply
+> yourself, you can discover deep platonic truths.  This course/book is about
+> finding deep truths about programming.
+
 
 ## About the artist
 {:.community-about-slide .zhu}
