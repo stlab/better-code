@@ -4,9 +4,6 @@
 [submodule "rajgoel-reveal.js-plugins"]
 	path = submodule/rajgoel-reveal.js-plugins
 	url = https://github.com/rajgoel/reveal.js-plugins.git
-[submodule "jekyll-pygments-themes"]
-	path = submodule/jekyll-pygments-themes
-	url = https://github.com/jwarby/jekyll-pygments-themes.git
 [submodule "mark.js"]
 	path = submodule/mark.js
 	url = https://github.com/julmot/mark.js.git
