@@ -5,7 +5,7 @@ title: Introduction
 
 # Welcome To *Better Code*
 {:.community-title-slide .zhu}
-## A programming course<br/>Adobe Software Technology Lab  |  https://stlab.cc
+## An adventure in software engineering<br/>Adobe Software Technology Lab  |  https://stlab.cc
 {:.subtitle}
 
 
