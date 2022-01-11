@@ -1,6 +1,3 @@
-[submodule "reveal.js"]
-	path = submodule/reveal.js
-	url = https://github.com/hakimel/reveal.js.git
 [submodule "rajgoel-reveal.js-plugins"]
 	path = submodule/rajgoel-reveal.js-plugins
 	url = https://github.com/rajgoel/reveal.js-plugins.git
@@ -10,3 +7,6 @@
 [submodule "reveal-mark-plugin"]
 	path = submodule/reveal-mark-plugin
 	url = https://github.com/stlab/reveal-mark-plugin.git
+[submodule "submodule/reveal.js"]
+	path = submodule/reveal.js
+	url = https://github.com/hakimel/reveal.js.git
