@@ -4,3 +4,5 @@ Gemfile.lock
 .jekyll-cache/
 .jekyll-metadata
 **/.DS_Store
+vendor/
+.bundle/

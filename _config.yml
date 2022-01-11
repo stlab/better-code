@@ -17,18 +17,24 @@ exclude:
   - assets/js/**/*.md
   - vendor
 
-gems:
+plugins:
   - jekyll-seo-tag
+
+sass:
+  load_paths:
+      - /submodule/reveal.js
+      - /submodule/adobe-reveal-theme/css
+      - /submodule/adobe-reveal-theme/jekyll-css
 
 defaults:
   -
     scope:
-      path: "slides/[0-9]*"
+      path: "chapters/[^/]*/slides.md*"
     values:
       layout: slideshow # overrides previous default layout
 
 # These settings are forced by GH Pages.  As long as Jekyll is being run by GH
-# Pages, they must remain unchanged
+# Pages, they must remain unchanged, and LAST IN THIS FILE.
 lsi: false
 safe: true
 incremental: false

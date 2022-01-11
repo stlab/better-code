@@ -4,9 +4,6 @@
 
 Stuff that goes on the front page
 
-## Slides
-
-The course slides are available [here]({{ "/slides/" | relative_url }}).
 
 ### Subsection 1
 
