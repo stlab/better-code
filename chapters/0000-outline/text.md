@@ -84,11 +84,13 @@ is an engineering reality (tradeoffs!)
 ##### Conventions used throughout
 ###### Unscalable constructs
 
-“Fragile?”
-“Dodgy?”
-“inscrutable”
-“inexpressive”
-“unreadable”
+Alternate words for this:
+- Fragile
+- Dodgy
+- inscrutable
+- inexpressive
+- unreadable
+- non-local
 
 [This is what we were calling “raw.”  Unscalable is far from a perfect word.
 “Raw” connotes “unencapsulated” or “exposed” but Sean was also trying to get at
