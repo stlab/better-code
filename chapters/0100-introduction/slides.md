@@ -1,7 +1,6 @@
 ---
 title: Introduction
 ---
-{% assign assets = "/assets" | relative_url %}
 
 # Welcome To *Better Code*
 {:.community-title-slide .zhu}
