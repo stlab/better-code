@@ -31,7 +31,7 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-  if (argc < 1)
+  if (argc < 2)
     std::exit(1);
   int j = 1;
   while (++j < argc) {
@@ -69,7 +69,7 @@ int find_2nd_in_remainder(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-  if (argc < 1)
+  if (argc < 2)
     std::exit(1);
 
   const int j = find_2nd_in_remainder(argc, argv);
