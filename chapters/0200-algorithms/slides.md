@@ -10,18 +10,18 @@
 
 > a process or set of rules to be followed in calculations or other
 > problem-solving operations, especially by a computer.
-{:.blockquote }
 
 —New Oxford American Dictionary
 
-> Every program is an algorithm
->
-> We often don't talk that way.  Instead we talk about:
-> - class hierarchies
-> - software architecture
-> - design patterns
->
-> Algorithms are the “stuff” of computing.
+%speaker
+: Every program is an algorithm
+
+  We often don't talk that way.  Instead we talk about:
+  - class hierarchies
+  - software architecture
+  - design patterns
+
+  Algorithms are the “stuff” of computing.
 
 ## Example
 
@@ -44,13 +44,14 @@ int main(int argc, char* argv[]) {
 ```
 {:data-mark='|6|7|8|9|10|11|13|14||6-7|8-12|13-14||8-12'}
 
-> - Walkthrough. On loop, “let's see if we can figure this out”
-> - In summary, 3 parts:
->   - input validation
->   - search
->   - output
->
-> - One of these parts requires some thinking.
+%speaker
+: - Walkthrough. On loop, “let's see if we can figure this out”
+  - In summary, 3 parts:
+    - input validation
+    - search
+    - output
+
+  - One of these parts requires some thinking.
 
 ## Naming the raw loop
 
