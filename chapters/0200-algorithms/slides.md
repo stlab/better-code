@@ -156,9 +156,8 @@ How can you tell?
 {:.fragment}
 
 %speaker
-: - Get a show of hands for incorrect and correct
-  - Advance
-  - Ask people how they know their answer is right.
+: 1. Get a show of hands for incorrect and correct.
+  2. ADVANCE, Ask how they know their answer is right.
 
 ## Document every declaration
 
@@ -166,7 +165,7 @@ How can you tell?
 
 
 
-/// Returns the first index `j` of `argv` such that
+/// Returns the least `j` such that
 /// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
 /// or `argc` if no such `j` exists.
 int find(int argc, char* argv[]) {
@@ -180,7 +179,7 @@ int find(int argc, char* argv[]) {
 ```
 {:data-mark='4-6'}
 
-<div>
+<div markdown=1>
 🔑 Summary paragraph is a sentence *fragment*.
 
 🔑 Document non-mutating functions in terms of **what they return**.
@@ -188,11 +187,12 @@ int find(int argc, char* argv[]) {
 {:.fragment}
 
 %speaker
-: - What's good about this comment? Discuss.
-  - A sentence fragment is usually sufficient — incentivizes commenting.
-  - In general a non-mutating function should tell you what it returns
-  - What's missing here or implicit?
-
+: 1. What's good about this comment? Discuss.
+  2. ADVANCE
+     - A sentence fragment is usually sufficient for usability
+       - if not, be uncomfortable.
+       - incentivizes commenting.
+  3. What's missing here or implicit?
 
 ## Definition  |  Precondition, *n*
 
@@ -201,13 +201,15 @@ int find(int argc, char* argv[]) {
 
 —Wikipedia ([wikipedia.org/wiki/Precondition](https://en.wikipedia.org/wiki/Precondition))
 
+
+## An explicit precondition
+
 ```cpp
-
-
-
-/// Returns the first index `j` of `argv` such that
+/// Returns the least `j` such that
 /// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
 /// or `argc` if no such `j` exists.
+///
+/// Requires: `argv[j]` is a NTBS where `j >= 1 && j < argc`.
 int find(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
@@ -218,6 +220,8 @@ int find(int argc, char* argv[]) {
 }
 ```
 
+%speaker
+: - Is that the only precondition?
 
 ## Documentation feedback loop
 
