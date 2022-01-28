@@ -46,7 +46,7 @@ Sean Parent
 —American Engineers' Council for Professional Development
 (per [wikipedia.org/wiki/Engineering](https://en.wikipedia.org/wiki/Engineering))
 
-<div class='fragment' markdown=1>
+<div class='fragment'>
 > Making informed tradeoffs to produce the best design or artifact possible
 > given a set of constraints.
 

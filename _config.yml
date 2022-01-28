@@ -33,6 +33,9 @@ defaults:
     values:
       layout: slideshow # overrides previous default layout
 
+kramdown:
+  parse_block_html: true
+
 # These settings are forced by GH Pages.  As long as Jekyll is being run by GH
 # Pages, they must remain unchanged, and LAST IN THIS FILE.
 lsi: false

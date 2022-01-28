@@ -66,7 +66,7 @@ Come back to this section - prior is good but not happy with it.
 Two column with Amdahl's equation?
 -->
 
-<div style="text-align:center" markdown="1">
+<div style="text-align:center">
 ![](./img/amdahls-law.svg){:height="770"}
 </div>
 
