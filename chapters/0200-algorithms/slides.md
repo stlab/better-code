@@ -129,9 +129,9 @@ int main(int argc, char* argv[]) {
 {:data-mark='/find/,/find(?=.*;)/'}
 
 %speaker
-: - Can reason about main more easily; hint in name
-  - Could think about reuse, establishing `find` as vocabulary function.
-  - Now I have a question
+: - Can reason about main more easily
+  - Could establish `find` as vocabulary function, enabling reuse.
+  - Now I have a question about find
 
 ## Is it correct?
 
@@ -153,6 +153,98 @@ int find(int argc, char* argv[]) {
 ```
 
 How can you tell?
+{:.fragment}
+
+%speaker
+: - Get a show of hands for incorrect and correct
+  - Advance
+  - Ask people how they know their answer is right.
+
+## Document every declaration
+
+```cpp
+
+
+
+/// Returns the first index `j` of `argv` such that
+/// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
+/// or `argc` if no such `j` exists.
+int find(int argc, char* argv[]) {
+  int j = 1;
+  while (++j < argc) {
+    if (std::strcmp(argv[1], argv[j]) == 0)
+      break;
+  }
+  return j;
+}
+```
+{:data-mark='4-6'}
+
+<div>
+🔑 Summary paragraph is a sentence *fragment*.
+
+🔑 Document non-mutating functions in terms of **what they return**.
+</div>
+{:.fragment}
+
+%speaker
+: - What's good about this comment? Discuss.
+  - A sentence fragment is usually sufficient — incentivizes commenting.
+  - In general a non-mutating function should tell you what it returns
+  - What's missing here or implicit?
+
+
+## Definition  |  Precondition, *n*
+
+> a condition or predicate that must always be true just prior to the execution
+> of some section of code or before an operation in a formal specification.
+
+—Wikipedia ([wikipedia.org/wiki/Precondition](https://en.wikipedia.org/wiki/Precondition))
+
+```cpp
+
+
+
+/// Returns the first index `j` of `argv` such that
+/// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
+/// or `argc` if no such `j` exists.
+int find(int argc, char* argv[]) {
+  int j = 1;
+  while (++j < argc) {
+    if (std::strcmp(argv[1], argv[j]) == 0)
+      break;
+  }
+  return j;
+}
+```
+
+
+## Documentation feedback loop
+
+```cpp
+
+
+
+/// Returns the first index `j` of `v` such that
+/// `j > 1 && j < n && std::strcmp(v[1], v[j]) == 0`,
+/// or `n` if no such `j` exists.
+int find(int argc, char* argv[]) {
+  int j = 1;
+  while (++j < argc) {
+    if (std::strcmp(argv[1], argv[j]) == 0)
+      break;
+  }
+  return j;
+}
+```
+
+%speaker
+: - What's wrong with this comment? Discuss
+  - Advance
+  - Ask people to answer
+
+![warn](/submodule/adobe-reveal-theme/icon/warning.png){:height='100px' align='center'} Documentation reads like code
+{:.fragment}
 
 ## About the artist
 {:.community-about-slide .evans}
