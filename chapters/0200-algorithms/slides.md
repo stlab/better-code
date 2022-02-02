@@ -157,7 +157,7 @@ How can you tell?
 
 %speaker
 : 1. Get a show of hands for incorrect and correct.
-  2. ADVANCE, Ask how they know their answer is right.
+  2. ⮕ Ask how they know their answer is right.
 
 ## Document every declaration
 
@@ -188,7 +188,7 @@ int find(int argc, char* argv[]) {
 
 %speaker
 : 1. What's good about this comment? Discuss.
-  2. ADVANCE
+  2. ⮕
      - A sentence fragment is usually sufficient for usability
        - if not, be uncomfortable.
        - incentivizes commenting.
@@ -209,7 +209,7 @@ int find(int argc, char* argv[]) {
 /// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
 /// or `argc` if no such `j` exists.
 ///
-/// Requires: `argv[j]` is a NTBS where `j >= 1 && j < argc`.
+/// - Requires: `argv[j]` is a NTBS where `j >= 1 && j < argc`.
 int find(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
@@ -219,19 +219,31 @@ int find(int argc, char* argv[]) {
   return j;
 }
 ```
+{:data-mark='5|/j >= 1/|1-3'}
 
 %speaker
-: - Is that the only precondition?
+: - This precondition is actually implied by the documented semantics
+  - ⮕ The precondition is minimal. What do we think about that?
+    **Discuss**. Before we can address that…
+  - ⮕ What do we think of this documentation? **Discuss**
+  - There's a problem. ⮕
+  - Why is that a problem?
+    - Not much to verify against.
+    - Hard to use.
+    - Meaning, abstraction, and semantics are missing
+    - Let's make the API more meaningful
 
-## Documentation feedback loop
+![warn](/submodule/adobe-reveal-theme/icon/warning.png){:height='100px'
+align='center'} Red flag: documentation reads like implementation.
+{:.fragment}
+
+## Meaningful APIs  |  Step 1
 
 ```cpp
-
-
-
-/// Returns the first index `j` of `v` such that
-/// `j > 1 && j < n && std::strcmp(v[1], v[j]) == 0`,
-/// or `n` if no such `j` exists.
+/// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
+/// or `argc` if it can't be found.
+///
+/// - Requires: `argv[j]` is a NTBS where `j >= 1 && j < argc`.
 int find(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
@@ -241,14 +253,51 @@ int find(int argc, char* argv[]) {
   return j;
 }
 ```
+{:data-mark='1-2|4'}
 
 %speaker
-: - What's wrong with this comment? Discuss
-  - Advance
-  - Ask people to answer
+: - Is that better?  We dropped a couple of things.
+  - ⮕
+  - “The position of `argv[1]`” by itself means find the same pointer value.
+  - ⮕ We can cover most of this missing information *and* the precondition.
 
-![warn](/submodule/adobe-reveal-theme/icon/warning.png){:height='100px' align='center'} Documentation reads like code
+Dropped information
+: `argv` is interpreted as an array of C-strings.
+: `argv` has length `argc`.
+: “the remainder” is prone to misinterpretation.
+{:fragment}
+
+## Meaningful APIs  |  Step 1
+
+```cpp
+/// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
+/// or `argc` if it can't be found.
+///
+/// - Requires: `argv` is an array of `argc` C-strings.
+int find(int argc, char* argv[]) {
+  int j = 1;
+  while (++j < argc) {
+    if (std::strcmp(argv[1], argv[j]) == 0)
+      break;
+  }
+  return j;
+}
+```
+{:data-mark='4'}
+
+%speaker
+: Is this precondition better than before?
+
+  ⮕ In raising abstraction of the precondition, we also tightened it
+
+<div markdown=1>
+👉🏿 Precondition is tightened
+- `argv[0]` is now a C-string
+- `argc` > 1
+</div>
 {:.fragment}
+
+
 
 ## About the artist
 {:.community-about-slide .evans}
