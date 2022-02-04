@@ -1,7 +1,7 @@
 ---
 ---
 
-# Algorithms
+# Algorithms and Contracts
 {:.community-title-slide .evans}
 ## Or, what computers actually do<br/>Adobe Software Technology Lab  |  https://stlab.cc
 {:.subtitle}
@@ -165,9 +165,8 @@ How can you tell?
 
 
 
-/// Returns the least `j` such that
-/// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
-/// or `argc` if no such `j` exists.
+/// Returns the least `j` such that j > 1 && j < argc
+/// && std::strcmp(argv[1], argv[j]) == 0`, or `argc` if no such `j` exists.
 int find(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
@@ -177,7 +176,7 @@ int find(int argc, char* argv[]) {
   return j;
 }
 ```
-{:data-mark='4-6'}
+{:data-mark='4-4'}
 
 <div markdown=1>
 🔑 Summary paragraph is a sentence *fragment*.
@@ -205,11 +204,10 @@ int find(int argc, char* argv[]) {
 ## An explicit precondition
 
 ```cpp
-/// Returns the least `j` such that
-/// `j > 1 && j < argc && std::strcmp(argv[1], argv[j]) == 0`,
-/// or `argc` if no such `j` exists.
+/// Returns the least `j` such that `j > 1 && j < argc
+/// && std::strcmp(argv[1], argv[j]) == 0`, or `argc` if no such `j` exists.
 ///
-/// - Requires: `argv[j]` is a NTBS where `j >= 1 && j < argc`.
+/// - Requires: `argv[j]` is a C string where `j >= 1 && j < argc`.
 int find(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
@@ -219,7 +217,7 @@ int find(int argc, char* argv[]) {
   return j;
 }
 ```
-{:data-mark='5|/j >= 1/|1-3'}
+{:data-mark='4|/j >= 1/|1-2'}
 
 %speaker
 : - This precondition is actually implied by the documented semantics
@@ -243,7 +241,7 @@ align='center'} Red flag: documentation reads like implementation.
 /// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
 /// or `argc` if it can't be found.
 ///
-/// - Requires: `argv[j]` is a NTBS where `j >= 1 && j < argc`.
+/// - Requires: `argv[j]` is a C string where `j >= 1 && j < argc`.
 int find(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
@@ -260,12 +258,12 @@ int find(int argc, char* argv[]) {
   - ⮕
   - “The position of `argv[1]`” by itself means find the same pointer value.
   - ⮕ We can cover most of this missing information *and* the precondition.
-
-Dropped information
+^
+Dropped information:
 : `argv` is interpreted as an array of C-strings.
 : `argv` has length `argc`.
 : “the remainder” is prone to misinterpretation.
-{:fragment}
+{:.fragment data-fragment-index='1'}
 
 ## Meaningful APIs  |  Step 1
 
@@ -283,12 +281,14 @@ int find(int argc, char* argv[]) {
   return j;
 }
 ```
-{:data-mark='4'}
+{:data-mark='4|1-2'}
 
 %speaker
 : Is this precondition better than before?
 
   ⮕ In raising abstraction of the precondition, we also tightened it
+
+  ⮕ Now we can use the summary to think about
 
 <div markdown=1>
 👉🏿 Precondition is tightened
@@ -297,7 +297,23 @@ int find(int argc, char* argv[]) {
 </div>
 {:.fragment}
 
+## Meaningful APIs  |  Documentation feedback
 
+```cpp
+/// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
+/// or `argc` if it can't be found.
+///
+/// - Requires: `argv` is an array of `argc` C-strings.
+int find(int argc, char* argv[]) {
+  int j = 1;
+  while (++j < argc) {
+    if (std::strcmp(argv[1], argv[j]) == 0)
+      break;
+  }
+  return j;
+}
+```
+{:data-mark='4'}
 
 ## About the artist
 {:.community-about-slide .evans}
