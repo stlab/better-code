@@ -52,8 +52,9 @@
       {% endfor %}
 
       {% if slides %}
-      <a href="{{slides | relative_url}}">Slides</a>
-
+      <p><a href="{{slides | relative_url}}">Slides</a>  | 
+          <a href="{{slides | relative_url}}?showNotes=true">Slides
+              + Speaker Notes</a></p>
       {% endif %}
 
       {{ content }}
