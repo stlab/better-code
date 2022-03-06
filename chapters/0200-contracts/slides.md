@@ -1,7 +1,7 @@
 ---
 ---
 
-# Algorithms and Contracts
+# Abstraction and Contracts
 {:.community-title-slide .evans}
 ## Or, what computers actually do<br/>Adobe Software Technology Lab  |  https://stlab.cc
 {:.subtitle}

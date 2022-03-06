@@ -319,3 +319,31 @@ satisfied, but not these three.
 
 Too subjective on its own. This is verifiability, correctness is impossible
 without it...
+
+## Concurrency
+
+### Definition
+
+- Loosely, performing multiple _tasks at once_
+- A _task_ is a _conceptual_ unit of (serial) work
+- Concurrency is about having multiple task in flight at once
+
+### Examples
+
+1. We have M work to do over N execution units (e.g. CPUs) and we want to go
+   faster (throughput)
+   - Give each CPU M/N work to do
+   - Wait for all CPUs to finish
+
+2. We have to carry on multiple I/O “dialogues” at once,
+   like in a web server (logical code organization) Netflix
+
+3.  We have to service something at a given rate (e.g. UI) but we have
+  long-running computations
+
+Note: only the first of these demands actual parallelism.
+
+### Catalog of
+
+### Execution Context
+  *
