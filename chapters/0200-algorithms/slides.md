@@ -126,12 +126,12 @@ int main(int argc, char* argv[]) {
   if (j != argc) { std::cout << j; }
 }
 ```
-{:data-mark='/find/,/find(?=.*;)/'}
+{:data-mark='/find/,/find(?=.*;)/|7-14'}
 
 %speaker
 : - Can reason about main more easily
   - Could establish `find` as vocabulary function, enabling reuse.
-  - Now I have a question about find
+  - Now I have a question about `find`, so let's look at it on its own.
 
 ## Is it correct?
 
@@ -179,14 +179,15 @@ int find(int argc, char* argv[]) {
 {:data-mark='4-4'}
 
 <div markdown=1>
-🔑 Summary paragraph is a sentence *fragment*.
+✅ Summary paragraph is a sentence *fragment*.
 
-🔑 Document non-mutating functions in terms of **what they return**.
+✅ Document non-mutating functions in terms of **what they return**.
 </div>
 {:.fragment}
 
 %speaker
-: 1. What's good about this comment? Discuss.
+: 1. It's far from perfect, but what's good about this comment? Discuss.
+     - it's short
   2. ⮕
      - A sentence fragment is usually sufficient for usability
        - if not, be uncomfortable.
