@@ -57,16 +57,20 @@
           fragmentInURL: 'true',
           slideNumber: 'true',
 
-          menu: { // Menu works best with font-awesome installed: sudo apt-get install fonts-font-awesome
+          menu: {
             themes: false,
             themesPath: '{{submodule}}/reveal.js/dist/theme/',
             transitions: false,
             markers: true,
             hideMissingTitles: true,
+            // Don't show the ugly floating hamburger menu.  Press "M" to open
+            // the menu
+            openButton: false,
             keyboard: true,
 
             custom: [
-              { title: 'Home', icon: '<i id="reveal-menu-home-button" class="fa fa-home"></i>', content: '' },
+              { title: 'Home', 
+                icon: '<i id="reveal-menu-home-button" class="fa fa-home"></i>', content: '' },
             ]
           },
           plugins: [ revealize, RevealNotes, RevealMenu, RevealMark ],
