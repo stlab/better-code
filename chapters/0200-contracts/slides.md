@@ -3,34 +3,10 @@
 
 # Abstraction and Contracts
 {:.community-title-slide .evans}
-## Or, what computers actually do<br/>Adobe Software Technology Lab  |  https://stlab.cc
+## Adobe Software Technology Lab  |  https://stlab.cc
 {:.subtitle}
 
-## Definition  |  Algorithm, *n*
-
-> a process or set of rules to be followed in calculations or other
-> problem-solving operations, especially by a computer.
-
-—New Oxford American Dictionary
-
-<br/><br/><br/>
-
-Algorithm
-: the most important computing abstraction
-{:.fragment}
-
-%speaker
-: Every program is an algorithm
-
-  It's easy to be distracted by class hierarchies, software architecture, and
-  design patterns.
-
-  Where's the computation? Computers compute. Algorithms are the “stuff” of
-  computing. Do not overlook them.
-
-  Let's take a look at an example.
-
-## Example
+## A program
 
 ```cpp
 // indexof.cpp
@@ -38,18 +14,33 @@ Algorithm
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-  if (argc < 2) { std::exit(1); }
-
+  if (argc < 2) {
+    std::cerr << "missing argument/n";
+    std::exit(1);
+  }
   int j = 1;
   while (++j < argc) {
     if (std::strcmp(argv[1], argv[j]) == 0)
       break;
   }
-
-  if (j != argc) { std::cout << j; }
+  if (j != argc) {
+    std::cout << j - 2;
+  }
 }
 ```
-{:data-mark='|6|8|9|10|11|14||8-12'}
+{:data-mark='|6-9|10|11-14|15-17||6-9|10-14|15-17'}
+
+```
+$ indexof
+missing argument
+$ indexof C   A B C D
+2
+$ indexof X   A B C D
+$
+```
+{:.fragment}
+
+Can we make it better?
 
 %speaker
 : Walkthrough
@@ -66,6 +57,49 @@ int main(int argc, char* argv[]) {
   One of these parts required some thinking.
     What can we do to make this code better?
 
+## A program
+{:.images-with-headers}
+
+`indexof.cpp`
+: ```cpp
+  // indexof.cpp
+  #include <cstdlib>
+  #include <iostream>
+
+  int main(int argc, char* argv[]) {
+    if (argc < 2) {
+      std::cerr << "missing argument/n";
+      std::exit(1);
+    }
+    int j = 1;
+    while (++j < argc) {
+      if (std::strcmp(argv[1], argv[j]) == 0)
+        break;
+    }
+    if (j != argc) {
+      std::cout << j - 2;
+    }
+  }
+  ```
+  {:data-mark='|6-9|10|11-14|15-17||6-9|10-14|15-17'}
+
+
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+  incididunt ut labore et dolore magna aliqua.
+
+Console
+: ```
+  $ indexof
+  missing argument
+  $ indexof C   A B C D
+  2
+  $ indexof X   A B C D
+  $
+  ```
+
+  Dolor sed viverra ipsum nunc aliquet bibendum. Tortor at risus viverra adipiscing at in.
+
+
 ## Factor out the raw loop
 
 ```cpp
@@ -73,9 +107,7 @@ int main(int argc, char* argv[]) {
 #include <cstdlib>
 #include <iostream>
 
-
-
-int algorithm(int argc, char* argv[]) {
+int search(int argc, char* argv[]) {
   int j = 1;
   while (++j < argc) {
     if (std::strcmp(argv[1], argv[j]) == 0)
@@ -87,7 +119,7 @@ int algorithm(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
   if (argc < 2) { std::exit(1); }
 
-  const int j = algorithm(argc, argv);
+  const int j = search(argc, argv);
 
   if (j != argc) { std::cout << j; }
 }
@@ -231,6 +263,11 @@ int find(int argc, char* argv[]) {
     - Hard to use.
     - Meaning, abstraction, and semantics are missing
     - Let's make the API more meaningful
+
+Sean notes Hoare logic is bottom-up and propagates complexity.  DBC is top-down
+and minimizes it.
+
+- Works as coded
 
 ![warn](/submodule/adobe-reveal-theme/icon/warning.png){:height='100px'
 align='center'} Red flag: documentation reads like implementation.
