@@ -12,7 +12,8 @@ If your using low level construct - thread, mutex, semaphore, condition variable
 
 ## Concurrency
 
-> Loosely, _concurrency_ is performing multiple tasks at once. A task is a conceptual unit of work, similar to a function but tasks don't have to be defined on function boundaries. The _granularity_ (or _grain size_) of a task is the amount of of work a task performs. The environment within which a task executes in the _execution context_. The hardware used to execute a task is the _execution agent_.
+%speaker
+: Loosely, _concurrency_ is performing multiple tasks at once. A task is a conceptual unit of work, similar to a function but tasks don't have to be defined on function boundaries. The _granularity_ (or _grain size_) of a task is the amount of of work a task performs. The environment within which a task executes in the _execution context_. The hardware used to execute a task is the _execution agent_.
 >
 > Concurrency allows for increased _throughput_, the amount of work that can be completed in a given amount of time, by utilizing additional available agents. Concurrency also allows for lower _latency_, the amount of time between when a task is submitted and when it is completed. In this chapter, we will be dealing with concurrent computation, as opposed to concurrent IO, although the two ideas are closely related. <!-- Strike this if we have room to cover IO -->
 
@@ -35,7 +36,8 @@ Either here or later make the point that throughput and latency are in tension a
 
 ### Forms of Concurrency
 
-> _At once_ can mean any combination of _parallel_ or _interleaved_ execution. _Parallel_ execution is simultaneous execution using independent execution agents. _Interleaved_ execution is reallocating agents from one task to another. The procedure of reallocating agents from one task to another is a _context switch_.
+%speaker
+: _At once_ can mean any combination of _parallel_ or _interleaved_ execution. _Parallel_ execution is simultaneous execution using independent execution agents. _Interleaved_ execution is reallocating agents from one task to another. The procedure of reallocating agents from one task to another is a _context switch_.
 >
 > Interleaved execution may be scheduled in one of three different ways. _Preemption_ is interrupting one task, usually at a given time interval or when _waiting_, and switching to another task. _Cooperative_ is when a task explicitly _yields_ or _awaits_ at points when a context switch may occur. _Queued_ tasks run to completion and then another task is started. <!-- Say something about queued items may not be executed in the order they were enqueued? -->
 
@@ -74,13 +76,14 @@ Come back to this section - prior is good but not happy with it.
 
 ### Amdahl's Law
 
-> Amdahl's Law shows the challenge of unlocking performance through concurrency. Even with no overhead, having only 10% of a program serialize on a 16 processor machine will only see a 6.4x speedup compared to a single core. Amdahl's Law also shows the potential performance improvements of additional concurrency - eliminating that last 10% of serialized execution would unlock an additional 2.5x performance gain.
+%speaker
+: Amdahl's Law shows the challenge of unlocking performance through concurrency. Even with no overhead, having only 10% of a program serialize on a 16 processor machine will only see a 6.4x speedup compared to a single core. Amdahl's Law also shows the potential performance improvements of additional concurrency - eliminating that last 10% of serialized execution would unlock an additional 2.5x performance gain.
 
 <!--
 Two column with Amdahl's equation?
 -->
 
-<div style="text-align:center" markdown="1">
+<div style="text-align:center">
 ![](./img/amdahls-law.svg){:height="770"}
 </div>
 
@@ -145,7 +148,8 @@ auto r = f_ * g_;
 
 ### Cost of Threads
 
-> The cost of thread context switches is a combination of kernel calls which require switching between protection rings, and cache invalidation
+%speaker
+: The cost of thread context switches is a combination of kernel calls which require switching between protection rings, and cache invalidation
 >
 > Wired memory is not paged-out by the VM system. If memory is under pressure a thread, even if idle, imposes a performance penalty on the system <!-- Description of hyper-threading? -->
 
@@ -178,7 +182,8 @@ Reference: http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/
 
 ### Communicating Between Concurrent Tasks and Races
 
-> A _race_ condition is when an order of effects is required for correct execution but that ordering is not guaranteed.
+%speaker
+: A _race_ condition is when an order of effects is required for correct execution but that ordering is not guaranteed.
 >
 > Thread context switches are expensive because modern processors have dedicated memory caches per core. For the results of a core computation to be visible to another core requires a _memory fence_. A memory fence establishes an ordering of memory load and store operations. A memory fence must be understood by the processor and the compiler. If the compiler is not aware of a memory fence, it could reorder an operation so two threads would see inconsistent results.
 >
