@@ -2,6 +2,14 @@
 title: Concurrency
 ---
 
+<!--
+
+Definitions - lay of the land
+
+If your using low level construct - thread, mutex, semaphore, condition variable - atomic, you're probably doing it wrong.
+
+-->
+
 ## Concurrency
 
 > Loosely, _concurrency_ is performing multiple tasks at once. A task is a conceptual unit of work, similar to a function but tasks don't have to be defined on function boundaries. The _granularity_ (or _grain size_) of a task is the amount of of work a task performs. The environment within which a task executes in the _execution context_. The hardware used to execute a task is the _execution agent_.
@@ -15,12 +23,15 @@ Either here or later make the point that throughput and latency are in tension a
 - Loosely, performing multiple _tasks at once_
 - Allows increased _throughput_ through better hardware utilization
 - Allows decreased _latency_
-- A _task_ is a _conceptual_ unit of (serial) work
+- A _task_ is a conceptual unit of (serial) work
+<!-- move below items - focus on what is concurrency -->
   - May be composed of other tasks
   - Executes within an _execution context_
   - The hardware used to execute a task is the _execution agent_
 
 - Concurrency is about having multiple task in flight at once
+
+### [Slide describing latency/interactivity/responsiveness]
 
 ### Forms of Concurrency
 
@@ -36,6 +47,12 @@ Either here or later make the point that throughput and latency are in tension a
       - Provides illusion of parallelism
     - _Cooperative_: tasks _yield_ or _await_ when context switches may occur
     - _Queued_: tasks are run to completion and then another task is started
+
+<!--
+Pictures here -
+
+provides illusion of parallelism - from a developer standpoint threads are the same model regardless of number of agents.
+-->
 
 ### Why Concurrency Matters
 
@@ -76,6 +93,8 @@ Might delete this section - would like to "discover" why it is hard
 - Reasoning about the visibility of effects is hard
 - _then_ is a 4-letter word
 
+### Structure of Concurrency [dag model?]
+
 ### Forking and Joining Tasks
 
 - Using _pure_ functions to represent tasks, consider the following:
@@ -89,7 +108,7 @@ auto r = f(x) * g(x);
 - Both `f()` and `g()` must complete before `operator*()` can be applied
   - _Joining_ is the process of receiving information, such as the result, of a concurrent task
 
-### Spawning and Joining Tasks
+### Forking and Joining Tasks
 
 - This might be represented as:
 
