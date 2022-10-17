@@ -1,0 +1,1 @@
+An [[Assertion]] that is true after an [[operation]], unless there is an error, in which case the result may be [[invalid]].

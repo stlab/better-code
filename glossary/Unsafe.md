@@ -1,0 +1,1 @@
+Describes an [[operation]] which may lead to [[Undefined Behavior]] if its [[Precondition]]s are violated.

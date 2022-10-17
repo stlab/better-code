@@ -1,0 +1,1 @@
+The practice of making informed tradeoffs to produce the best design or artifact possible given a set of [[constraint]]s.

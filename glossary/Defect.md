@@ -1,0 +1,1 @@
+Undesirable behavior in a program. Also known as a "bug".
