@@ -44,8 +44,6 @@ One thing we both believe is that in grappling with problems, if you apply
 yourself, you can discover deep platonic truths.  This course/book is about
 finding deep truths about programming.
 
-<!-- npd: are we pursuing truth for the sake of truth? What benefit does this add to Joe Programmer?  -->
-
 #### Better Code
 
 This is a course/book about producing better code.  To do that, we need to
@@ -54,7 +52,7 @@ definition.  Rather than try to list these properties up front, we're going to
 discover the properties of good code as we go along, by looking at real
 examples.
 
-- We're trying to get to some some universal truths about about good
+- we're trying to get to some some universal truths about about good
   programming.
 - We believe these truths exist, but they are always manifest within some system
   of real-world constraints.
@@ -127,12 +125,10 @@ which are two separate ideas.  Unscalable is my approximation]
   - maintainability
   - local reasoning
 
-  <!-- I think consequences should be renamed "costs" - and "serves" should be renamed "benefits". I'm not sure "efficiency" is a benefit of algorithms, per say -->
-
 #### Flow
 
 - Every function is an algorithm
-- Trivial example (e.g. find an `int`) <!-- npd: is this moved to contracts now? -->
+- Trivial example (e.g. find an `int`)
   - do this from `main`
 
 - Find a double
@@ -154,7 +150,6 @@ which are two separate ideas.  Unscalable is my approximation]
   - aliasing is an unscalable construct
 
 - Understanding the domain
-<!-- npd: domain might be a bad choice of words considering "codomain" etc... is this intentional? -->
   - The domain has started to become evident (example of discovery)
   - There are other domains (numerics, graphs, ...); we are working with sequences.
   - Discuss properties of sequences, half-open ranges, iterators
