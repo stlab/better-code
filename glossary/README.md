@@ -8,3 +8,9 @@ Each file in this directory, (except this README) shall define a single term rel
 
 For each term, please provide a `# Resources` section pointing to materials that either explain or use the term in an exemplary manner. 
 
+# Style Guide
+1. Do not create links to a page within that page. It provides no additional benefit.
+2. Page titles should always be capitalized. 
+3. Prefer wiki-style `[[]]` links. Use markdown-style links `[]()` when the phrasing of a sentence requires it. For example:
+	1. `A strategy for handling an [[Error]] in which the program reports and [terminates](Termination.md).`
+4. For each term, please provide a `# Resources` section pointing to materials that either explain or use the term in an exemplary manner. 

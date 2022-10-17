@@ -4,8 +4,6 @@ For example, consider the following two [[relation]]s. A is a constraint on B.
 	A. "the deonominator must not be zero"
 	B. "the result of division is defined"
 
-///
-
-"A constraint is a predicate form of a relationship."
-
 Note: this definition is under scrutiny
+
+# Resources

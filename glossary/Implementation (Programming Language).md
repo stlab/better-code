@@ -1,0 +1,1 @@
+A particular encoding of a programming language's rules which transform source code to machine code. Such rules are encoded as a [[Compiler]].
