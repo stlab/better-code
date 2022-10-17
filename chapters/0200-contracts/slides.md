@@ -8,6 +8,9 @@
 
 ## A program
 
+<!-- npd: consider changing j to n to flow a bit better - you said "nth" then changed to "jth" -->
+<!-- npd: is the bug intentional? when argc is 1 -->
+
 ```cpp
 // indexof.cpp
 #include <cstdlib>
@@ -277,6 +280,7 @@ align='center'} Red flag: documentation reads like implementation.
 
 ```cpp
 /// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
+/// Returns the index of the first C string equivalent to argv[1] after argv[1]
 /// or `argc` if it can't be found.
 ///
 /// - Requires: `argv[j]` is a C string where `j >= 1 && j < argc`.
@@ -304,6 +308,9 @@ Dropped information:
 {:.fragment data-fragment-index='1'}
 
 ## Meaningful APIs  |  Step 1
+
+<!-- Note we're over-constraining the problem; but that's a side effect of how the dev wrote the function -->
+<!-- The high order bit is correctness; we want to make it easy for clients to get things right -->
 
 ```cpp
 /// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
