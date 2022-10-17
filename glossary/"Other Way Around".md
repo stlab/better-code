@@ -5,4 +5,4 @@ Inverse of [[Lifting]]. Terminology required.
 A "top-down" approach to finding commonalities among entities (see: [[Entity]]).
 
 # Resources
-Sean Parent: [Exceptions the other way around]()
+Sean Parent: [Exceptions the other way around](https://www.youtube.com/watch?v=mkkaAWNE-Ig)
