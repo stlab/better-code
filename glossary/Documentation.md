@@ -1,0 +1,1 @@
+A description of a program or operation's behavior in natural language.
