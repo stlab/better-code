@@ -2,5 +2,4 @@ The result of executing a program whose behavior may vary across [implementation
 
 # Resources
 Wikipedia: [Unspecified Behavior](https://en.wikipedia.org/wiki/Unspecified_behavior)
-
 cppreference.com: [Undefined Behavior](https://en.cppreference.com/w/cpp/language/ub)

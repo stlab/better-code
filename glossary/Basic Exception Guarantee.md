@@ -1,4 +1,4 @@
-A degree of Exception Safety which is [guaranteed](Guarantee.md) by a function which may throw exceptions. When such a function throws an exception, the program is guaranteed to remain in a [valid](Valid%20(Program).md) state.
+When a function supplying the Basic Exception Guarantee throws an exception, the program is guaranteed to remain in a [valid](Valid%20(Program).md) state.
 
 # Resources
 cppreference.com: [Exceptions](https://en.cppreference.com/w/cpp/language/exceptions)
