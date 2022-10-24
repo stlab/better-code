@@ -3,6 +3,54 @@
 
 ## Algorithms
 
+_New Oxford American Dictionary_ defines _algorithm_ as:
+
+Algorithm, _n_
+: a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.
+
+Algorithms are an abstraction of computation, and every program is an algorithm. It is easy to be distracted by class hierarchies, software architecture, design patterns, etc. Such things are helpful only in so far as they aid in implementing a correct and efficient algorithm.
+
+<!-- This section will be revisited after the contracts chapter is complete - this is just a rough -->
+
+The last chapter introduces contracts to specify an algorithm's domain and what problem it solves. We use functions to name algorithms, preconditions define the domain of the algorithm, and postconditions define the semantics. Here is a simple operation to illustrate:
+
+```
+// returns the minimum value of `a` and `b`
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+```
+
+We would say that `min` has no preconditions. Which is
+
+<!-- not ready for this yet.
+
+Let's look at the `find()` algorithm developed in the last chapter:
+
+```cpp
+/// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
+/// or `argc` if it can't be found.
+///
+/// - Requires: `argv` is an array of `argc` C-strings.
+int find(int argc, char* argv[]) {
+  int j = 1;
+  while (++j < argc) {
+    if (std::strcmp(argv[1], argv[j]) == 0)
+      break;
+  }
+  return j;
+}
+```
+
+-->
+
+```cpp
+int min(int x, int y);
+```
+
+
+---
+
 - Let's honor what computers are actually all about: computation.  Algorithms
   are an abstraction of computation. Doing so has consequences:
   - Naming

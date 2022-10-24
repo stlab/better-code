@@ -5,9 +5,10 @@ services:
       - JEKYLL_ENV=docker
       - PAGES_REPO_NWO=stlab/better-code
     command: >
-        jekyll serve --force-polling --watch --incremental
-        --config _config.yml,_config.docker.yml
-        --livereload
+        bash -c "
+        jekyll build --profile &&
+        jekyll serve --livereload --force-polling --watch --incremental --config _config.yml,_config.docker.yml
+        "
     image: jekyll/jekyll:pages
     volumes:
       - .:/srv/jekyll
