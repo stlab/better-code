@@ -1,6 +1,6 @@
 Describes an [[operation]] that cannot lead to [[Undefined Behavior]], even if its [[Precondition]]s are violated.
 
-Note: Safety is a [[transitive]] property.
+Note: Safety is a [[Transitive]] property.
 
 See also: [[Strongly Safe]]
 
