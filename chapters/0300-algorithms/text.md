@@ -10,18 +10,21 @@ Algorithm, _n_
 
 Algorithms are an abstraction of computation, and every program is an algorithm. It is easy to be distracted by class hierarchies, software architecture, design patterns, etc. Such things are helpful only in so far as they aid in implementing a correct and efficient algorithm.
 
+<!-- Tie to David's introduction -->
+
+
 <!-- This section will be revisited after the contracts chapter is complete - this is just a rough -->
 
-The last chapter introduces contracts to specify an algorithm's domain and what problem it solves. We use functions to name algorithms, preconditions define the domain of the algorithm, and postconditions define the semantics. Here is a simple operation to illustrate:
+The last chapter introduced contracts to specify an algorithm's domain and semantics. We use functions to name algorithms, preconditions define the domain of the algorithm, and postconditions define the semantics. Here is a simple operation to illustrate:
 
-```
+```cpp
 // returns the minimum value of `a` and `b`
 int min(int a, int b) {
     return (a < b) ? a : b;
 }
 ```
 
-We would say that `min` has no preconditions. Which is
+The `min` function has no preconditions which is another way of saying the domain of `min` is the set of values representable by a pair of `int` types.
 
 <!-- not ready for this yet.
 
@@ -44,9 +47,6 @@ int find(int argc, char* argv[]) {
 
 -->
 
-```cpp
-int min(int x, int y);
-```
 
 
 ---
