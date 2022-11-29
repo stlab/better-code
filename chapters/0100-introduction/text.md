@@ -31,8 +31,9 @@ your intuition. We mention this so that you don't mistake our usage of these
 words with anything other than the precise definitions we provide.
 
 It is also important to forewarn you that we're going to take some strong
-stances against some of today's commonly accepted practices. You, yourself, are
-likely doing some of these things on a regular basis. We urge you to keep an
-open mind as you reflect upon our suggested alternatives. You can expect that it
+stances against some of today's commonly accepted practices. We want to 
+emphasize that these are exclusively criticisms of practices, not practitioners. 
+We urge you to keep an open mind as you reflect upon our suggested alternatives. 
+You can expect that it
 may take some time reviewing code in practice before you reach the same
 conclusions we have.
