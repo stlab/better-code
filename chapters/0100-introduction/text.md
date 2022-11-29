@@ -36,4 +36,4 @@ emphasize that these are exclusively criticisms of practices, not practitioners.
 We urge you to keep an open mind as you reflect upon our suggested alternatives. 
 You can expect that it
 may take some time reviewing code in practice before you reach the same
-conclusions we have.
+conclusions we have. Of course, you might never agree with our conclusions. We encourage you to rigorously develop your criticisms of our work, and invite you into the uniquely cooperative pursuit of programming truth. 
