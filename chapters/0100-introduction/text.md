@@ -20,7 +20,7 @@ from yet another ivory tower. If this work can be only one thing, it must be
 preeminently practical. Our goal in creating this material is that you will
 henceforth code differently . . . better.
 
-Euclid famously once said "there is no royal road to geometry." Likewise,
+Euclid famously said "there is no royal road to geometry." Likewise,
 though we've done our best to make this work as accessible as possible, to get
 the most out of this book you're going to have to engage deeply with the
 material. The included exercises are necessary to hone your skills.
