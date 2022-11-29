@@ -21,8 +21,7 @@ preeminently practical. Our goal in creating this material is that you will
 henceforth code differently . . . better.
 
 Euclid famously said "there is no royal road to geometry." Likewise,
-though we've done our best to make this work as accessible as possible, to get
-the most out of this book you're going to have to engage deeply with the
+though we've done our best to make this work as accessible as possible, there is no royal road to better code. To get the most out of this book you're going to have to engage deeply with the
 material. The included exercises are necessary to hone your skills.
 
 We'll be using terms in this book that you probably recognize like "semantics",
