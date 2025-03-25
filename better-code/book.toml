@@ -1,0 +1,6 @@
+[book]
+authors = ["Sean Parent"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Better Code"

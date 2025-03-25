@@ -4,5 +4,7 @@
             "language": "markdown",
             "scheme": "file"
         }
-    ]
+    ],
+    "rewrap.autoWrap.enabled": true,
+    "rewrap.wrappingColumn": 80
 }
