@@ -12,13 +12,15 @@ software development. Instead of focusing on finding _a_ solution to a problem,
 we'll be searching for the _best_ solution. This kind of endeavor necessarily
 requires a certain amount of discipline and effort, but our goal is that the
 book is approachable and immediately applicable while having enough depth that
-you'll keep coming back to it as you gain experience. œ The name of the book
+you'll keep coming back to it as you gain experience.
+
+The name of the book
 implies that we have some way to measure the _quality_ of code, and that we can
 objectively improve it. 
 
-We start by defining, _perfect code_:
+We start by defining, _good code_:
 
-> _Perfect code_: code that is _correct_ , _efficient_ , and _abstract_.
+> _good code_: code that is _correct_ , _efficient_ , and _abstract_.
 
 A _correct_ program is without contradictions to any relavent specification,
 documentation, tests, or examples. Correctness defined in this way is either
@@ -43,7 +45,7 @@ abstract form can be reused anyplace the underlying axioms hold.
 As we will see, these three measures are sometimes at odds with each other and
 we are limited by the programming language and tools we have available. We do
 not see a way to achieve a perfect program but we strive to be more correct,
-more efficient, and more abstract. We strive for _better code_. 
+more efficient, and more abstract. We strive for _better code_.
 
 ## What to expect
 
