@@ -2,25 +2,79 @@
 
 This book is the product of the Authors' shared career-long mission to
 empower programmers and elevate the practice of programming. The title
-comes from Sean's influential *Better Code* series of talks, which
-came out of Herb Sutter's suggestion that he focus on practical tips a
-developer could apply immediately to improve their code.
+comes from Sean's *Better Code* series of talks.  The first of these,
+subtitled “Three Goals for Better Code” was given over a decade ago,
+prompted by Herb Sutter's suggestion that Sean deliver practical tips
+a developer could apply immediately to improve their code.
 
-
-Taken
-together, these enormously influential talks reveal a surprising
+Taken together, these enormously influential talks reveal a surprising
 truth: the most impactful practical advice is also deeply principled.
 Correctness, quality, and yes, even velocity and satisfaction go hand
-in hand with
+in hand.
 
-
-That talk was
+[That talk was
 sub-titled "Three Goals for Better Code." That talk was given over a decade ago,
 and what follows is a reflection of my and my coauthor's distillation of our
-career-long pursuit to write, and assist others in writing, better code.
+career-long pursuit to write, and assist others in writing, better code.]
 
+- A set of principles that will help guide you to deeper insights
+  about your problem domain and the code you write for it.
+- Start you on a journey
+
+## Who we are
+
+## Why we wrote this book
+
+## Why and how you will benefit
+
+## What to expect
+
+- Intro
+  - Origin story
+  - Who the authors are
+
+- These principles work in practice and at scale
+
+- Benefits
+  - Confidence in your results
+  - Velocity
+  - Less code to maintain
+  - Easier debugging
+  - Less debugging
+
+- Bettering
+  - incremental improvement as we discover the nature of the problem
+  - often will find “Best.”
+
+- Structure
+  - Chapters try to build on one another
+  - Interdependent, deepen one another
+  - Come back and deepen your understanding
+  - Rubrics:
+    - aspirational touchstones, but not hard rules
+    - often negative to call out red flags.
+  - Programming language:
+    - we use Swift, for reasons.
+    - principles apply anywhere.
+    - see appendix for a quick intro
+
+- Axes of goodness
+  - Correctness
+  - Efficiency
+  - Abstraction
+    - more reusable because it makes fewer assumptions
+    - surprisingly, more comprehensible because it better represents
+      the essence of what your code is trying to do.
+
+----------
+
+
+----------
 
 It is not a how-to guide, or a book on software engineering practices
+
+Three axes of quality: correctness, efficiency, abstraction
+
 
 
 . Euclid famously said "there is no royal road to
@@ -40,12 +94,6 @@ more of our measures and what some better alternatives might be. Ultimately, the
 choice of what _to do_ is going to depend on the specific constraints of the
 problem you're solving.
 
-
-- Confidence in your results
-- Velocity
-- Less code to maintain
-- Easier debugging
-- Less debugging
 
 and their work more rewarding.
 
