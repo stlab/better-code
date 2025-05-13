@@ -1,5 +1,14 @@
 # Introduction
 
+This is a practical book.  The authors each have more than 40 years'
+experience writing code that powers real applications in all sorts of
+contexts.  We've tried
+
+, from Photoshop to financial analysis
+software to massively parallel systems.
+
+We wrote this book to insight .  This is a fun The authors
+
 This book is the product of the Authors' shared career-long mission to
 empower programmers and elevate the practice of programming. The title
 comes from Sean's *Better Code* series of talks.  The first of these,
