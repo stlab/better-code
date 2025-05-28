@@ -1,34 +1,32 @@
 # Introduction
 
-This is a practical book.  The authors each have more than 40 years'
-experience writing code that powers real applications in all sorts of
-contexts.  We've tried
+This book is the product of our shared belief that programs and
+programming can be better.  Over the years we've seen philosophies
+about how to do software engineering come and go; we've listened to
+the experts and applied their tips (sometimes to our detriment!)
+Looking back, though, the key ideas underlying our best work weren't
+the popular ones, and aren't widely known or taught today.  We wrote
+this book because we think they could make a difference for
+you, too.
 
-, from Photoshop to financial analysis
-software to massively parallel systems.
+The book's title comes from Sean's *Better Code* series of talks.  The
+first of these, subtitled “Three Goals for Better Code” was given over
+a decade ago, after Herb Sutter suggested that Sean deliver practical
+tips a developer could apply immediately to improve their code.  So
+this is above all a practical book.  The authors each have more than
+40 years' experience writing code that powers real applications in all
+sorts of contexts; the ideas you'll encounter here are the ones that
+stood the test of time and delivered results at scale.  But we think
+you'll also discover, as we have, that the most impactful practical
+advice is also deeply principled and satisfying—both aesthetically
+and, in some sense, scientifically.
 
-We wrote this book to insight .  This is a fun The authors
+At a metaphysical level, Better Code is a journey of discovery.
+Wherever you are on that road, we hope this book serves a...
 
-This book is the product of the Authors' shared career-long mission to
-empower programmers and elevate the practice of programming. The title
-comes from Sean's *Better Code* series of talks.  The first of these,
-subtitled “Three Goals for Better Code” was given over a decade ago,
-prompted by Herb Sutter's suggestion that Sean deliver practical tips
-a developer could apply immediately to improve their code.
-
-Taken together, these enormously influential talks reveal a surprising
-truth: the most impactful practical advice is also deeply principled.
-Correctness, quality, and yes, even velocity and satisfaction go hand
-in hand.
-
-[That talk was
-sub-titled "Three Goals for Better Code." That talk was given over a decade ago,
-and what follows is a reflection of my and my coauthor's distillation of our
-career-long pursuit to write, and assist others in writing, better code.]
-
-- A set of principles that will help guide you to deeper insights
-  about your problem domain and the code you write for it.
-- Start you on a journey
+, for us Most programmers we know are on a career-long journey toward
+better code We hope to start you—or help you make further progress—on
+your journey to better code.  Along the way, you can expect
 
 ## Who we are
 
