@@ -1,95 +1,62 @@
 # Introduction
 
-This book is about how to write _better code_. The idea for this book came from
-Herb Sutter who suggested I (Sean) give a talk focused on practical tips a
-developer could apply immediately to improve their code. That talk was
-sub-titled "Three Goals for Better Code." That talk was given over a decade ago,
-and what follows is a reflection of my and my coauthor's distillation of our
-career-long pursuit to write, and assist others in writing, better code.
+This book is the product of our shared belief that programs and
+programming can be better.  Over the years we've seen philosophies
+about how to do software engineering come and go; we've listened to
+the experts and applied their tips (sometimes to our detriment!)
+Looking back, though, the key ideas underlying our best work weren't
+the popular ones, and aren't widely known or taught today.  We wrote
+this book because we think they could make a difference for
+you, too.
 
-This book presents and advocates for a principled and rigorous approach to
-software development. Instead of focusing on finding _a_ solution to a problem,
-we'll be searching for the _best_ solution. This kind of endeavor necessarily
-requires a certain amount of discipline and effort, but our goal is that the
-book is approachable and immediately applicable while having enough depth that
-you'll keep coming back to it as you gain experience.
+The book's title comes from Sean's *Better Code* series of talks.  The
+first of these, subtitled “Three Goals for Better Code” was given over
+a decade ago, after Herb Sutter suggested Sean lay out practical
+tips a developer could apply immediately to improve their code.  So
+this is above all a practical book.  The authors each have more than
+40 years' experience writing code that powers real applications in all
+sorts of contexts; the ideas you'll encounter here are the ones that
+stood the test of time and delivered results at scale.  We think
+you'll also discover, as we have, that the most impactful practical
+advice is also deeply principled and satisfying—both aesthetically
+and, in some sense, scientifically.
 
-The name of the book
-implies that we have some way to measure the _quality_ of code, and that we can
-objectively improve it. 
+Better code has more of three ingredients: **correctness, efficiency,
+and abstraction**. Most people have a good intuitive sense of what
+correctness and efficiency are, though we will try to deepen and
+solidify all three ideas throughout the book. Abstraction is less
+commonly understood, so, briefly, it's the quality of code that is
+more reusable—and paradoxically, more understandable—because
+inessential detail has been “lifted” out. It's what many people would
+call “higher-level code.”
 
-We start by defining, _good code_:
+Code usually doesn't get better all at once.  Often we make
+incremental improvement along one of the three axes as we discover the
+nature of the problem we're solving.
 
-> _good code_: code that is _correct_ , _efficient_ , and _abstract_.
+We've tried to structure the book so chapters build on one another,
+but they are interdependent.  A later chapter may deepen an earlier
+one, so we encourage you to circle back and re-read earlier material.
+Each chapter begins with a rubric such as “no raw loops.”  The rubrics
+are often phrased in the negative, to call out red flags, and are
+intended to be aspirational touchstones, not hard rules.  That said,
+we've found they are most powerful when we violate them only as an
+absolute last resort, and we suggest you do the same.
 
-A _correct_ program is without contradictions to any relavent specification,
-documentation, tests, or examples. Correctness defined in this way is either
-satified or not, and is not something that can be incrementally improved. 
+Although the ideas you'll find here are applicable to any programming
+language, we've chosen to write our examples in Swift, for its direct,
+safe support of mutable value semantics (see chapter XX), and generic
+programming (see chapter XX), and because we are able to express them
+without language-specific wrinkles that would need to be explained,
+lengthening the text and distracting from the real issues.  If you
+don't already know Swift, we've provided a brief introduction in
+appendix YY.
 
-This definition is unsatisfying because in practice, we rely on incorrect
-software all the time. As a practical approach, we define a _semi-correct_
-program as one for which there exists a valid initial state and inputs, such
-that the program will generate a valid output. As an analogy, a broken clock is
-semi-correct, it is correct twice a day. This definition provides a partial
-ordering of correctness, where a program is _more correct_ than another if the
-initial states under which it is correct are a superset of the other.
-
-An _efficient_ program uses minimal resources (time, space, energy, etc.) to
-generate a valid output. A program is _more efficient_ than another if it uses
-less resources to generate the same output.
-
-An _abstract_ program relies on a minimal set of assumptions, _axioms_, that if
-true, will allow the program to generate valid output. A program expressed in an
-abstract form can be reused anyplace the underlying axioms hold.
-
-As we will see, these three measures are sometimes at odds with each other and
-we are limited by the programming language and tools we have available. We do
-not see a way to achieve a perfect program but we strive to be more correct,
-more efficient, and more abstract. We strive for _better code_.
-
-## What to expect
-
-This book is not a how-to guide. Euclid famously said "there is no royal road to
-geometry." Likewise, there is no royal road to better code. To get the most out
-of this book you're going to have to engage deeply with the material. The
-included exercises are necessary to hone your skills.
-
-This book is also not a book on software engineering practices. We will not
-cover topics like Agile, Scrum, team dynamics, meeting customer's expectations,
-or other such concerns. There is much involved in building great software but
-this book is focused on the qualify of the code you write when in front of your
-keyboard.
-
-Each chapter will start with a _rubric_, often [always?] stated as what _not_ to
-do. The chapter will then explain why such constructions work against one or
-more of our measures and what some better alternatives might be. Ultimately, the
-choice of what _to do_ is going to depend on the specific constraints of the
-problem you're solving.
-
-## Programming Language
-
-The examples in this book are written in Swift. We chose Swift because it
-provides capabilities that balance the three measures so we can illustrate the
-concepts in a way that is easy to understand and easy to implement without
-getting bogged down by language limitations.
-
-The ideas in this book are not specific to Swift. We have included in Appendix A
-a short language summary to help you understand the examples if you are not
-familiar with Swift. The ideas are applicable to any language although every
-language has trade-offs that will make the expression of the ideas more or less
-awkward.
-
-## Forewarning
-
-It is important to forwarn you that we're going to take some strong stances
-against some of today's commonly accepted practices. We want to emphasize that
-these are exclusively criticisms of practices, not practitioners. We urge you to
-keep an open mind as you reflect upon our suggested alternatives. You can expect
-that it may take some time reviewing code in practice before you reach the same
-conclusions we have. Of course, you might never agree with our conclusions. We
-encourage you to rigorously develop your criticisms of our work, and invite you
-into the uniquely cooperative pursuit of programming truth.
-
-## Exercises
-
-[ Say something here about the importance and structure of exercises ]
+Out of pursuing better code, you should find you have greater
+confidence in your work and that you produce quality results more
+quickly, with less code.  Programs become easier to maintain, and—when
+a bug inevitably occurs—to debug.  At a metaphysical level, Better
+Code is a journey of discovery.  For us it has been an exhilarating
+one.  Wherever you are on that road, we hope you have the same
+experience, and that this book serves as a guide and an ongoing
+companion.
