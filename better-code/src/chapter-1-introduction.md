@@ -40,7 +40,7 @@ one, so we encourage you to circle back and re-read earlier material.
 Each chapter begins with a rubric such as “no raw loops.”  The rubrics
 are often phrased in the negative, to call out red flags, and are
 intended to be aspirational touchstones, not hard rules.  That said,
-we've found they are most powerful when we violate them only as a
+we've found they are most powerful when we violate them only as an
 absolute last resort, and we suggest you do the same.
 
 Although the ideas you'll find here are applicable to any programming
