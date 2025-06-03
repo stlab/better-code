@@ -1,32 +1,50 @@
 # Introduction
 
 This book is the product of our shared belief that programs and
-programming can be better.  Over the years we've seen philosophies
+programming can be better. Over the years we've seen philosophies
 about how to do software engineering come and go; we've listened to
 the experts and applied their tips (sometimes to our detriment!)
 Looking back, though, the key ideas underlying our best work weren't
-the popular ones, and aren't widely known or taught today.  We wrote
+the popular ones, and aren't widely known or taught today. We wrote
 this book because we think they could make a difference for
 you, too.
 
-The book's title comes from Sean's *Better Code* series of talks.  The
+The book's title comes from Sean's *Better Code* series of talks. The
 first of these, subtitled “Three Goals for Better Code” was given over
 a decade ago, after Herb Sutter suggested that Sean deliver practical
-tips a developer could apply immediately to improve their code.  So
-this is above all a practical book.  The authors each have more than
+tips a developer could apply immediately to improve their code. So
+this is above all a practical book. The authors each have more than
 40 years' experience writing code that powers real applications in all
 sorts of contexts; the ideas you'll encounter here are the ones that
-stood the test of time and delivered results at scale.  But we think
+stood the test of time and delivered results at scale. But we think
 you'll also discover, as we have, that the most impactful practical
 advice is also deeply principled and satisfying—both aesthetically
 and, in some sense, scientifically.
 
 At a metaphysical level, Better Code is a journey of discovery.
-Wherever you are on that road, we hope this book serves a...
+Wherever you are on that road, we hope this book serves a guidebook to keep you
+on the path and out of the weeds.
 
-, for us Most programmers we know are on a career-long journey toward
-better code We hope to start you—or help you make further progress—on
-your journey to better code.  Along the way, you can expect
+## Book Structure
+
+We have done our best to organize the book in a way that can be read
+sequentially where each chapter builds on the previous ones. However, the topics
+inter-related and you may find value as you progress through the book, and on
+your journey, in referring back.
+
+We start each chapter with a _rubric_, an aspirational touchstone but not a hard rule. The
+rubric is often stated in the negative to help you avoid common pitfalls.
+
+The examples in the book are written in Swift. We chose Swift because it allows
+us to illustrate the concepts in a way that should be easy to understand by most
+developers, regardless of their programming language of choice, without the need
+for lengthy expositions. We have included a short language summary in the appendix.
+
+---
+
+[ My current thinking is we end here and drop into chapter-2-contracts.md and
+discuss correctness there - perhaps building our three axes as we go through
+each chapter, summarizing our definition of _better code_ at the end of the book.]
 
 ## Who we are
 
@@ -37,41 +55,41 @@ your journey to better code.  Along the way, you can expect
 ## What to expect
 
 - Intro
-  - Origin story
-  - Who the authors are
+ - Origin story
+ - Who the authors are
 
 - These principles work in practice and at scale
 
 - Benefits
-  - Confidence in your results
-  - Velocity
-  - Less code to maintain
-  - Easier debugging
-  - Less debugging
+ - Confidence in your results
+ - Velocity
+ - Less code to maintain
+ - Easier debugging
+ - Less debugging
 
 - Bettering
-  - incremental improvement as we discover the nature of the problem
-  - often will find “Best.”
+ - incremental improvement as we discover the nature of the problem
+ - often will find “Best.”
 
 - Structure
-  - Chapters try to build on one another
-  - Interdependent, deepen one another
-  - Come back and deepen your understanding
-  - Rubrics:
-    - aspirational touchstones, but not hard rules
-    - often negative to call out red flags.
-  - Programming language:
-    - we use Swift, for reasons.
-    - principles apply anywhere.
-    - see appendix for a quick intro
+ - Chapters try to build on one another
+ - Interdependent, deepen one another
+ - Come back and deepen your understanding
+ - Rubrics:
+  - aspirational touchstones, but not hard rules
+  - often negative to call out red flags.
+ - Programming language:
+  - we use Swift, for reasons.
+  - principles apply anywhere.
+  - see appendix for a quick intro
 
 - Axes of goodness
-  - Correctness
-  - Efficiency
-  - Abstraction
-    - more reusable because it makes fewer assumptions
-    - surprisingly, more comprehensible because it better represents
-      the essence of what your code is trying to do.
+ - Correctness
+ - Efficiency
+ - Abstraction
+  - more reusable because it makes fewer assumptions
+  - surprisingly, more comprehensible because it better represents
+   the essence of what your code is trying to do.
 
 ----------
 
@@ -128,7 +146,7 @@ you'll keep coming back to it as you gain experience.
 
 The name of the book
 implies that we have some way to measure the _quality_ of code, and that we can
-objectively improve it. 
+objectively improve it.
 
 We start by defining, _good code_:
 
@@ -136,7 +154,7 @@ We start by defining, _good code_:
 
 A _correct_ program is without contradictions to any relavent specification,
 documentation, tests, or examples. Correctness defined in this way is either
-satified or not, and is not something that can be incrementally improved. 
+satified or not, and is not something that can be incrementally improved.
 
 This definition is unsatisfying because in practice, we rely on incorrect
 software all the time. As a practical approach, we define a _semi-correct_
@@ -193,7 +211,7 @@ awkward.
 
 ## Forewarning
 
-It is important to forwarn you that we're going to take some strong stances
+It is important to forewarn you that we're going to take some strong stances
 against some of today's commonly accepted practices. We want to emphasize that
 these are exclusively criticisms of practices, not practitioners. We urge you to
 keep an open mind as you reflect upon our suggested alternatives. You can expect
