@@ -146,6 +146,8 @@ terms of relationships is one of the themes of Better Code, and you
 can expect us to point relationships out as they come up in our
 material.
 
+Contract: specifies the relationship between an operation and the clients that invoke it.
+
 The basics of design by contract should look familiar; they come
 straight from Hoare:
 
@@ -167,13 +169,21 @@ Being able to say which code is at fault is extremely powerful! You
 know which code to fix; It's simplifying and clarifying.
 
 And if you ever find yourself with something that's clearly a bug but
+
 you can't decide which code to blame, that's a sign that a contract is
 missing or incomplete.
 
+> If software malfunctions and you can't clearly assign blame, a
+> contract is missing somewhere.
+
 A system that exposes these situations, where everybody is playing by
-the rules but things still go wrong, is called a footgun.The most
-important contribution of Meyer's Design by Contract was to apply the
-idea of “invariants” to user-defined types with private parts.
+the rules but things still go wrong, is called a footgun.
+
+## Type Invariants
+
+The most important contribution of Meyer's Design by Contract was to
+apply the idea of “invariants” to user-defined types with private
+parts.
 
 Meyer's *class invariant* (or *type invariant*), is a condition that
 holds at the boundary between a type's public API and its
@@ -182,25 +192,56 @@ implementation detail.
 just a formalization of what we mean when we talk about instances
 being “in a good state.”
 
+- Condition that holds whenever a type interacts with clients.
+- “It's in a good state” ≅ the invariant is upheld
+
+### Example:
+
 My favorite example is this type that holds a pair of private arrays
-but whose public interface is more like an array of pairs.
+but whose public interface is more like an array of pairs.  The
+invariant for this type is that the private arrays have the same
+length.
 
->> The invariant for this type is that the private arrays have the
->same length.
 
-You can probably write this type in any language; I've coded it in
-Swift, Python, TypeScript, and C++
+```swift
+/// A random-access collection of `(X, Y)` pairs.
+struct PairArray<First, Second> {
+  /// The first part of each element.
+  private var xs: [X] = []
+
+  /// The second part of each element.
+  private var ys: [Y] = []
+
+  /// An empty instance.
+  public init() {}
+
+  /// The `i`th element.
+  public subscript(i: Int) -> (X, Y) {
+    (xs[i], ys[i])
+  }
+
+  /// The length.
+  public var length: Int { xs.length }
+
+  /// Adds `e` to the end.
+  public mutating func append(_ e: (X, Y)) {
+    xs.append(e.0)
+    ys.append(e.1)
+  }
+}
+```
 
 It's important to realize that to be a class invariant, the condition
 only needs to hold at the public interface boundary; it's perfectly
 fine to violate the condition when no clients can observe it.  In
 fact, it's necessary during a mutation.  If we want to add a new pair,
-we have to grow one of these vectors first,
+we have to grow one of these vectors first, which breaks the invariant
+until we've done the other push_back.  That's not a problem because
+the vectors are private and we encapsulate the invariant inside a this
+public method, that appends a pair.  By the time that method returns,
+everything is back in order.
 
->> which breaks the invariant until we've done the other push_back.  >
->That's not a problem because the vectors are private and we
->encapsulate the invariant inside a this public method, that appends a
->pair.  By the time that method returns, everything is back in order.
+
 
 The beauty of having public and private access control is that it
 doesn't take much attention to uphold a type invariant.  The condition
@@ -212,7 +253,13 @@ operations that only use the public API are in the clear too.  This is
 a really trivial example, but having this strong invariant simplifies
 the code that computes the length of the PairArray.  We don't have to
 take the minimum of two lengths, because we know the lengths are
-equal.Spoiler Alert: It's Documentation
+equal.
+
+### Spoiler Alert: It's Documentation
+
+> All undocumented software is waste. It's a liability for a company.
+>
+> —Alexander Stepanov (https://youtu.be/COuHLky7E2Q?t=1773)
 
 Looking back at Meyers' definition, you might notice he says contracts
 are “precisely defined specifications,” which is just a fancy word for
@@ -235,7 +282,7 @@ going to bother looking at the implementation.  Remember, the
 contracts are the connective tissue; they're what every client of a
 component interacts with; they will have effects throughout the
 codebase.  The implementation, well, that had better be an expression
-of the contract, but that's like… the final detail.
+of the contract, but that's, like… the final detail.
 
 Anyway yes, this is a talk about documentation. While it is true that
 there are lots of counterproductive approaches to documentation, I'm
@@ -275,22 +322,47 @@ for the program to “be in a good state” that way.  For example,
 
 - you might have a database of employees, each with
 - an ID of its own
-- a manager ID (Shantanu gets to be his own manager)
+- a manager ID (The CEO gets to be his own manager)
 
 It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
 through the program you have code to ensure it's upheld.  It would be
 a great idea to identify and document that whole-program invariant.
+
+### Encapsulating invariants
+
 An even better idea is to use *encapsulate* the invariant in a type,
-and document _that_.  So instead of using a Database type directly,
-maybe create an EmployeeDatabase type with a private Database, whose
-public API always upholds that invariant.  Now you can remove that
-logic from the rest of your code.  This is one of the most powerful
-transformations you can make.
+and document _that_.  So instead of using an `SQLDatabase` type
+directly, maybe create an `EmployeeDatabase` type with a private
+`SQLDatabase`, whose public API always upholds that invariant.  Now
+you can remove that logic from the rest of your code.  This is one of
+the most powerful transformations you can make.
+
+```swift
+/// The employees of a company.
+///
+/// Invariant: every employee has a manager in the database.
+struct EmployeeDatabase {
+  /// The raw storage.
+  private var storage: SQLDatabase;
+
+  /// Adds a new employee named `name` with manager `m`, returning the
+  /// new employee's ID.
+  public addEmployee(_ name: String, managedBy m: EmployeeID) -> EmployeeID
+
+  /// Removes the employee identified by `e`.
+  ///
+  /// - Precondition: `e` identifies an employee who is not the
+  ///   manager of any other employee.
+  public remove(_ e: EmployeeID)
+
+  ...
+}
+```
 
 Upholding invariants is the _entire purpose_ of access control, so use
-it whenever you can!  Lastly, I want to say, this documentation should
+that whenever you can!  Lastly, I want to say, this documentation should
 go in your code as comments, because:
 
 1. That puts the two things that should correspond—documentation and
@@ -321,28 +393,64 @@ by Contract.  In general, that means you can write *parts* of your
 contracts as code, and get some checking at runtime to make sure these
 contracts are upheld.
 
+```swift
+struct MyArray<T> {
+  ...
+
+  // Returns the `i`th element.
+  @requires(i >= 0 && i < self.count)
+  fun getNth(i: Integer): T
+
+  ...
+}
+```
+
 The idea started with Bertrand Meyer's own Eiffel language, and was
 picked up by many others, including D, Scala, Kotlin, and
 Clojure. Other languages, like Rust and Python, have contract
 libraries that provide a near-native contract programming experience.
 
-If you use one of these languages, fantastic; absolutely leverage
+If you use one of these languages, fantastic; *absolutely do* leverage
 those features and libraries.  That can reduce the amount of pure
 documentation you need to write and add automated contract checking at
 runtime. But there are two caveats:
 
-1. Contracts are fundamentally documentation, even if they're
+1. **Contracts are fundamentally documentation**, even if they're
    expressed in code, so they must appear in the API descriptions
    consumed by client programmers. If you're using automated
    documentation extraction tools make sure they expose the contract
    code along with the API.
 
-2. Some contracts are better expressed in English than as code, and
-some others that are actually impossible to express as code.  We'll
-see an example in a moment.  So the first thing to notice about this
-code is that the method bodies are collapsed, because this is not
-about what you put in your implementations.  Contracts are part of
-your function's interface.
+2. Some contracts are better expressed in English than as code,
+
+3. Some contracts are impossible to express as code.  We'll
+   see an example in a moment.
+
+```swift
+/// A resizable random-access collection of `T`s.
+struct DynamicArray<T> {
+
+  /// Removes and returns the last element.
+  public mutating func popLast() -> T { ... }
+
+  /// The `i`th element.
+  public subscript(i: Int) -> T { ... }
+
+  /// The length.
+  public var length: Int { ... }
+    .
+    .
+    .
+
+  /// The number of elements that can be stored before storage is
+  /// reallocated.
+  private var capacity: Int { ... }
+}
+```
+
+So the first thing to notice about this code is that the method bodies
+are collapsed, because this is not about what you put in your
+implementations.  Contracts are part of your function's interface.
 
 The only time we're going to look into method bodies today is when we
 talk about programmatic checking, and only when the language forces us
