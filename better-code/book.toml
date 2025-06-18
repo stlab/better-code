@@ -4,3 +4,19 @@ language = "en"
 multilingual = false
 src = "src"
 title = "Better Code"
+description = "A principled and rigorous approach to software development"
+
+[build]
+build-dir = "book"
+
+[output.html]
+git-repository-url = "https://github.com/stlab/better-code"
+edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/src/{path}"
+site-url = "/better-code/"
+cname = "stlab.github.io"
+
+[output.html.search]
+enable = true
+
+[output.html.print]
+enable = true
