@@ -241,8 +241,6 @@ the vectors are private and we encapsulate the invariant inside a this
 public method, that appends a pair.  By the time that method returns,
 everything is back in order.
 
-
-
 The beauty of having public and private access control is that it
 doesn't take much attention to uphold a type invariant.  The condition
 needs to be established the constructor, and an operation that mutates
@@ -284,7 +282,7 @@ component interacts with; they will have effects throughout the
 codebase.  The implementation, well, that had better be an expression
 of the contract, but that's, like… the final detail.
 
-Anyway yes, this is a talk about documentation. While it is true that
+Anyway yes, contracts about documentation. While it is true that
 there are lots of counterproductive approaches to documentation, I'm
 going to show you one that is practical *and*—if you give the process
 the attention it deserves—can help you improve the code of your APIs.
@@ -310,7 +308,11 @@ bad news, of course, is that you're not at the top of the
 tower. Someone else, or future-you, is going to have to build on the
 code you're writing.  That means there's no difference between public
 and private stuff where documentation is concerned.  Everything is an
-API to somebody.  The tower of abstraction mentioned earlier comes
+API to somebody.
+
+### A Tower of Invariants
+
+The tower of abstraction mentioned earlier comes
 with a tower of invariants.  The invariants of the type with the two
 arrays in it are built on—and depend on—the invariants of the
 individual arrays, and you could embed this type into some larger data
@@ -385,11 +387,9 @@ minimal but complete contract documentation for each declaration.
 Now, not every contract is as simple as these are, but simplicity is a
 goal.  In fact, if you can't write a terse, simple, but _complete_
 contract for a component, there's a good chance it's badly designed.
-More on all this in part 2.
 
-
-You may have heard that some languages have features to support Design
-by Contract.  In general, that means you can write *parts* of your
+You may have heard that some languages have features to support “Design
+by Contract.”  In general, that means you can write *parts* of your
 contracts as code, and get some checking at runtime to make sure these
 contracts are upheld.
 
@@ -413,13 +413,14 @@ libraries that provide a near-native contract programming experience.
 If you use one of these languages, fantastic; *absolutely do* leverage
 those features and libraries.  That can reduce the amount of pure
 documentation you need to write and add automated contract checking at
-runtime. But there are two caveats:
+runtime. But there are caveats:
 
 1. **Contracts are fundamentally documentation**, even if they're
    expressed in code, so they must appear in the API descriptions
    consumed by client programmers. If you're using automated
    documentation extraction tools make sure they expose the contract
-   code along with the API.
+   code along with the API.  If not, you need to repeat the complete
+   contract in documentation.
 
 2. Some contracts are better expressed in English than as code,
 
@@ -456,39 +457,68 @@ The only time we're going to look into method bodies today is when we
 talk about programmatic checking, and only when the language forces us
 to do it in the body; otherwise it's all about interfaces.  Next
 notice that every declaration here has a summary, which is a sentence
-fragment that minimally describes what the thing is or does. That is
+fragment that minimally describes what the thing *is* or *does*. That is
 the first and most important part of the contract.  If you ask me for
 a code review and every declaration outside a function body doesn't
 have one of these summaries, I'm sending it back.
 
-So this first one gives us the context we need to understand the
+The first one
+
+```swift
+/// A resizable random-access collection of `T`s.
+struct DynamicArray<T>
+```
+
+gives us the context we need to understand the
 methods: we're looking at the declaration of dynamic array type that
 holds any number of Ts.  Now let's look at the contract for the first
-method, called "popLast."  As you can see from the summary, it removes
-and returns the last element Notice that the phrase “last element” is
-meaningful only because we documented that this thing is a collection,
-which is a sequence of elements.  This method is a little unusual in
-that it mutates the array and has a result, which means you need to
-decide what to emphasize in the summary: the removal or the returned
-value.  Here we've emphasized the mutation, which is normally what you
-want.  You'd generally only emphasize the return value if the mutation
-is something incidental that doesn't affect the program's meaning,
-like updating a cache.
+method, called "popLast."
+
+```swift
+  /// Removes and returns the last element.
+  public mutating func popLast() -> T { ... }
+```
+
+As you can see from the summary, it removes and returns the last
+element. Notice that the phrase “last element” is meaningful only
+because we documented that this thing is a collection, which is a
+sequence of elements.  This method is a little unusual in that it both
+mutates the array and returns a result, which means you need to decide
+what to emphasize in the summary: the removal or the returned value.
+Here we've emphasized the mutation, which is normally what you want.
+You'd generally only emphasize the return value if the mutation is
+something incidental that doesn't affect the program's meaning, like
+updating a cache.
 
 So let's spell out the preconditions, postconditions, and invariants
 of this function.
 
 What are the preconditions for removing an element?  Obviously, there
-needs to be an element to remove.This means a client of this method is
-considered to have a bug unless the array has an element.  OK, so what
-about postconditions?
+needs to be an element to remove.
 
+```swift
+  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+  public mutating func popLast() -> T { ... }
+```
 
+This means a client of this method is considered to have a bug unless
+the array has an element.  OK, so what about postconditions?
 
 The postcondition is the effects the method has, plus any returned
 result.  If the preconditions are met, but the postcondition isn't,
 we'd say the method has a bug.  The bug could be in the documentation
 of course; that's part of the method.
+
+```swift
+  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+  /// - Postcondition: The length is one less than before
+  ///   the call. Returns the original last element.
+ public mutating func popLast() -> T { ... }
+```
 
 And what's invariant here?  The rest of the elements are unchanged.
 Now, if the postcondition seems a bit glaringly redundant with the
@@ -505,20 +535,63 @@ I'm going to erase the postcondition now, but it's important to ask
 yourself what the postconditions are and make sure they're completely
 captured by the summary before you do this.  Considering the
 postcondition is part of the process that makes the summary complete.
+
 And if we know everything the method does is captured in the summary,
 we can assume everything else in the program is unchanged, so the
 invariant is also trivially implied.  And that is also very commonly
 omitted.
 
+```swift
+  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+  /// - Postcondition: The length is one less than before
+  ///   the call. Returns the original last element.
+  /// - Invariant: the values of the remaining elements.
+ public mutating func popLast() -> T { ... }
+```
+
 Because I've validated that the invariant is implied, I'm going to
-erase that too.In fact, the precondition is sort of implied by the
+erase that too. In fact, the precondition is sort of implied by the
 summary too.  You can't remove and return the last element if there's
 no last element, right?
 
 Whether or not to omit an implied precondition may be a slightly
-different judgement from the others. Because it's information every
-client needs in order to not have a bug, it might be a good idea to
-spell it out.  This is a method of Arrays that sorts the elements
+different judgement from the others, because it's information every
+client needs in order to not have a bug.  Regardless, a client must
+assume that any condition required for the summary to make sense is a
+precondition.  We recommend your project's policy only *requires*
+precondition documentation where those preconditions are not obviously
+implied by the summary.  In the end, the original declaration should
+be sufficient:
+
+```swift
+  /// Removes and returns the last element.
+ public mutating func popLast() -> T { ... }
+```
+
+This example shows that complete and precise documentation need not be
+overly burdensome for the reader or the writer.
+
+### A More Complicated Example
+
+```swift
+extension Array {
+  /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
+  /// self[i])` is false for each `i` in 0 ..< length - 1.
+  ///
+  /// - Precondition: `areInIncreasingOrder` is a strict weak ordering
+  ///   over the elements of `self`.
+  /// - Complexity: at most N log N comparisons, where N is the number of elements.
+  mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
+}
+
+var a = [7, 9, 2, 7]
+a.sort(areInIncreasingOrder: <)
+print(a)     // prints [2, 7, 7, 9]
+```
+
+This method of Arrays that sorts the elements
 according to some comparison predicate `areInIncreasingOrder`.  So if
 we pass it the less-than operator, which is true when the first
 argument is less than the second, we get the elements arranged from
@@ -527,12 +600,28 @@ adjacent elements are out-of-order according to the predicate.  I
 apologize for the weird negative phrasing of the postcondition, but
 there's no other way to say it given the need to handle equal
 elements, for which the predicate will return false.  That's a little
-tricky, but not really important to this presentation, so if it's not
-clear to you yet, let's talk about it afterward.
+tricky, but not really important.
 
-In fact, I don't normally clutter up my documentation with examples,
-but because it's tricky, this is a case where an example might really
-help Anyway two things to notice here:First, there's an explicit
+We don't normally clutter up our documentation with examples, but
+because the statement of effects is tricky, this is a case where an
+example might really help.
+
+```swift
+  /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
+  /// self[i])` is false for each `i` in 0 ..< length - 1.
+  ///
+  ///     var a = [7, 9, 2, 7]
+  ///     a.sort(areInIncreasingOrder: <)
+  ///     print(a)     // prints [2, 7, 7, 9]
+  ///
+  /// - Precondition: `areInIncreasingOrder` is a strict weak ordering
+  ///   over the elements of `self`.
+  /// - Complexity: at most N log N comparisons, where N is the number
+  ///   of elements.
+  mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
+```
+
+Anyway two things to notice here: First, there's an explicit
 precondition that isn't implied by the summary.  We require that the
 predicate be a strict weak ordering, which is a set of properties we
 need to make the the result meaningful. I'm not going to go over all
@@ -552,6 +641,8 @@ complexity documented in this talk up to now is that I have a policy
 that operations have constant complexity unless specifically
 documented otherwise.
 
+### Project-Wide Documentation Policies
+
 Which brings me to this aside…  A big part of making the documentation
 problem tractable is having some well-chosen project-wide policies
 that save you from repeating common patterns. So I'm not going to
@@ -561,238 +652,39 @@ the difference between documentation being useful and being burdensome
 or inconsistent (at which point people will just stop reading and
 writing it).
 
->> Note that it is fine to put information in the policies without
-which the project's other documentation would be incomplete or
-confusing.  For example, this says that every function that cannot
-throw an exception is declared or documented as such.  I want to
-mention one other thing: everything you see in these function
-signatures is implicitly part of the function's contract. For example,
-the signature says the predicate must operate on arguments of type T,
-and return a `Bool`, so we didn't have to spell that out as a
-precondition in documentation.
+For example,
+
+- Every declaration outside a function body must have a documentation comment that describes
+  its contract.
+  - Start with a summary sentence fragment.
+    - Describe what a function or method does and what it returns.
+    - Describe what a property or type is.
+    - Separate the fragment from any additional documentation with a blank line and end it
+      with a period.
+  - Preconditions, postconditions and invariants obviously implied by the summary need not
+    be explicitly documented.
+  - Declarations that fulfill protocol requirements are exempted when
+    nothing useful can be added to the documentation of the protocol
+    requirement itself.
+
+- End every file with a newline.
+- Do not strip trailing whitespace from lines you're not editing; it creates spurious VC diffs.
+- Document the performance of every operation that doesn't execute in constant time and space.
+
+
+It is reasonable to put information in the policies without which the
+project's other documentation would be incomplete or confusing, but
+you should be aware that it implies policies must be read.
+
+
+I want to mention one other thing: everything you see in these
+function signatures is implicitly part of the function's contract. For
+example, the signature if `sort` says the predicate must operate on
+arguments of type T, and return a `Bool`, so we didn't have to spell
+that out as a precondition in documentation.
 
 Because Swift is a statically typed language, it just so happens that
-those things are going to be enforced by the compiler, but if you're
+those things are going to be enforced by the compiler, but if you were
 programming in a totally dynamic language, like Javascript, or Python
-without type hints, you have to put a lot more of that information
-into the written documentation.
-
-Okay, now let's talk about errors.  So we already talked about bugs as
-faulty code, resulting in a failure to satisfy preconditions or
-postconditions.  If we detect one of these conditions, in general,
-there's no way to know where the bug is or how much damage has been
-done to the program's supposed invariants: it could be "in a bad
-state."  The bug may have been in the very code that was responsible
-for maintaining that state.  That's why diagnosing and fixing bugs is
-hard!
-
-An error is not-that.  When there's an error, no code is at fault, but
-the postcondition can't be satisfied.
-
-For example, you can't save a document if the disk is full, and you
-may not be able to load a document from disk if the data turns out to
-be corrupted.  In these cases the program state is still okay, and the
-client might have a reasonable way to recover and continue running.
-Sometimes this just means reporting the error to the user and waiting
-for the next command.
-
->> So only the neeedless postcondition violations are bugs.Let's
->update our sorting function to deal with a comparison that can report
->errors.  Maybe the comparison needs to allocate space on disk or
->something.
-
-In Swift we'd do that by making the comparison a throwing function.
-And then we have to say that sort can throw if the comparison can
-throwIn Swift, if something is going to throw, you have to declare
-that fact explicitly, If you're stuck with a language like C++,
-Python, or Java that doesn't make you put error information in the
-signature, you have to find another way to document it for client
-coders.
-
-In those cases I normally have a policy that by default, anything can
-report an error, and say that operations that will never report errors
-must document that fact.
-
-Because we said an error represents a failure to meet postconditions,
-the postcondition doesn't tell you anything about the the state of the
-program when an error is reported.  But if you really don't know
-*anything* about the state of the program, you probably can't recover.
-
-Fortunately, we can assume by default that a failing operation only
-mutates the things it would mutate in case of success.
-
-So in the case of `sort`, we know the array was mutated… somehow, but
-we don't know much more than that.  Is there anything more we can
-reasonably guarantee in case of an error?
-
-You might think, it's _possible_ that our clients could do something
-with the array if they know that the array is still a permutation of
-the original elements, just rearranged, but I want to caution you
-against the line of thinking that goes, “it's *conceivable* that some
-unknown client may have a use for this feature or guarantee, so I'm
-going to give it to them.”
-
-1. It's very hard to retract once it's given, because you may break
-   code.
-2. The guarantee complicates your contract: it needs to be described;
-   potential clients need to read and understand it.
-3. The guarantee is likely to complicate your implementation and your
-   tests.
-4. Making needless guarantees may constrain the implementation in ways
-   that rule out the most efficient implementation, now or in the
-   future.
-
-In general, describing a partially mutated state is complex, probably
-not useful, and may be impossible. So clients need to assume values
-under mutation have arbitrary meaningless values after an error is
-reported.
-
-This is not as useless as it sounds at first: there's a good chance
-they're on the stack and will be destroyed when the scope exits.  And
-if you work on a desktop application with undo, it's effectively
-saving a snapshot of the document before every mutation, so your
-program is very likely set up to discard partial mutations of
-important state.
-
-So this is the theory of error handling I developed back in 1998 for
-the C++ standard library.  It says that there are 3 useful kinds of
-promises an operation can make with respect to errors.
-
-The minimum guarantee is this basic guarantee that invariants are
-always upheld, the idea being that we don't know how to reason about a
-program if broken invariants are visible outside a type's
-encapsulation boundary.
-
-The next stronger guarantee says that if an error is reported, the
-operation has no observable effects; it's transactional
-
-And then the strongest guarantee an operation can make is that it
-won't report any errors at all.  You need a no-error guarantee from
-any operations used in error recovery, or you end up with some kind of
-infinite recovery recursion.  I told you that you can lean on
-invariants for reasoning, so you might find the idea of an
-interrupted, partial mutation alarming, because that could leave
-invariants broken.  That collection of pairs offers a good example, if
-appending an element to a vector can fail, as in C++
-
-Now I realize that lots of modern programming languages treat
-out-of-memory as something that can't happen, so if you use one of
-those languages, imagine that the private arrays in this thing are a
-different type, `DiskVector`, that's backed by storage on disk, and we
-can run out of disk space trying to grow them.
-
-If an error occurs trying to do the second append, as coded, we're
-left with a broken invariant, because the length of `xs` is one
-greater than the length of `ys`.
-
-So how could we uphold the invariant? There are a number of
-strategies.
-
-Here's one totally legit way.
-
-If anything fails, we just discard all the elements.  This is what we
-call the Basic Error Guarantee: it says that all invariants are upheld
-and nothing is leaked.
-
-This is a nice place to land because the instance of `PairVector` is
-still in a good state, and its operations still function as normal.
-On the other hand, even if the invariant is upheld, from the client's
-perspective this is still a partially mutated object with a
-meaningless value, and we really shouldn't be doing anything with it.
-We'll come back to that.
-
-By the way, we need to know something in order for this method to give
-the basic guarantee: it only works if `clear()` can't fail—if it gives
-the nothrow or nofail guarantee.  Remember I said that whether an
-error can occur is part of an operation's contract?  It's crucial
-information because error *recovery* needs to use operations that
-can't themselves report errors.
-
-In contrast, which specific errors can be reported is comparatively
-unimportant except for the very lowest level primitives, because
-there's usually just one strategy for error recovery.  And remember,
-if you try to spell that information out and your clients don't need
-it, you've fallen into the trap of giving premature guarantees.It
-turns out that `push_back` can give a stronger guarantee than the
-basic one if we recover this way:
-
->> If the second `push_back` fails, we just undo the first one and the
->`PairVector` is unchanged.  >>
-
-The strong guarantee that an operation either succeeds or has no
-effects is actually useful to clients in practice, unlike most
-statements describing partial mutations.It's also very simple to
-describe, so it doesn't overly complicate the specification.
-
-In fact, we're taking advantage of the strong guarantee from
-`vector`'s own `push_back` method hereit's why no recovery is needed
-if the first `push_back` failsand it's why the catch block only needs
-to adjust `xs`: because we know that if we get there, `ys` is still
-unchanged.
-
-So this is nice.  Should all operations give the strong guarantee?
-Let's look at sort
-
-Pretty much the only way to get the strong guarantee here is to use
-what I call a "copy and swap" strategy.
-
-First we make a copy of the thing under mutation, then we try to do
-the mutation on the copy, and only if everything works out, we swap
-the original for the copy.
-
-This approach leaves `self` unmodified if `actuallySort` fails.  But
-it's super expensive: it allocates memory, and incurs O(N) space and
-time overhead.  Since we're not sure every client of `sort` needs the
-strong guarantee, we shouldn't force them to accept this expense.
-It's a form of giving away the store.
-
-On the other hand, the strong guarantee makes sense for `PairVector`'s
-`push_back` because it's achievable without loss of efficiency. It
-even falls out of maintaining invariants in the most natural way.
-
-What you've seen so far is basically the theory of error handling that
-I developed back in 1998 for the C++ standard library, with every
-operation being required to give at least the Basic Guarantee, because
-the idea that invariants must always be maintained is sort of
-foundational. It's a tried and true way to approach thinking about
-errors and correctness.  But I'd be remiss if I didn't describe Sean's
-2022 update to the theory which he calls “error handling the other way
-around.”
-
-It's based on the insight that an unknown partially-mutated value is
-meaningless, so any operations you do on it, other than destruction
-and maybe assignment, represent a bug—also known as nonsense.
-Remember if the client uses an operation in a buggy way, the ethos of
-blame says the operation has no obligations.
-
-So Sean's thesis is that when an operation can't efficiently give the
-strong guarantee, maybe upholding invariants is a waste of effort,
-because further operations on the value are all bugs.
-
-It's the client's obligation to discard any partially mutated value
-via destruction or assignment, so all we really need to do is leave
-the partially-mutated object in a destructible and assignable state.
-
-In my 1998 theory of error handling, type invariants are required to
-hold after every public operation, whether an error is reported or
-not.  If we do error handling “the other way around,” they're only
-required to hold if the operation is successful or if it gives the
-strong guarantee.  Whichever policy you choose—you got it—write it
-down in your policy document.  You own a supercar, a $8M Bugatti Divo.
-This thing has extremely tight tolerances, basically to be “in a good
-state” you have to care for it properly and maintain its invariants.
-Therefore you've got a contract with an ultra-exclusive "car butler"
-who takes care of all the maintenance, including refueling.  The
-contract, of course, says the butler is only going to use
-ultra-premium gas.  One day you get a notice from the state that says
-it's time to come in for a smog check. You have your assistant drive
-take the car in and you find out the car violates the precondition for
-continued operation.  You take the car back to the dealer and they
-tell you the engine is shot and now the car is valued at only $2M,
-practically worthless.  How did this happen?!  You ask the dealer to
-investigate, so they do a whole battery of tests and the only thing
-they can find is that the car's tank is full of economy gas like you'd
-use in a Prius.  Your butler, clearly, had a bug, and the wrong fuel
-has been eating away at the valves and piston heads for months.  You
-never really push the car too hard, so you don't notice any difference
-in performance, but the damage is done.
+without type hints, you have to put a lot more of that sort of
+information into the written documentation.
