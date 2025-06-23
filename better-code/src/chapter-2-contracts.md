@@ -1,45 +1,40 @@
 # Contracts
 
 Contracts are the connective tissue of solid software.  You really
-can't build software at scale without them.  If you *are* building
-large software systems, I promise you, you're using contracts, even if
-you don't use that word for them, and I hope it'll be useful to deepen
-your understanding of what you're already up to.
+can't build software at scale without them.  If you *are* successfully
+building large software systems, you're already using  contracts in
+some form, and this chapter should help you make them more powerful.
 
-## Agenda
+## In pursuit of Correctness
 
-- Correctness
-- Local reasoning
-- Design by Contract
-- Contract style
+Fundamentally, contracts are about the first ingredient of Better
+Code: correctness. Some folks write off the pursuit of correctness,
+because bugs are inevitable, and in practice, and we rely on incorrect
+software every day without disaster (for the most part). But that
+approach throws out the baby with the bathwater.  There is a practical
+approach to correctness that improves both code quality and the
+programming experience, without demanding unrealistic perfection.
 
-## Introduction
+For those who like to think formally, we can define a _semi-correct_
+program as one for which there exists a valid initial state and
+inputs, such that the program will generate a valid output. As an
+analogy, a broken clock is semi-correct, it is correct twice a
+day. This definition provides a partial ordering of correctness, where
+a program is _more correct_ than another if the initial states under
+which it is correct are a superset of the other.
 
-Fundamentally, contracts are about correctness.  Some people think
-it's futile to pursue correctness, but I disagree, for three reasons:
+So while you may not reach a point where all bugs vanish, but you will
+have well-justified confidence in the correctness of your own work
+while maintaining high productivity. Also, the discipline we'll
+describe here of **programming by contract** removes uncertainty and
+needless complexity from your code and from the process of coding.
+That's a big part of why we say it's practical.
 
-First, it's more practical than you might think.  This doesn't mean
-you'll reach a point where all bugs vanish, but you can reach a point
-where you have well-justified confidence in the correctness of your
-own work while maintaining high productivity… as long as you're not
-measuring productivity in LOC.
+## Reasoning about correctness
 
-Second, Simplicity.  The discipline we're talking about actually
-removes tons of uncertainty and needless complexity from your code and
-from the process of coding.  That's a big part of why I say it's
-practical.
-
-Last, it's just way more fulfilling to have a clear sense of when
-you've done a thing right, and that doing the right thing is even
-possible—than it is to “iterate until it seems to work.”
-
-In case this wasn't clear, I'm saying that strong contracts make code,
-and coding, simpler.  And I hope to demonstrate that through the
-course of this seminar.I want to be clear, though, when I talk about
-correctness, I don't mean some kind of elaborate formal proof. I mean
-achieving correctness through the sort of everyday thinking that we do
-while programming:
-
+How can you know whether your program is correct?  Validating
+correctness seldom requires an elaborate formal proof—usually the sort
+of everyday thinking that we do while programming suffices.
 
 ```swift
 var names = [ "Sean", "Laura", "Dave", "Crusty" ]
@@ -47,81 +42,121 @@ names.sort()
 print(names[3])
 ```
 
-How do I know that last line is OK?  “I started with values in indices
-zero through three sorting rearranges items without changing the
-length so in the last line, I can still access item 3.”
+In the example above, how do we know that last line is OK? Our thought
+process is something like this:
 
-Not to overly aggrandize this, but that's just an informal proof. So
-regular programming is on the same continuum as formally proving
-correctness and I'm going to inject a little more formality here. Not
-as an academic exercise, but because it's practical and useful.
+- We started with values in indices zero through three of `names`.
+- sorting `names` rearranges elements without changing the set of valid indices.
+- Therefore, in the last line, `names` still has an element at index `3`.
 
-That kind of everyday thinking is only practical if we can reason
-locally about code.  Here's what I mean: The clearest definition I've
-found is this one from Nathan Gitter: “Local reasoning is the idea
-that the reader can make sense of the code directly in front of them,
-without going on a journey discovering how the code works”
+That's just an informal proof, and we use that kind of reasoning every
+time we write a line of code. So regular programming is on the same
+continuum as formally proving correctness.  We're going to explore the
+power that's available by moving toward the formal end of that
+spectrum to see how it enables Better Code.
 
-So in our example, what we know about sort allows us to reason about
-its use without looking at its implementation.
+## Local Reasoning
 
-My brain has limited capacity. And I've found a lot of other peoples'
-brains are limited too. Not yours of course, but a lot of peoples'
-are. People like me can't keep the whole program in our heads, so we
-do what humans always do when faced with complexity: we break
-complicated problems into parts that can be understood in isolation.In
-fact, local reasoning is so fundamental that most of our programming
-best practices are there just to enable it.  It's why we make data
-members private, why we break programs into components like functions,
-types, and modules, and we try to keep them small.
+The kind of everyday thinking demonstrated above is only practical if
+we can reason locally about code.  The clearest definition of Local
+Reasoning we've found is [this
+one](https://medium.com/@nathangitter/local-reasoning-in-swift-6782e459d)
+from Nathan Gitter: “Local reasoning is the idea that the reader can
+make sense of the code directly in front of them, without going on a
+journey discovering how the code works.”
+
+So in our example, what we know about `sort` allow us to reason about
+its use without looking at its implementation.  In fact, local
+reasoning is so fundamental that most of our programming best
+practices exiast just to support our ability to do it.  It's why we
+use access control, why we break programs into components like
+functions, types, and modules, and why we try to keep them small.
+
+## Components and Abstraction
+
+Obviously, “knowing something about `sort`” is only possible and
+relevant because `sort` is a separate component with its own name. If
+we had injected the sorting implementation directly into our code,
+we'd have to reason about all of its details, and we'd need a comment
+to tell us that the implementation was sorting the elements.
+
+So it's a common fallacy that factoring out a component only makes
+sense if it's used more than once. The real criterion is whether you
+can identify a unit of *abstraction*—the third ingredient of Better
+Code.  If you can think of a simple and descriptive name for
+something, that's usually a good indicator that there's an abstraction
+waiting to be discovered.
+
+In fact, creating a component directly creates the opportunity for an
+additional use site: in testing.  The more code you test separately,
+the better it is for correctness.  The more you can use understandable
+abstractions, the simpler and clearer the use-sites become, which is
+better for correctness. Abstraction and correctness support one
+another in a virtuous cycle.  And abstraction is necessary for
+programming at scale: because can't keep the whole program in our
+heads, we do what humans always do when faced with complexity: we
+break complicated problems into parts that can be understood in
+isolation.
 
 ## Hoare Logic
 
-This discipline started with something called Hoare Logic, which the
-British computer scientist and logician Tony Hoare first proposed in
-1969.
+Programming by contract grew out of Hoare Logic, developed in 1969 by
+the British computer scientist and logician Tony Hoare.  While we
+won't be using Hoare Logic directly, we'll discuss it briefly to
+provide historical context, and because it is the source of crucial
+terminology.
 
-He used this notation:
+### Preconditions and Postconditions
 
-> {P}C{Q}
+Hoare used this notation, called a “Hoare triple,”
 
-meaning that if precondition P is met, executing C establishes
-postcondition Q
+> {P}S{Q}
 
-So for a trivial example, if x is less than the maximum integer,
-incrementing x will leave it greater than the minimum integer
+which is an assertion that if **precondition** *P* is met, operation
+*S* establishes **postcondition** *Q*.
 
-> {x < Int.max}  x+=1  {x > Int.min}
+For example:
 
-If you're allergic to formal notation, look away and just listen to my
-words for a moment.
+- if we start with `x == 2` (precondition), after `x += 1`, `x == 3` (postcondition):
 
-What makes preconditions and postconditions useful is this composition
-rule: if the postconditions of one operation imply the preconditions
-of the next one, and the first operation's preconditions are
-satisfied, you can execute them in sequence and establish the
-postconditions of the second operation.
+  > {x == 2}x+=1{x == 3}
 
-> {P}C{Q} ∧ {P'}C'{Q'} ∧ (Q ⇒ P')  ⇒ {P}CC'{Q'}
+- if `x` is less than the maximum integer (precondition), after `x
+  += 1`, `x` is greater than the minimum integer (postcondition):
 
-This is just a formalization of the reasoning we use when we write
-straight-line code, so our everyday programming practice is actually
-well-founded. Not all code runs in a straight line, though, so Hoare
+  > {x < Int.max}x+=1{x > Int.min}
+
+What makes preconditions and postconditions useful for formal proofs
+is this composition rule:
+
+> {P}S{Q} ∧ {Q}T{R} ⇒ {P}S;T{R}
+
+Given two valid Hoare triples, if the postconditions of the first are
+preconditions of the second, we can form a new valid triple describing
+the effects of performing the operations in sequence.  The notation
+may look exotic, but its meaning should be familiar: this rule simply
+captures the reasoning we use to think informally about statements
+when we write straight-line code.
+
+### Invariants
+
+Not all code runs in a straight line, though, so Hoare
 also gave us a tool for reasoning about loops.
 
-A loop invariant is a condition that holds before and after each
-iteration.  So in this linear search there's an invariant that no
+A **loop invariant** is a condition that holds before and after each
+iteration.  In this linear search there's an *invariant* that no
 element preceding the `i`th one is equal to `x`.
 
 ```swift
 var i = 0
-while (i != a.length && a[i] != x) {
+while (i != a.count && a[i] != x) {
   i += 1
 }
 ```
 
-Knowing that's upheld when the loop exits allows us to conclude that
-the it finds the first x if there is one… not just any x.
+Knowing that's always true when the loop exits allows us to conclude
+that if `i != a.count`, the *first* occurrence of `x` in `a` is at
+index `i`.  Anything else would contradict the loop invariant.
 
 ## Design By Contract
 
