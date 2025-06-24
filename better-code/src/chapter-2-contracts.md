@@ -140,8 +140,8 @@ when we write straight-line code.
 
 ### Invariants
 
-Not all code runs in a straight line, though, so Hoare
-also gave us a tool for reasoning about loops.
+Not all code runs in a straight line, though, so Hoare also gave us a
+tool for reasoning about loops.
 
 A **loop invariant** is a condition that holds before and after each
 iteration.  In this linear search there's an *invariant* that no
@@ -157,6 +157,11 @@ while (i != a.count && a[i] != x) {
 Knowing that's always true when the loop exits allows us to conclude
 that if `i != a.count`, the *first* occurrence of `x` in `a` is at
 index `i`.  Anything else would contradict the loop invariant.
+
+Loops are, in general, difficult to reason about in general, which is
+why we suggest you avoid them (see the Algorithms chapter). But when
+you _do_ have a loop, identifying its invariant is often the first
+step in understanding what it does.
 
 ## Design By Contract
 
