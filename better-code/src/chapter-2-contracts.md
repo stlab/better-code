@@ -172,13 +172,24 @@ step in understanding what it does.
 >   —Building bug-free O-O software: An Introduction to Design by Contract™
 >    https://www.eiffel.com/values/design-by-contract/introduction/
 
-So enough formalisms. In the mid 1980s, The French computer scientist
+So, enough formalism. In the mid 1980s, The French computer scientist
 Bertrand Meyer took Hoare Logic, and shaped it into a practical
 discipline for software engineering that he called “Design By
-Contract”
+Contract.”  Meyer was focused on software components—types and
+functions/methods.  He realized that there's special power in the
+Hoare triple that captures the intentions of a function's author—the
+function's **contract**:
 
-He describes contracts as the precise specification of mutual
-obligations between interacting software components.
+- The precondition describes which calls to a function should be
+  considered valid.
+- The postcondition omits anything that is purely an artifact of the
+  particular implementation, such as what happens when an invalid call
+  is made.
+- It is general—describing the result for all inputs the author
+  intends to support—so it can be applied in reasoning about any call
+  to the function.
+- An author can evolve the implementation so that valid uses by
+  clients stay valid and retain their meaning.
 
 So contracts describe the rules that govern how one piece of software
 talks to another. In other words, they're relationships.  Thinking in
@@ -186,56 +197,41 @@ terms of relationships is one of the themes of Better Code, and you
 can expect us to point relationships out as they come up in our
 material.
 
-Contract: specifies the relationship between an operation and the clients that invoke it.
+### Which code is to blame?
 
-The basics of design by contract should look familiar; they come
-straight from Hoare:
+When something goes wrong in software, focusing on which *person* to
+blame is counterproductive, but deciding which *code* is to blame is
+the first step.  Contracts tell us which code needs fixing:
 
-- an operation's preconditions—the obligations of a correct client
-- its postconditions—the obligations of the operation when correctly called
-- its invariants—what is true both before and after the operation
+- If preconditions aren't satisifed, that's a bug in the caller.  The
+  function is not required to make any promises[^no-promises] in that case.
 
-Meyer added two key ingredients to Hoare's work.  An ethos of blame.
-Now that might sound like something you want to eliminate from your
-programming culture, but this applies to code, not people.
+- If preconditions are statisfied but postconditions are not
+  fulfilled, that's a bug in the callee, or in something it calls.
 
-If preconditions don't hold, that's a bug.  The client code is at
-fault, and the operation is not required to make any promises.
-
-If preconditions hold but postconditions are not fulfilled, that's a
-bug, and the operation's code (or something it calls) is at fault.
-
-Being able to say which code is at fault is extremely powerful! You
-know which code to fix; It's simplifying and clarifying.
+[^no-promises]: In fact, a function *shouldn't* make any promises in
+  case of precondition violation, because then the caller has a right
+  to call the function and expect the promised result: it's no longer
+  a precondition violation.  There is one exception, especially in a
+  safe-by-default language like Swift: all functions not explicitly
+  labeled unsafe implicitly promise not to have arbitrary “undefined
+  behavior” when their preconditions are violated.  But that's a
+  blanket guarantee that you don't spell out in contracts.
 
 And if you ever find yourself with something that's clearly a bug but
-
 you can't decide which code to blame, that's a sign that a contract is
-missing or incomplete.
+missing or incomplete.  A system that exposes these situations, where
+everybody is playing by the rules but things still go wrong, is known
+by the technical term “footgun.”
 
-> If software malfunctions and you can't clearly assign blame, a
-> contract is missing somewhere.
+### Type Invariants
 
-A system that exposes these situations, where everybody is playing by
-the rules but things still go wrong, is called a footgun.
-
-## Type Invariants
-
-The most important contribution of Meyer's Design by Contract was to
-apply the idea of “invariants” to user-defined types with private
-parts.
-
-Meyer's *class invariant* (or *type invariant*), is a condition that
-holds at the boundary between a type's public API and its
-implementation detail.
-
-just a formalization of what we mean when we talk about instances
-being “in a good state.”
-
-- Condition that holds whenever a type interacts with clients.
-- “It's in a good state” ≅ the invariant is upheld
-
-### Example:
+The other contribution of Meyer's Design by Contract was to apply the
+idea of “invariants” to user-defined types with private parts.  A
+*class invariant* (or *type invariant*), is a condition that holds at
+the boundary between a type's public API and its implementation
+detail—whenever a type interacts with its clients—formalizing what we
+mean when we talk about instances being “in a good state.”
 
 My favorite example is this type that holds a pair of private arrays
 but whose public interface is more like an array of pairs.  The
