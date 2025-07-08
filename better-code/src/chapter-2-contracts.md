@@ -172,13 +172,12 @@ step in understanding what it does.
 >   —Building bug-free O-O software: An Introduction to Design by Contract™
 >    https://www.eiffel.com/values/design-by-contract/introduction/
 
-So, enough formalism. In the mid 1980s, The French computer scientist
-Bertrand Meyer took Hoare Logic, and shaped it into a practical
-discipline for software engineering that he called “Design By
-Contract.”  Meyer was focused on software components—types and
-functions/methods.  He realized that there's special power in the
-Hoare triple that captures the intentions of a function's author—the
-function's **contract**:
+In the mid 1980s, The French computer scientist Bertrand Meyer took
+Hoare Logic, and shaped it into a practical discipline for software
+engineering that he called “Design By Contract.”  Meyer was focused on
+software components—types and methods.  He realized that there's
+special power in the Hoare triple that captures the intentions of a
+function's author—the function's **contract**:
 
 - The precondition describes which calls to a function should be
   considered valid.
@@ -191,7 +190,7 @@ function's **contract**:
 - An author can evolve the implementation so that valid uses by
   clients stay valid and retain their meaning.
 
-So contracts describe the rules that govern how one piece of software
+Contracts describe the rules that govern how one piece of software
 talks to another. In other words, they're relationships.  Thinking in
 terms of relationships is one of the themes of Better Code, and you
 can expect us to point relationships out as they come up in our
@@ -229,19 +228,23 @@ by the technical term “footgun.”
 The other contribution of Meyer's Design by Contract was to apply the
 idea of “invariants” to user-defined types with private parts.  A
 *class invariant* (or *type invariant*), is a condition that holds at
-the boundary between a type's public API and its implementation
-detail—whenever a type interacts with its clients—formalizing what we
-mean when we talk about instances being “in a good state.”
+a type's public API boundary—whenever a type interacts with its
+clients.  When we talk about an instance being “in a good state,” we
+mean that its type's invariants are satisfied.
 
-My favorite example is this type that holds a pair of private arrays
-but whose public interface is more like an array of pairs.  The
-invariant for this type is that the private arrays have the same
-length.
+My favorite example is this type whose public interface is like an
+array of pairs, but stores the elements of those pairs in a pair of
+arrays.[^array-pairs]
 
+[^array-pairs]: You might want to use a type like this one to store
+    `(Bool, Int64)` pairs without wasting storage for padding, or to
+    leverage SIMD operations.
 
 ```swift
 /// A random-access collection of `(X, Y)` pairs.
-struct PairArray<First, Second> {
+struct PairArray<X, Y> {
+  // Invariant: `xs.count == ys.count`
+
   /// The first part of each element.
   private var xs: [X] = []
 
@@ -257,7 +260,7 @@ struct PairArray<First, Second> {
   }
 
   /// The length.
-  public var length: Int { xs.length }
+  public var count: Int { ys.count }
 
   /// Adds `e` to the end.
   public mutating func append(_ e: (X, Y)) {
@@ -267,27 +270,92 @@ struct PairArray<First, Second> {
 }
 ```
 
-It's important to realize that to be a class invariant, the condition
-only needs to hold at the public interface boundary; it's perfectly
-fine to violate the condition when no clients can observe it.  In
-fact, it's necessary during a mutation.  If we want to add a new pair,
-we have to grow one of these vectors first, which breaks the invariant
-until we've done the other push_back.  That's not a problem because
-the vectors are private and we encapsulate the invariant inside a this
-public method, that appends a pair.  By the time that method returns,
-everything is back in order.
+The invariant for this type is that the private arrays have the same
+length.  It's important to remember that invariants only hold at a
+type's public interface boundary and are routinely violated,
+temporarily, durign a mutation.  For example, in `append`, we have to
+grow one of the arrays first, which breaks the invariant until we've
+done the other push_back.  That's not a problem because the arrays are
+private—that “bad” state is *encapsulated* by the type, and
+invisible to clients.  By the time we return from `append`, everything
+is back in order.
 
-The beauty of having public and private access control is that it
-doesn't take much attention to uphold a type invariant.  The condition
-needs to be established the constructor, and an operation that mutates
-private parts needs to restore the condition, and that's it!
+Because we can control access to the visibility of “bad” states, it
+doesn't take much attention to uphold a type invariant.  You
 
-Non-mutating operations can't disturb the invariant, and mutating
-operations that only use the public API are in the clear too.  This is
-a really trivial example, but having this strong invariant simplifies
-the code that computes the length of the PairArray.  We don't have to
-take the minimum of two lengths, because we know the lengths are
-equal.
+- make stored properties `private` or `private(set)`
+- establish the invariant in the type's `init` method(s), and
+- ensure that every `mutating` method upholds the condition upon exit.
+
+Non-mutating operations can't disturb the invariant, and any mutating
+operations that only use the type's public API trivially upholds the
+invariant.
+
+#### How To Choose a Type Invariant
+
+Often, you have a choice about how strong to make your type's
+invariant.  For example, in `PairArray`, we could have chosen the
+invariant `x.count <= y.s.count`.  We call that a *weaker* invariant
+because it allows many more internal states.
+
+Let's assume that there's some method that can create a condition
+where `x.count < y.count`:
+
+```swift
+  /// An instance with the value of `zip(xs, ys)`.
+  ///
+  /// - Precondition: `xs.count <= ys.count`.
+  init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
+```
+
+[Note: when sequences of unequal length are `zip`ped, the result
+has the length of the shorter sequence.]
+
+Now let's see what happens to the rest of the implementation.  Most of
+it is unchanged, but in the `append` method, we now need to account
+for these new internal states.  Here's one way we could do it:
+
+```swift
+  /// Adds `e` to the end.
+  public mutating func append(_ e: (X, Y)) {
+    ys.removeRange(xs.count...) // <=====
+    xs.append(e.0)
+    ys.append(e.1)
+  }
+```
+
+Also, the `count` property now reports the wrong length; it needs to
+return `xs.count` instead of `ys.count`.
+
+So a weaker invariant complicated the implementation and made it more
+fragile. In this case, only two adjustments were needed, but in
+principle it could be many more. Maintaining a stronger invariant
+is better.  There are two simple approaches:
+
+- We can strengthen the precondition of the new `init` method:
+
+  ```swift
+    /// An instance with the value of `zip(xs, ys)`.
+    ///
+    /// - Precondition: `xs.count == ys.count`.
+    init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
+  ```
+
+- Or we can lift the precondition entirely and normalize the internal
+  representation upon construction:
+
+  ```swift
+    /// An instance with the value of `zip(xs, ys)`.
+    init(xs: [X], ys: [Y]) {
+      (self.xs, self.ys) = (xs, ys)
+      let l = Swift.min(xs.count, ys.count)
+      self.xs.removeRange(l...)
+      self.ys.removeRange(l...)
+    }
+  ```
+
+The latter approach is better, as it results in a simpler and
+less-fragile public API.
 
 ### Spoiler Alert: It's Documentation
 
