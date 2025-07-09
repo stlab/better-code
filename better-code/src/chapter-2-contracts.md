@@ -241,7 +241,7 @@ arrays.[^array-pairs]
     leverage SIMD operations.
 
 ```swift
-/// A random-access collection of `(X, Y)` pairs.
+/// A series of `(X, Y)` pairs.
 struct PairArray<X, Y> {
   // Invariant: `xs.count == ys.count`
 
@@ -357,22 +357,60 @@ is better.  There are two simple approaches:
 The latter approach is better, as it results in a simpler and
 less-fragile public API.
 
-### Spoiler Alert: It's Documentation
+### It's Documentation
+
+Looking back at Meyers' definition, you might notice he says contracts
+are “precisely defined specifications,” which is just a fancy word for
+documentation. Like it or not, if you're going to be in the
+correctness game, you need documentation.  Undocumented software is
+neither correct nor incorrect; it does something, but does it do the
+*right* thing?  There's no way to know.
 
 > All undocumented software is waste. It's a liability for a company.
 >
 > —Alexander Stepanov (https://youtu.be/COuHLky7E2Q?t=1773)
 
-Looking back at Meyers' definition, you might notice he says contracts
-are “precisely defined specifications,” which is just a fancy word for
-documentation.
 
-Now, lots of people think documentation is a waste of time, but if
-you've been to any of my talks you know that I don't agree.  Somehow I
-always seem to end up talking about this. If you're going to be in the
-correctness game, you need documentation.  Correctness is always with
-respect to a specification, so undocumented software is neither
-correct nor incorrect.
+Documentation is also essential for local reasoning.  We build atop
+libraries and a programming language, which run on an operating
+system, which runs on computer hardware, which ultimately depends on
+the laws of physics.  So what keeps us from recursing, non-locally,
+down to the limits of known physics when we think about how a program
+works?
+
+#### Building a Tower of Abstraction
+
+The answer is documentation.  We can use libraries and our programming
+language without digging into their implementations because they are
+documented. Compiler engineers can do their jobs because the hardware
+manufacturers document the architecture and instruction sets. Hardware
+designers succeed because physicists document the laws of physics.
+That's the tower we're building.  Each layer of documentation defines
+an abstraction boundary such that eliminates the need to research an
+implementation when reasoning about code. Without it, quality software
+development at scale becomes infeasible.
+
+The catch is that the code you are writing is almost never at the top
+of the tower.  Someone else, or future-you, is going to have to build
+on the code you're writing. There's no difference between public and
+private stuff where documentation is concerned.  Every component is
+API to somebody.
+
+#### Document Everything
+
+So **every declaration needs to be documented**. We realize that's not
+standard practice, and to many people it sounds like a huge burden!
+Read on, though, and we'll show you how it can be done both thoroughly
+*and economically*.  To see that it's possible, look again at the
+documentation shown for `PairArray`.  It tells you everything you need
+to know to use or test each declared element.
+
+We assert documenting comprehensively not only practical and
+necessary, but it has *benefits* beyond correctness and local
+reasoning: it will help you improve the code of your APIs and can even
+increase overall development speed.
+
+### On Code Review
 
 >> In fact, I don't review code; I review contracts… or at least, I
 >review contracts first.  If you ask me for a code review and there's
@@ -390,27 +428,7 @@ Anyway yes, contracts about documentation. While it is true that
 there are lots of counterproductive approaches to documentation, I'm
 going to show you one that is practical *and*—if you give the process
 the attention it deserves—can help you improve the code of your APIs.
-I also want to point out that documentation is essential for local
-reasoning.  It's the reason I don't need to be a condensed matter
-physicist to program a computer.
-
-Here's what I mean. As programmers, we're working on what my friend
-Sam Lazarus calls “a tower of abstraction” that stretches through the
-libraries and programming language we use, the operating system, and
-into the hardware, which ultimately rests on the laws of physics.
-
-So what keeps us from recursing down to the limits of known physics
-when we think about how our programs work?
-
-The answer is documentation.  We can use libraries and our programming
-language without digging into their implementations because there's a
-solid spec.  The compiler backend engineers can do their jobs because
-the hardware manufacturers document the architecture and instruction
-sets. The hardware designers succeed because the physicists document
-the laws of physics.  That's the tower, and you're a part of it.  The
-bad news, of course, is that you're not at the top of the
-tower. Someone else, or future-you, is going to have to build on the
-code you're writing.  That means there's no difference between public
+That means there's no difference between public
 and private stuff where documentation is concerned.  Everything is an
 API to somebody.
 
