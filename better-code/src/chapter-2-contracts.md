@@ -810,3 +810,9 @@ those things are going to be enforced by the compiler, but if you were
 programming in a totally dynamic language, like Javascript, or Python
 without type hints, you have to put a lot more of that sort of
 information into the written documentation.
+
+### Summing Up
+
+- Breathe.  To experience higher quality and development speed, you
+  may need to give up the experience of cranking out massive amounts
+  of code.
