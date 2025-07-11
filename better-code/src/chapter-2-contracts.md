@@ -394,74 +394,81 @@ The catch is that the code you are writing is almost never at the top
 of the tower.  Someone else, or future-you, is going to have to build
 on the code you're writing. There's no difference between public and
 private stuff where documentation is concerned.  Every component is
-API to somebody.
+API to somebody, so when we say “API” we mean any interface boundary
+in the codebase, however internal.
 
 #### Document Everything
 
 So **every declaration needs to be documented**. We realize that's not
-standard practice, and to many people it sounds like a huge burden!
-Read on, though, and we'll show you how it can be done both thoroughly
-*and economically*.  To see that it's possible, look again at the
-documentation shown for `PairArray`.  It tells you everything you need
-to know to use or test each declared element.
+standard industry practice, and to many people it sounds like a huge
+burden!  Read on, though, and we'll show you how it can be done both
+thoroughly *and economically*.  To see that it's possible, look again
+at the documentation shown for `PairArray`.  It tells you everything
+you need to know to use or test each declared element, but is not
+burdensome to write.
 
-We assert documenting comprehensively not only practical and
-necessary, but it has *benefits* beyond correctness and local
-reasoning: it will help you improve the code of your APIs and can even
-increase overall development speed.
+Comprehensively documenting your declarations is not only practical
+and necessary, but it has *benefits* beyond correctness and local
+reasoning: it helps you improve your APIs and can even increase overall
+development speed. But you'll only see those benefits if you document *as
+you code*. If documentation is an afterthought, it can only ever be
+experienced as overhead.
 
-### On Code Review
+If you take this discipline seriously, you'll begin to notice that the
+poorly designed or named components haven't been documented clearly
+and concisely.  Sometimes that documentation is obviously unachievable
+because the design simply has too many wrinkles.  In other cases
+you'll find the design can be salvaged by driving it towards a simpler
+contract. Improvements in development speed come from arriving at the
+right design earlier, since a poor experience for readers of your
+documentation becomes a “code smell.”
 
->> In fact, I don't review code; I review contracts… or at least, I
->review contracts first.  If you ask me for a code review and there's
->anything without contract documentation, I'll reject it, because
->there's no way to make a judgement about its correctness.
+#### On Code Review
 
-And then, if the contracts aren't well-specified and designed, I'm not
-going to bother looking at the implementation.  Remember, the
-contracts are the connective tissue; they're what every client of a
-component interacts with; they will have effects throughout the
-codebase.  The implementation, well, that had better be an expression
-of the contract, but that's, like… the final detail.
+Contracts also deserve early attention in code reviews.  The *first
+step* should be to review the APIs: all declarations (e.g. function
+signatures) and their associated contracts.  A change that omits
+documentation for any declaration should be sent back for revision,
+because there's no way to make a judgement about that component's
+correctness.
 
-Anyway yes, contracts about documentation. While it is true that
-there are lots of counterproductive approaches to documentation, I'm
-going to show you one that is practical *and*—if you give the process
-the attention it deserves—can help you improve the code of your APIs.
-That means there's no difference between public
-and private stuff where documentation is concerned.  Everything is an
-API to somebody.
+Then, if the APIs aren't *well*-documented (and designed), there's
+little point in looking at their implementations.  Remember, APIs are
+the connective tissue; they're what every client of a component
+interacts with, and will have effects throughout the codebase.  The
+implementation of the API had better be an expression of the contract,
+but deficiencies in the implementation of a function can only do local
+damage.
 
 ### A Tower of Invariants
 
-The tower of abstraction mentioned earlier comes
-with a tower of invariants.  The invariants of the type with the two
-arrays in it are built on—and depend on—the invariants of the
-individual arrays, and you could embed this type into some larger data
-structure with its own invariant.
+The tower of abstraction mentioned earlier comes with a tower of
+invariants.  The invariants of `PairArray` are built on—and depend
+on—the invariants of the individual arrays. We can embed `PairArray`
+into some larger data structure with its own invariant.
 
 In fact, you can think of the entire state of your program as one big
 data structure with its own invariants, and formalize what it means
-for the program to “be in a good state” that way.  For example,
-
-- you might have a database of employees, each with
-- an ID of its own
-- a manager ID (The CEO gets to be his own manager)
+for the program to “be in a good state” that way.  For example, you
+might have a database of employees, each of which has its own ID, and
+which also stores the ID of the employee's manager.
 
 It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
-through the program you have code to ensure it's upheld.  It would be
-a great idea to identify and document that whole-program invariant.
+through the program you have code to ensure that invariant is upheld.
+It would be a great idea to identify and document that whole-program
+invariant.
 
-### Encapsulating invariants
+#### Encapsulating invariants
 
 An even better idea is to use *encapsulate* the invariant in a type,
 and document _that_.  So instead of using an `SQLDatabase` type
-directly, maybe create an `EmployeeDatabase` type with a private
+directly, you could create an `EmployeeDatabase` type with a private
 `SQLDatabase`, whose public API always upholds that invariant.  Now
-you can remove that logic from the rest of your code.  This is one of
-the most powerful transformations you can make.
+you can remove the invariant-upholding logic from the rest of your
+code.  This is one of the most powerful code transformations you can
+make.
 
 ```swift
 /// The employees of a company.
@@ -473,6 +480,8 @@ struct EmployeeDatabase {
 
   /// Adds a new employee named `name` with manager `m`, returning the
   /// new employee's ID.
+  ///
+  /// - Precondtion: `m` identifies an employee.
   public addEmployee(_ name: String, managedBy m: EmployeeID) -> EmployeeID
 
   /// Removes the employee identified by `e`.
@@ -486,8 +495,11 @@ struct EmployeeDatabase {
 ```
 
 Upholding invariants is the _entire purpose_ of access control, so use
-that whenever you can!  Lastly, I want to say, this documentation should
-go in your code as comments, because:
+`private` whenever you can!
+
+
+Lastly, I want to say, this documentation
+should go in your code as comments, because:
 
 1. That puts the two things that should correspond—documentation and
    implementation—next to one another, so you can see when they don't
