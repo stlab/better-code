@@ -397,6 +397,54 @@ private stuff where documentation is concerned.  Every component is
 API to somebody, so when we say “API” we mean any interface boundary
 in the codebase, however internal.
 
+#### Contract Checking Features
+
+You may have heard that some languages have features to support “Design
+by Contract.”  In general, that means you can write *parts* of your
+contracts as code, and get some checking at runtime to make sure these
+contracts are upheld. [^compile_time_checks]
+
+[^compile_time_checks]: Languages exist that check contracts at
+compile time, such as Dafny and Lean 4, but we do not think they are
+practical tools for programming at scale.
+
+```swift
+struct MyArray<T> {
+  ...
+
+  // Returns the `i`th element.
+  @requires(i >= 0 && i < self.count)
+  fun getNth(i: Integer): T
+
+  ...
+}
+```
+
+The idea started with Bertrand Meyer's own Eiffel language, and was
+picked up by many others, including D, Scala, Kotlin, and
+Clojure. Other languages, like Rust and Python, have contract
+libraries that provide a near-native contract programming experience.
+
+If you use one of these languages, fantastic; *absolutely do* leverage
+those features and libraries.  That can reduce the amount of pure
+documentation you need to write and add automated contract checking at
+runtime. But there are caveats:
+
+1. **Contracts are fundamentally documentation**, even if they're
+   expressed in code, so they must appear in the API descriptions
+   consumed by client programmers. If you're using contract checking
+   with automated documentation extraction tools make sure they expose
+   the contract code along with the API.  If not, you need to repeat
+   the complete contract in documentation.
+
+2. Some contracts are better expressed in English than as code,
+
+3. Some contracts are impossible to express as code.  We'll
+   see an example in a moment.
+
+We'll discuss contract checking as a separate topic in the next
+chapter.
+
 #### Document Everything
 
 So **every declaration needs to be documented**. We realize that's not
@@ -497,7 +545,19 @@ struct EmployeeDatabase {
 Upholding invariants is the _entire purpose_ of access control, so use
 `private` whenever you can!
 
+#### Public And Private Invariants
 
+Some invariants, such as the one documented for `EmployeeDatabase`
+above, are exposed to users of the type, and thus should be in public
+doc comments.  Others, like the invariant that the members of
+`PairArray` have the same length, are purely part of its
+implementation, and should be encoded in ordinary comments addressed
+privately to the implementor/maintainer of the code.  Note that you
+can have both: `PairArray` *also* has a public invariant that its
+`count` is non-negative.  We'll get to why this particular invariant
+is not explicitlty documented in a moment…
+
+### Why Use Doc Comments
 Lastly, I want to say, this documentation
 should go in your code as comments, because:
 
@@ -511,55 +571,26 @@ should go in your code as comments, because:
    coding and documentation, which—believe it or not—are mutually
    supportive.
 
-But if we're going to integrate documentation into our programming so
+### Making It Tractable
+
+If we're going to integrate documentation into our programming so
 tightly, we need to make sure it's neither intrusive for the
 maintainer to read nor burdensome for the author to write.  Ideally,
-it should help both of them.  Just to give you an idea that it's
-practical, though, this example we saw earleir has what I consider
-minimal but complete contract documentation for each declaration.
+it should help both of them.
 
-Now, not every contract is as simple as these are, but simplicity is a
-goal.  In fact, if you can't write a terse, simple, but _complete_
-contract for a component, there's a good chance it's badly designed.
+Now, not every contract is as simple as the ones we've shown so far,
+but simplicity is a goal.  In fact, if you can't write a terse,
+simple, but _complete_ contract for a component, there's a good chance
+it's badly designed.  A classic example is the C library `realloc`
+function, which does at least three different things, all of which
+need to be described. A better design would have separated these
+functions.  So simple contracts are both easy to digest and easy to
+write.
 
-You may have heard that some languages have features to support “Design
-by Contract.”  In general, that means you can write *parts* of your
-contracts as code, and get some checking at runtime to make sure these
-contracts are upheld.
-
-```swift
-struct MyArray<T> {
-  ...
-
-  // Returns the `i`th element.
-  @requires(i >= 0 && i < self.count)
-  fun getNth(i: Integer): T
-
-  ...
-}
-```
-
-The idea started with Bertrand Meyer's own Eiffel language, and was
-picked up by many others, including D, Scala, Kotlin, and
-Clojure. Other languages, like Rust and Python, have contract
-libraries that provide a near-native contract programming experience.
-
-If you use one of these languages, fantastic; *absolutely do* leverage
-those features and libraries.  That can reduce the amount of pure
-documentation you need to write and add automated contract checking at
-runtime. But there are caveats:
-
-1. **Contracts are fundamentally documentation**, even if they're
-   expressed in code, so they must appear in the API descriptions
-   consumed by client programmers. If you're using automated
-   documentation extraction tools make sure they expose the contract
-   code along with the API.  If not, you need to repeat the complete
-   contract in documentation.
-
-2. Some contracts are better expressed in English than as code,
-
-3. Some contracts are impossible to express as code.  We'll
-   see an example in a moment.
+Let's look at another example. The methodology we'll be following here is based on the [Swift API
+Design
+Guidelines](https://www.swift.org/documentation/api-design-guidelines/),
+only slightly modified.
 
 ```swift
 /// A resizable random-access collection of `T`s.
@@ -583,18 +614,15 @@ struct DynamicArray<T> {
 }
 ```
 
-So the first thing to notice about this code is that the method bodies
-are collapsed, because this is not about what you put in your
-implementations.  Contracts are part of your function's interface.
+The method bodies are collapsed, because contracts are not about what
+you put in your implementations.  Contracts are part of your
+function's interface.
 
-The only time we're going to look into method bodies today is when we
-talk about programmatic checking, and only when the language forces us
-to do it in the body; otherwise it's all about interfaces.  Next
-notice that every declaration here has a summary, which is a sentence
-fragment that minimally describes what the thing *is* or *does*. That is
-the first and most important part of the contract.  If you ask me for
-a code review and every declaration outside a function body doesn't
-have one of these summaries, I'm sending it back.
+#### Basics
+
+We've started by filling in the most basic part of every documentation
+comment: a summary sentence fragment that minimally describes what the
+thing *is* or *does*.
 
 The first one
 
@@ -603,10 +631,11 @@ The first one
 struct DynamicArray<T>
 ```
 
-gives us the context we need to understand the
-methods: we're looking at the declaration of dynamic array type that
-holds any number of Ts.  Now let's look at the contract for the first
-method, called "popLast."
+gives us the context we need to understand the methods: we're looking
+at the declaration of dynamic array type that holds any number of Ts.
+
+Now let's look at the documentation for the first method, called
+"popLast."
 
 ```swift
   /// Removes and returns the last element.
@@ -615,17 +644,31 @@ method, called "popLast."
 
 As you can see from the summary, it removes and returns the last
 element. Notice that the phrase “last element” is meaningful only
-because we documented that this thing is a collection, which is a
-sequence of elements.  This method is a little unusual in that it both
-mutates the array and returns a result, which means you need to decide
-what to emphasize in the summary: the removal or the returned value.
-Here we've emphasized the mutation, which is normally what you want.
-You'd generally only emphasize the return value if the mutation is
-something incidental that doesn't affect the program's meaning, like
-updating a cache.
+because we documented that `DynamicArray` is a collection, which we
+know is a sequence of elements.
 
-So let's spell out the preconditions, postconditions, and invariants
-of this function.
+The summary for a method should tell us what the method returns, and
+what its other effects are, if any.  This method is a little unusual
+in that it both mutates the array and returns a result, which means
+you need to decide what to emphasize in the summary: the removal or
+the returned value.  Here we've emphasized the mutation, which is
+normally what you want. That emphasis is reflected by the name, which
+describes the mutation rather than the return value.
+
+You'd generally only emphasize the return value if the mutation
+is something incidental that doesn't affect the program's meaning,
+like updating a cache.
+
+Notice also that we've omitted needless words: we didn't write, “the
+last element of the `DynamicArray`,” because the type sets the context
+for its methods.  Remember, every word the reader has to process takes
+mental energy and contributes to perceived complexity.  We use all the
+necessary words, but no more than necessary.
+
+#### Details
+
+Let's continue by spelling out the preconditions, postconditions,
+and invariants of `popLast()`.
 
 What are the preconditions for removing an element?  Obviously, there
 needs to be an element to remove.
