@@ -680,13 +680,13 @@ needs to be an element to remove.
   public mutating func popLast() -> T { ... }
 ```
 
-This means a client of this method is considered to have a bug unless
+A client of this method is considered to have a bug unless
 the array has an element.  OK, so what about postconditions?
 
-The postcondition is the effects the method has, plus any returned
-result.  If the preconditions are met, but the postcondition isn't,
+The postconditions are the effects of the method plus any returned
+result.  If the preconditions are met, but the postconditions are not,
 we'd say the method has a bug.  The bug could be in the documentation
-of course; that's part of the method.
+of course, *which is a part of the method*.
 
 ```swift
   /// Removes and returns the last element.
@@ -697,26 +697,8 @@ of course; that's part of the method.
  public mutating func popLast() -> T { ... }
 ```
 
-And what's invariant here?  The rest of the elements are unchanged.
-Now, if the postcondition seems a bit glaringly redundant with the
-summary, that should be no surprise.  The summary of a method should
-describe what the method does, and what it should return.  That's
-basically the postcondition.
-
-So the postcondition will very often not be stated separately from the
-method's description.  The only reason you might write it out is if
-there's some aspect of the postcondition you can't easily capture in
-the summary.
-
-I'm going to erase the postcondition now, but it's important to ask
-yourself what the postconditions are and make sure they're completely
-captured by the summary before you do this.  Considering the
-postcondition is part of the process that makes the summary complete.
-
-And if we know everything the method does is captured in the summary,
-we can assume everything else in the program is unchanged, so the
-invariant is also trivially implied.  And that is also very commonly
-omitted.
+The invariant of this function is the rest of the elements, which are
+unchanged:
 
 ```swift
   /// Removes and returns the last element.
@@ -728,27 +710,64 @@ omitted.
  public mutating func popLast() -> T { ... }
 ```
 
-Because I've validated that the invariant is implied, I'm going to
-erase that too. In fact, the precondition is sort of implied by the
-summary too.  You can't remove and return the last element if there's
-no last element, right?
+Now, if the postcondition seems a bit glaringly redundant with the
+summary, that should be no surprise.  The summary of a method should
+describe what the method does, and what it should return.  That's
+the postcondition.
+
+So it is *very rare* that a postcondition will need to be separately
+documented.  The only reason you might write it out is if there's some
+aspect of the postcondition you can't easily capture in the summary (
+and remember, the postcondition that can't be fully described in the
+summary is a “code smell”, thus these cases are rare).
+
+So we can erase the separate statement of postconditions.  That said,
+you should always ask yourself how you'd state the postconditions and
+making sure they're completely captured by the summary before you omit
+them.  Considering the postcondition is part of the process that makes
+the summary complete.
+
+And since we know everything the method does is captured in the summary,
+we can assume everything else in the program is unchanged, so the
+invariant is also trivially implied.  And that is also very commonly
+omitted.
+
+```swift
+  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+ public mutating func popLast() -> T { ... }
+```
+
+In fact, the precondition is implied by the summary too.  You
+can't remove and return the last element if there's no last element,
+right?
 
 Whether or not to omit an implied precondition may be a slightly
 different judgement from the others, because it's information every
-client needs in order to not have a bug.  Regardless, a client must
-assume that any condition required for the summary to make sense is a
-precondition.  We recommend your project's policy only *requires*
-precondition documentation where those preconditions are not obviously
-implied by the summary.  In the end, the original declaration should
-be sufficient:
+client needs in order to use the function correctly. We recommend
+omitting explicit documentation of any implied precondition unless
+it's quite subtle.  With that policy, a client must assume that
+anything required for the summary to make sense is a precondition.  In
+this case it's not subtle that having a last element is required if
+you are going to remove the last element, so the original declaration
+should be sufficient:
 
 ```swift
   /// Removes and returns the last element.
  public mutating func popLast() -> T { ... }
 ```
 
-This example shows that complete and precise documentation need not be
-overly burdensome for the reader or the writer.
+In practice, once you are comfortable with this discipline, the
+thought process behind writing this documentation is straightforward;
+it need not take more than a few seconds:
+
+- Write a summary.
+- If it doesn't completely describe the postconditions
+   1. Try to make it do so, or if that is just too awkward,
+   2. add a postcondition clause.
+- If there are any preconditions not straightforwardly implied by the
+  summary, add a precondition clause.
 
 ### A More Complicated Example
 
@@ -768,7 +787,7 @@ a.sort(areInIncreasingOrder: <)
 print(a)     // prints [2, 7, 7, 9]
 ```
 
-This method of Arrays that sorts the elements
+This method sorts the elements
 according to some comparison predicate `areInIncreasingOrder`.  So if
 we pass it the less-than operator, which is true when the first
 argument is less than the second, we get the elements arranged from
