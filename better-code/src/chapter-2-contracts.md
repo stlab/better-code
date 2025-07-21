@@ -772,9 +772,9 @@ it need not take more than a few seconds:
 ### A More Complicated Example
 
 ```swift
-extension Array {
+extension DynamicArray {
   /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
-  /// self[i])` is false for each `i` in 0 ..< length - 1.
+  /// self[i])` is false for each `i` in `0 ..< length - 2`.
   ///
   /// - Precondition: `areInIncreasingOrder` is a strict weak ordering
   ///   over the elements of `self`.
@@ -787,57 +787,169 @@ a.sort(areInIncreasingOrder: <)
 print(a)     // prints [2, 7, 7, 9]
 ```
 
-This method sorts the elements
-according to some comparison predicate `areInIncreasingOrder`.  So if
-we pass it the less-than operator, which is true when the first
-argument is less than the second, we get the elements arranged from
-least to greatest.  The summary gives the postcondition that no two
-adjacent elements are out-of-order according to the predicate.  I
-apologize for the weird negative phrasing of the postcondition, but
-there's no other way to say it given the need to handle equal
-elements, for which the predicate will return false.  That's a little
-tricky, but not really important.
+This method sorts the elements according to some comparison predicate
+`areInIncreasingOrder`.  So if we pass it the less-than operator,
+which is true when the first argument is less than the second, we get
+the elements arranged from least to greatest. The contract gives an
+explicit precondition that isn't implied by the summary: it requires
+that the predicate be a strict weak ordering.
 
-We don't normally clutter up our documentation with examples, but
-because the statement of effects is tricky, this is a case where an
-example might really help.
+Note that _some_ precondition on the predicate is be needed just to
+make the result a meaningful sort with respect to the predicate.  For
+example, a totally unconstrained predicate could return random boolean
+values, and there's no reasonable sense in which the function could be
+said to leave the elements sorted with respect to that.  So the
+predicate at least has to be stable. To leave elements meaningfully
+sorted, the predicate has to be *transitive*: if it is `true` for
+elements (*i*, *j*), it must also be true for elements (*i*, *j*+1).
+A strict weak ordering has both of these properties, among others.
+
+Note also that the performance of this method is documented.  Time and
+space complexity have to be part of the contract if you want your
+clients to be able to reason locally about the performance of their
+own code.
+
+The summary gives the postcondition that no two adjacent elements are
+out-of-order according to the predicate.  The contract is perfectly
+correct, but it's awkward and complex.  To deal with the case where
+elements are equal, the postcondition has to compare adjacent elements
+in reverse order and negate the predicate. If we had just written:
+
+```swift
+  /// Sorts the elements so that `areInIncreasingOrder(self[i],
+  /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
+```
+
+Our example result `[2, 7, 7, 9]` would fail to satisfy the
+postcondition because of the adjacent `7`s.
+
+The term “strict weak ordering,” which is not very well-known or
+understood, is another source of complexity. In fact we should
+probably put a link in the documentation to a definition.
+
+```swift
+/// - Precondition: `areInIncreasingOrder` is [a strict weak
+///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
+///   over the elements of `self`.
+```
+
+We don't normally add examples to our documentation—it makes
+documenting more laborious and can actually distract from the
+essential information—but because the statement of effects is tricky,
+this is a case where an example might really help.
 
 ```swift
   /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
-  /// self[i])` is false for each `i` in 0 ..< length - 1.
+  /// self[i])` is false for each `i` in `0 ..< length - 2`.
   ///
   ///     var a = [7, 9, 2, 7]
   ///     a.sort(areInIncreasingOrder: <)
   ///     print(a)     // prints [2, 7, 7, 9]
   ///
-  /// - Precondition: `areInIncreasingOrder` is a strict weak ordering
+  /// - Precondition: `areInIncreasingOrder` is [a strict weak
+  ///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
   ///   over the elements of `self`.
   /// - Complexity: at most N log N comparisons, where N is the number
   ///   of elements.
   mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
 ```
 
-Anyway two things to notice here: First, there's an explicit
-precondition that isn't implied by the summary.  We require that the
-predicate be a strict weak ordering, which is a set of properties we
-need to make the the result meaningful. I'm not going to go over all
-of those properties, but to see why it might be important, we can just
-look at one of them: the property of stability. The predicate needs to
-have a consistent result for any pair of argument values if you call
-it multiple times. I hope it's obvious that we couldn't promise that
-the result is sorted according to the predicate if the result of the
-of the predicate were random.
+#### Letting Simplicity Drive Design
 
-Incidentally, this is one of those preconditions for which no test can
-be written in code.  Second, I've documented the performance of this
-method.  Time and space complexity have to be part of the contract if
-you want your clients to be able to reason locally about the
-performance of their own code.  The only reason you haven't seen
+Let's take the complexity of the documentation as a hint that the API
+could be improved and see where that leads.  If `sort` had been
+written to work with `<=` as an argument, producing the same result,
+the summary could have avoided swapping elements in the comparison and
+negating the result. [^implementable]  The general property that `<=` satisfies is
+called a *partial order*, a much more familiar term to many.  Because
+the summary is simpler, no example is needed. Even the parameter name
+becomes simpler:
+
+[^implementable]: such a function is trivially implementable as a
+    wrapper over the `sort` implementation that accepts a strict weak
+    ordering.
+
+```swift
+/// Sorts the elements so that `areInOrder(self[i],
+/// self[i+1])` is true for each `i` in `0 ..< length - 2`.
+///
+/// - Precondition: `areInOrder` is a [partial
+///   ordering](https://en.wikipedia.org/wiki/Partially_ordered_set)
+///   over the elements of `self`.
+/// - Complexity: at most N log N comparisons, where N is the number
+///   of elements.
+mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+```
+
+This simplification even allows us to use a much simpler and more
+natural summary:
+
+```swift
+/// Sorts the elements so that all adjacent pairs satisfy
+/// `areInOrder`.
+```
+
+Usually, the less our documentation looks like code (without
+sacrificing precision), the greater its power as a tool for
+understanding programs, writing tests, and verifying
+correctness. [^argument-order].
+
+[^argument-order]: One could argue that to not lose precision, the
+    documentation needs to say in which order the adjacent elements
+    are passed to `areInOrder`. Judgement calls are part of
+    engineering, and in our judgement the ordering is implied.
+
+There are two simplifications we can make to the precondition. First,
+everything in documentation of a method happens in the context of
+`self`, so we can drop “of `self`.”  This improvement was available to
+us all along, and may seem trivial, but the value of [omitting
+needless
+words](https://thewritinghabit.blog/2016/04/04/omit-needless-words/)
+adds up over lots of function definitions. It lowers the burden of
+writing documentation, and makes it much easier to read. Remember,
+every word a reader has to process has a cognitive cost in addition to
+whatever benefits it may provide, so each one should more than pay for
+itself.
+
+Secondly, the summary has become so simple that we can arguably embed
+the precondition there, making the final declaration:
+
+```swift
+/// Sorts the elements so that all adjacent pairs satisfy the [partial
+/// ordering](https://en.wikipedia.org/wiki/Partially_ordered_set)
+/// `areInOrder`.
+///
+/// - Complexity: at most N log N comparisons, where N is the number
+///   of elements.
+mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+```
+
+There is one factor weighing against all these simplifications,
+though: sorting functions taking strict weak orderings are
+traditional. One has to weigh the risk of users reflexively writing
+`sort(areInOrder: <)`—against the value of these simplifications.  The
+argument label helps a bit, because *if* you happen to consider the
+equal elements case, you will see they clearly `areInOrder` but and
+realize `<` will return false.  But if you don't happen to consider
+that case, you won't get the sort you expected… sometimes.  Whether to
+break with precedent in order to get a simpler API with a clearer
+contract is an engineering decision you will have to make. To reduce
+the risk you could add this assertion, which will fire if the ordering
+is strict-weak:
+
+```
+assert(
+  self.isEmpty || areInOrder(first!, first!),
+  "Partial ordering required; did you pass a strict-weak ordering?")
+```
+
+
+### Project-Wide Documentation Policies
+
+The only reason you haven't seen
 complexity documented in this talk up to now is that I have a policy
 that operations have constant complexity unless specifically
 documented otherwise.
-
-### Project-Wide Documentation Policies
 
 Which brings me to this aside…  A big part of making the documentation
 problem tractable is having some well-chosen project-wide policies
