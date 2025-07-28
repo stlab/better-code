@@ -1,6 +1,6 @@
 # Contracts
 
-Contracts are the connective tissue of solid software.  You really
+Contracts are the connective tissue of healthy software.  You really
 can't build software at scale without them.  If you *are* successfully
 building large software systems, you're already using  contracts in
 some form, and this chapter should help you make them more powerful.
@@ -8,10 +8,9 @@ some form, and this chapter should help you make them more powerful.
 ## In pursuit of Correctness
 
 Fundamentally, contracts are about the first ingredient of Better
-Code: correctness. Some folks write off the pursuit of correctness,
-because bugs are inevitable, and in practice, and we rely on incorrect
-software every day without disaster (for the most part). But that
-approach throws out the baby with the bathwater.  There is a practical
+Code: correctness. It's popular in some circles to scoff at the idea of correct software,
+on the grounds that bugs are inevitable, and _for the most part_, we rely on incorrect
+software every day without disaster.  But there is a practical
 approach to correctness that improves both code quality and the
 programming experience, without demanding unrealistic perfection.
 
@@ -23,7 +22,7 @@ day. This definition provides a partial ordering of correctness, where
 a program is _more correct_ than another if the initial states under
 which it is correct are a superset of the other.
 
-So while you may not reach a point where all bugs vanish, but you will
+So while you may not reach a point where all bugs vanish, you will
 have well-justified confidence in the correctness of your own work
 while maintaining high productivity. Also, the discipline we'll
 describe here of **programming by contract** removes uncertainty and
@@ -50,7 +49,7 @@ process is something like this:
 - Therefore, in the last line, `names` still has an element at index `3`.
 
 That's just an informal proof, and we use that kind of reasoning every
-time we write a line of code. So regular programming is on the same
+time we write a line of code. So, regular programming is on the same
 continuum as formally proving correctness.  We're going to explore the
 power that's available by moving toward the formal end of that
 spectrum to see how it enables Better Code.
@@ -68,7 +67,7 @@ journey discovering how the code works.”
 So in our example, what we know about `sort` allow us to reason about
 its use without looking at its implementation.  In fact, local
 reasoning is so fundamental that most of our programming best
-practices exiast just to support our ability to do it.  It's why we
+practices exist just to support our ability to do it.  It's why we
 use access control, why we break programs into components like
 functions, types, and modules, and why we try to keep them small.
 
@@ -136,7 +135,7 @@ preconditions of the second, we can form a new valid triple describing
 the effects of performing the operations in sequence.  The notation
 may look exotic, but its meaning should be familiar: this rule simply
 captures the reasoning we use to think informally about statements
-when we write straight-line code.
+when we write one statement after the next.
 
 ### Invariants
 
@@ -158,7 +157,7 @@ Knowing that's always true when the loop exits allows us to conclude
 that if `i != a.count`, the *first* occurrence of `x` in `a` is at
 index `i`.  Anything else would contradict the loop invariant.
 
-Loops are, in general, difficult to reason about in general, which is
+Loops are difficult to reason about in general, which is
 why we suggest you avoid them (see the Algorithms chapter). But when
 you _do_ have a loop, identifying its invariant is often the first
 step in understanding what it does.
@@ -281,14 +280,18 @@ invisible to clients.  By the time we return from `append`, everything
 is back in order.
 
 Because we can control access to the visibility of “bad” states, it
-doesn't take much attention to uphold a type invariant.  You
+The formula for upholding a type invariant is tractable.  You
 
 - make stored properties `private` or `private(set)`
 - establish the invariant in the type's `init` method(s), and
-- ensure that every `mutating` method upholds the condition upon exit.
+- in `mutating` methods and in the mutation clauses of subscripts
+  and computed properties, ensure the invariant is intact:
+  - before returning to the caller
+  - before passing `self` as a parameter
+  - before calling a non-private method or subscript—or accessing a non-private computed property—of `self`.
 
 Non-mutating operations can't disturb the invariant, and any mutating
-operations that only use the type's public API trivially upholds the
+operation that only uses the type's public API trivially upholds the
 invariant.
 
 #### How To Choose a Type Invariant
@@ -510,7 +513,7 @@ invariant.
 
 #### Encapsulating invariants
 
-An even better idea is to use *encapsulate* the invariant in a type,
+An even better idea is to *encapsulate* the invariant in a type,
 and document _that_.  So instead of using an `SQLDatabase` type
 directly, you could create an `EmployeeDatabase` type with a private
 `SQLDatabase`, whose public API always upholds that invariant.  Now
@@ -529,7 +532,7 @@ struct EmployeeDatabase {
   /// Adds a new employee named `name` with manager `m`, returning the
   /// new employee's ID.
   ///
-  /// - Precondtion: `m` identifies an employee.
+  /// - Precondition: `m` identifies an employee.
   public addEmployee(_ name: String, managedBy m: EmployeeID) -> EmployeeID
 
   /// Removes the employee identified by `e`.
@@ -570,6 +573,9 @@ should go in your code as comments, because:
 2. Using comments makes it reasonable to combine the activities of
    coding and documentation, which—believe it or not—are mutually
    supportive.
+   
+3. IDEs and other tools, such as DocC, process these comments
+    to improve the developer experience.
 
 ### Making It Tractable
 
@@ -778,7 +784,8 @@ extension DynamicArray {
   ///
   /// - Precondition: `areInIncreasingOrder` is a strict weak ordering
   ///   over the elements of `self`.
-  /// - Complexity: at most N log N comparisons, where N is the number of elements.
+  /// - Complexity: at most N log N calls to `areInIncreasingOrder`, where N is
+  ///   the number of elements.
   mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
 }
 
@@ -794,7 +801,7 @@ the elements arranged from least to greatest. The contract gives an
 explicit precondition that isn't implied by the summary: it requires
 that the predicate be a strict weak ordering.
 
-Note that _some_ precondition on the predicate is be needed just to
+Note that _some_ precondition on the predicate is needed just to
 make the result a meaningful sort with respect to the predicate.  For
 example, a totally unconstrained predicate could return random boolean
 values, and there's no reasonable sense in which the function could be
