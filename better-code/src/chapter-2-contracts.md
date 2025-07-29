@@ -92,7 +92,7 @@ the better it is for correctness.  The more you can use understandable
 abstractions, the simpler and clearer the use-sites become, which is
 better for correctness. Abstraction and correctness support one
 another in a virtuous cycle.  And abstraction is necessary for
-programming at scale: because can't keep the whole program in our
+programming at scale: because we can't keep the whole program in our
 heads, we do what humans always do when faced with complexity: we
 break complicated problems into parts that can be understood in
 isolation.
@@ -389,7 +389,7 @@ documented. Compiler engineers can do their jobs because the hardware
 manufacturers document the architecture and instruction sets. Hardware
 designers succeed because physicists document the laws of physics.
 That's the tower we're building.  Each layer of documentation defines
-an abstraction boundary such that eliminates the need to research an
+an abstraction boundary that eliminates the need to research an
 implementation when reasoning about code. Without it, quality software
 development at scale becomes infeasible.
 
