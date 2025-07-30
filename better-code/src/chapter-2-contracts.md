@@ -509,7 +509,8 @@ random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
 through the program you have code to ensure that invariant is upheld.
 It would be a great idea to identify and document that whole-program
-invariant.
+invariant in some central location, so maintainers will know to uphold it, and that they
+can rely on it.
 
 #### Encapsulating invariants
 
