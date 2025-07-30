@@ -474,6 +474,26 @@ contract. Improvements in development speed come from arriving at the
 right design earlier, since a poor experience for readers of your
 documentation becomes a “code smell.”
 
+#### Use Documentation Comments
+
+Contract documentation should always go in your code as comments,
+because:
+
+1. That puts the two things that should correspond—documentation and
+   implementation—next to one another, so you can see when they don't
+   match up. People sometimes complain that docs go out of date, but
+   that's kinda the point: without the ability to see that
+   inconsistency, there's no way to know that there's a bug.
+
+2. Using comments makes it reasonable to combine the activities of
+   coding and documentation, which—believe it or not—are mutually
+   supportive.
+
+3. IDEs and documentation extractors recognize special three-slash
+   syntax to provide an improved developer experience. Using the
+   recognized syntax opens the door to other forms of processing in
+   the future.
+
 #### On Code Review
 
 Contracts also deserve early attention in code reviews.  The *first
@@ -562,24 +582,6 @@ privately to the implementor/maintainer of the code.  Note that you
 can have both: `PairArray` *also* has a public invariant that its
 `count` is non-negative.  We'll get to why this particular invariant
 is not explicitlty documented in a moment…
-
-### Why Use Doc Comments
-
-Lastly, I want to say, this documentation
-should go in your code as comments, because:
-
-1. That puts the two things that should correspond—documentation and
-   implementation—next to one another, so you can see when they don't
-   match up. People sometimes complain that docs go out of date, but
-   that's kinda the point: without the ability to see that
-   inconsistency, there's no way to know that there's a bug.
-
-2. Using comments makes it reasonable to combine the activities of
-   coding and documentation, which—believe it or not—are mutually
-   supportive.
-   
-3. IDEs and other tools, such as DocC, process these comments
-    to improve the developer experience.
 
 ### Making It Tractable
 
