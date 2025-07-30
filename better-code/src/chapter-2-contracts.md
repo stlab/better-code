@@ -496,13 +496,15 @@ damage.
 The tower of abstraction mentioned earlier comes with a tower of
 invariants.  The invariants of `PairArray` are built on—and depend
 on—the invariants of the individual arrays. We can embed `PairArray`
-into some larger data structure with its own invariant.
+into some larger data structure with its own invariant, which will
+depend on that of `PairArray`.
 
 In fact, you can think of the entire state of your program as one big
 data structure with its own invariants, and formalize what it means
 for the program to “be in a good state” that way.  For example, you
 might have a database of employees, each of which has its own ID, and
-which also stores the ID of the employee's manager.
+which also stores the ID of the employee's manager (the CEO gets to be
+their own manager).
 
 It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
@@ -562,6 +564,7 @@ can have both: `PairArray` *also* has a public invariant that its
 is not explicitlty documented in a moment…
 
 ### Why Use Doc Comments
+
 Lastly, I want to say, this documentation
 should go in your code as comments, because:
 
@@ -693,8 +696,9 @@ the array has an element.  OK, so what about postconditions?
 
 The postconditions are the effects of the method plus any returned
 result.  If the preconditions are met, but the postconditions are not,
-we'd say the method has a bug.  The bug could be in the documentation
-of course, *which is a part of the method*.
+and the function does not report an error, we'd say the method has a
+bug.  The bug could be in the documentation of course, *which is a
+part of the method*.
 
 ```swift
   /// Removes and returns the last element.
@@ -978,48 +982,49 @@ assert(
 
 ### Project-Wide Documentation Policies
 
-The only reason you haven't seen
-complexity documented in this talk up to now is that I have a policy
-that operations have constant complexity unless specifically
-documented otherwise.
+The reason you haven't seen complexity documented in examples before
+`sort` is that we have a policy that operations have constant
+complexity unless specifically documented otherwise.  Making “document
+everything” practical depends on having some well-chosen project-wide
+policies that save you from repeating common patterns.
 
-Which brings me to this aside…  A big part of making the documentation
-problem tractable is having some well-chosen project-wide policies
-that save you from repeating common patterns. So I'm not going to
-prescribe your project's policy about this, but you should choose one,
-and write it down somewhere.  Your project's choice of policy can make
-the difference between documentation being useful and being burdensome
-or inconsistent (at which point people will just stop reading and
-writing it).
+Your project's choice of policy can make the difference between
+documentation being useful and being burdensome or inconsistent (at
+which point people will just stop reading and writing it).  Even more
+than your choice of policies, it's important above all that you *have*
+policies written down where maintainers can refer to them.
 
 For example,
 
-- Every declaration outside a function body must have a documentation comment that describes
-  its contract.
-  - Start with a summary sentence fragment.
-    - Describe what a function or method does and what it returns.
-    - Describe what a property or type is.
-    - Separate the fragment from any additional documentation with a blank line and end it
-      with a period.
-  - Preconditions, postconditions and invariants obviously implied by the summary need not
-    be explicitly documented.
-  - Declarations that fulfill protocol requirements are exempted when
-    nothing useful can be added to the documentation of the protocol
-    requirement itself.
-
-- End every file with a newline.
-- Do not strip trailing whitespace from lines you're not editing; it creates spurious VC diffs.
-- Document the performance of every operation that doesn't execute in constant time and space.
+> - Every declaration outside a function body must have a documentation
+>   comment that describes its contract.
+>   - Start with a summary sentence fragment.
+>     - Describe what a function or method does and what it returns.
+>     - Describe what a property or type is.
+>     - Separate the fragment from any additional documentation with a
+>       blank line and end it with a period.
+>
+>   - Preconditions, postconditions and invariants obviously implied
+>     by the summary need not be explicitly documented.
+>
+>   - Declarations that fulfill protocol requirements are exempted when
+>     nothing useful can be added to the documentation of the protocol
+>     requirement itself.
+>
+> - Document the performance of every operation that doesn't execute in
+>   constant time and space.
 
 
 It is reasonable to put information in the policies without which the
 project's other documentation would be incomplete or confusing, but
-you should be aware that it implies policies must be read.
-
+you should be aware that it implies policies *must be read*. We
+recommend embedding these policies in your project's coding standard
+document, near the top where it is less likely to be treated as an
+afterthought.
 
 I want to mention one other thing: everything you see in these
 function signatures is implicitly part of the function's contract. For
-example, the signature if `sort` says the predicate must operate on
+example, the signature of `sort` says the predicate must operate on
 arguments of type T, and return a `Bool`, so we didn't have to spell
 that out as a precondition in documentation.
 
