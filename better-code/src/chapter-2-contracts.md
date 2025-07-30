@@ -589,7 +589,8 @@ Now, not every contract is as simple as the ones we've shown so far,
 but simplicity is a goal.  In fact, if you can't write a terse,
 simple, but _complete_ contract for a component, there's a good chance
 it's badly designed.  A classic example is the C library `realloc`
-function, which does at least three different things, all of which
+function, which does at least three different things—allocate, deallocate, and resize 
+dynamic memory—all of which
 need to be described. A better design would have separated these
 functions.  So simple contracts are both easy to digest and easy to
 write.
