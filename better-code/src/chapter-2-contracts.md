@@ -571,6 +571,19 @@ struct EmployeeDatabase {
 Upholding invariants is the _entire purpose_ of access control, so use
 `private` whenever you can!
 
+#### The Power of Type Information
+
+Everything you see in a function signature is implicitly part of the
+function's contract. A function with a parameter of type
+`EmployeeDatabase` has a precondition that the database upholds the
+manager invariant, but it doesn't need to be stated explicitly; it's
+enforced automatically by the compiler and the implementor of
+`EmployeeDatabase`.  So static typing gives you a leg up on the
+“document everything” project. If you were programming in a totally
+dynamic language, like Javascript, or Python without type hints, you
+have to put a lot more of that sort of information into the written
+documentation.
+
 #### Public And Private Invariants
 
 Some invariants, such as the one documented for `EmployeeDatabase`
@@ -1023,18 +1036,6 @@ you should be aware that it implies policies *must be read*. We
 recommend embedding these policies in your project's coding standard
 document, near the top where it is less likely to be treated as an
 afterthought.
-
-I want to mention one other thing: everything you see in these
-function signatures is implicitly part of the function's contract. For
-example, the signature of `sort` says the predicate must operate on
-arguments of type T, and return a `Bool`, so we didn't have to spell
-that out as a precondition in documentation.
-
-Because Swift is a statically typed language, it just so happens that
-those things are going to be enforced by the compiler, but if you were
-programming in a totally dynamic language, like Javascript, or Python
-without type hints, you have to put a lot more of that sort of
-information into the written documentation.
 
 ### Summing Up
 
