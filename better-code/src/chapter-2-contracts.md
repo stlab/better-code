@@ -777,6 +777,8 @@ it need not take more than a few seconds:
 
 ### A More Complicated Example
 
+Let's take a look at a traditional sorting algorithm.
+
 ```swift
 extension DynamicArray {
   /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
@@ -867,29 +869,49 @@ Let's take the complexity of the documentation as a hint that the API
 could be improved and see where that leads.  If `sort` had been
 written to work with `<=` as an argument, producing the same result,
 the summary could have avoided swapping elements in the comparison and
-negating the result. [^implementable]  The general property that `<=` satisfies is
-called a *partial order*, a much more familiar term to many.  Because
-the summary is simpler, no example is needed. Even the parameter name
-becomes simpler:
+negating the result:
 
-[^implementable]: such a function is trivially implementable as a
-    wrapper over the `sort` implementation that accepts a strict weak
-    ordering.
+```swift
+/// Sorts the elements so that `areInOrder(self[i],
+/// self[i+1])` is true for each `i` in `0 ..< length - 2`.
+```
+
+Predicates that work like `<=` are called *total preorders*.  In fact,
+we can convert any total preorder to a corresponding strict weak order
+(and vice-versa), with this function.
+
+```swift
+/// Returns the converse of `f`'s complement, `g(x, y) := !f(y, x)`.
+func converseOfComplement<T>(_ f: @escaping (T, T)->Bool)
+  -> (T, T)->Bool
+{
+  { x, y in !f(y, x) }
+}
+```
+
+Therefore, if we have a sorting implementation that works with any
+strict weak order, we can easily converti it to work with any total
+preorder by passing the predicate through `converseOfComplement`.
+
+
+Note that the name of the predicate became simpler: it no longer tests
+that its arguments represent an _increase_.  Instead, it tells us
+whether the order is correct.  Because the summary is no longer
+tricky, we can drop the example, and we're left with this:
 
 ```swift
 /// Sorts the elements so that `areInOrder(self[i],
 /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
 ///
-/// - Precondition: `areInOrder` is a [partial
-///   ordering](https://en.wikipedia.org/wiki/Partially_ordered_set)
+/// - Precondition: `areInOrder` is a [total
+///   preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
 ///   over the elements of `self`.
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
 mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
 ```
 
-This simplification even allows us to use a much simpler and more
-natural summary:
+But we can go further and use a much simpler and more natural summary:
 
 ```swift
 /// Sorts the elements so that all adjacent pairs satisfy
@@ -904,13 +926,14 @@ correctness. [^argument-order].
 [^argument-order]: One could argue that to not lose precision, the
     documentation needs to say in which order the adjacent elements
     are passed to `areInOrder`. Judgement calls are part of
-    engineering, and in our judgement the ordering is implied.
+    engineering, and in our judgement the order of arguments is
+    implied.
 
-There are two simplifications we can make to the precondition. First,
-everything in documentation of a method happens in the context of
-`self`, so we can drop “of `self`.”  This improvement was available to
-us all along, and may seem trivial, but the value of [omitting
-needless
+There are two further simplifications we can make to the
+precondition. First, everything in documentation of a method happens
+in the context of `self`, so we can drop “of `self`.”  This
+improvement was available to us all along, and may seem trivial, but
+the value of [omitting needless
 words](https://thewritinghabit.blog/2016/04/04/omit-needless-words/)
 adds up over lots of function definitions. It lowers the burden of
 writing documentation, and makes it much easier to read. Remember,
@@ -918,12 +941,13 @@ every word a reader has to process has a cognitive cost in addition to
 whatever benefits it may provide, so each one should more than pay for
 itself.
 
-Secondly, the summary has become so simple that we can arguably embed
-the precondition there, making the final declaration:
+Secondly, the summary has become so simple that we can embed the
+precondition there without overly complicating it, making the final
+declaration:
 
 ```swift
-/// Sorts the elements so that all adjacent pairs satisfy the [partial
-/// ordering](https://en.wikipedia.org/wiki/Partially_ordered_set)
+/// Sorts the elements so that all adjacent pairs satisfy the [total
+///   preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
 /// `areInOrder`.
 ///
 /// - Complexity: at most N log N comparisons, where N is the number
@@ -931,13 +955,13 @@ the precondition there, making the final declaration:
 mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
 ```
 
-There is one factor weighing against all these simplifications,
-though: sorting functions taking strict weak orderings are
-traditional. One has to weigh the risk of users reflexively writing
-`sort(areInOrder: <)`—against the value of these simplifications.  The
-argument label helps a bit, because *if* you happen to consider the
-equal elements case, you will see they clearly `areInOrder` but and
-realize `<` will return false.  But if you don't happen to consider
+There is one factor we haven't considered in making these changes:
+sorting functions taking strict weak orderings are traditional. One
+has to weigh the risk that a user reflexively writes `sort(areInOrder:
+<)` against the value of these simplifications.  The argument label
+helps a bit, because *if* you happen to consider the equal elements
+case, you will see they clearly “`areInOrder`” and will realize `<`
+returns false for equal elements.  But if you don't happen to consider
 that case, you won't get the sort you expected… sometimes.  Whether to
 break with precedent in order to get a simpler API with a clearer
 contract is an engineering decision you will have to make. To reduce
@@ -947,9 +971,8 @@ is strict-weak:
 ```
 assert(
   self.isEmpty || areInOrder(first!, first!),
-  "Partial ordering required; did you pass a strict-weak ordering?")
+  "Total preorder required; did you pass a strict-weak ordering?")
 ```
-
 
 ### Project-Wide Documentation Policies
 
