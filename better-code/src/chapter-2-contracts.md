@@ -897,9 +897,14 @@ negating the result:
 /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
 ```
 
-Predicates that work like `<=` are called *total preorders*.  In fact,
+If we view a strict weak ordering as a generalization of what `<` does, the
+corresponding generalization of `<=` is called a *total preorder*. [^equivalence-classes] In fact,
 we can convert any total preorder to a corresponding strict weak order
 (and vice-versa), with this function.
+
+[^equivalence-classes]: The generalization allows unequal elements to
+   be given the same ”rank“ in the ordering.  For example, if you sort
+   integers by their absolute values, 2 and -2 will be ranked the same.
 
 ```swift
 /// Returns the converse of `f`'s complement, `g(x, y) := !f(y, x)`.
