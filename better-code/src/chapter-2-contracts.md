@@ -1,18 +1,39 @@
 # Contracts
 
+Software development at scale is fundamentally about managing
+complexity and establishing trust between components. When you call a
+function, use a library, or interact with an API, you're entering into
+an implicit agreement—but what exactly are the terms of that
+agreement? Without clear, documented expectations, even the most
+carefully crafted code becomes a source of confusion, bugs, and
+maintenance nightmares.
+
+This chapter introduces  programming by contract, an approach that
+transforms how you think about, design, and implement software
+components. Contracts are more than just comments or
+documentation—they're the formal agreements that define how different
+parts of your system communicate and collaborate.
+
 Contracts are the connective tissue of healthy software.  You really
 can't build software at scale without them.  If you *are* successfully
 building large software systems, you're already using  contracts in
 some form, and this chapter should help you make them more powerful.
 
+Writing contracts isn't just about preventing bugs—it's about creating
+a development process where better design emerges naturally, testing
+becomes focused, and documentation actually improves your code. These
+practices will make your software construction both more rigorous and
+more efficient.
+
 ## In pursuit of Correctness
 
 Fundamentally, contracts are about the first ingredient of Better
-Code: correctness. It's popular in some circles to scoff at the idea of correct software,
-on the grounds that bugs are inevitable, and _for the most part_, we rely on incorrect
-software every day without disaster.  But there is a practical
-approach to correctness that improves both code quality and the
-programming experience, without demanding unrealistic perfection.
+Code: correctness. It's popular in some circles to scoff at the idea
+of correct software, on the grounds that bugs are inevitable, and
+because _for the most part_, we rely on incorrect software every day
+without disaster.  But there is a practical approach to correctness
+that improves both code quality and the programming experience,
+without demanding unrealistic perfection.
 
 For those who like to think formally, we can define a _semi-correct_
 program as one for which there exists a valid initial state and
@@ -973,7 +994,7 @@ declaration:
 
 ```swift
 /// Sorts the elements so that all adjacent pairs satisfy the [total
-///   preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+/// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
 /// `areInOrder`.
 ///
 /// - Complexity: at most N log N comparisons, where N is the number
@@ -991,11 +1012,11 @@ returns false for equal elements.  But if you don't happen to consider
 that case, you won't get the sort you expected… sometimes.  Whether to
 break with precedent in order to get a simpler API with a clearer
 contract is an engineering decision you will have to make. To reduce
-the risk you could add this assertion, which will fire if the ordering
-is strict-weak:
+the risk you could add this assertion, which will stop the program if
+the ordering is strict-weak:
 
 ```
-assert(
+precondition(
   self.isEmpty || areInOrder(first!, first!),
   "Total preorder required; did you pass a strict-weak ordering?")
 ```
@@ -1042,8 +1063,67 @@ recommend embedding these policies in your project's coding standard
 document, near the top where it is less likely to be treated as an
 afterthought.
 
-### Summing Up
+# Conclusion
 
-- Breathe.  To experience higher quality and development speed, you
-  may need to give up the experience of cranking out massive amounts
-  of code.
+Programming by contract represents a fundamental shift in how we
+approach software development—from hoping our code works to knowing it
+works, and from building on uncertain foundations to constructing
+reliable abstractions.
+
+The journey through contracts has revealed several transformative
+insights. First, that correctness isn't an unrealistic ideal but a
+practical discipline built on the kind of informal reasoning we
+already do when we code. Second, that documentation isn't overhead but
+essential infrastructure—the connective tissue that makes large-scale
+software development possible. Third, that the act of writing clear
+contracts naturally drives us toward better designs, simpler APIs, and
+more robust systems.
+
+The power of contracts lies not just in what they prevent, but in what
+they enable. They enable local reasoning by allowing you to understand
+code without diving into implementation details. They enable confident
+refactoring by making the expected behavior explicit. They enable
+effective testing by clarifying exactly what needs to be
+verified. Most importantly, they enable collaborative development by
+creating shared understanding about how components should behave.
+
+The discipline outlined in this chapter—from documenting every
+declaration to establishing project-wide policies, from choosing
+strong invariants to designing types that encapsulate complexity—might
+initially seem demanding. However, experienced practitioners discover
+that contracts don't slow development down; they speed it up. When you
+catch design problems early through the act of writing contracts, when
+you immediately know where bugs originate, when you can refactor with
+confidence and build upon stable abstractions, the compound effect is
+dramatically improved productivity.
+
+The techniques you've learned here scale from individual functions to
+entire systems. Type invariants compose into program
+invariants. Component contracts build towers of abstraction. Local
+correctness drives system-wide reliability. Whether you're building a
+small utility or a large distributed system, contracts provide the
+intellectual framework for managing complexity.
+
+As you apply these ideas in your own work, remember that like any
+powerful tool, contracts require practice to master. Start
+small—document the declarations you're working on, think explicitly
+about preconditions and postconditions, design your types to maintain
+clear invariants. As these practices become natural, you'll find
+yourself writing not just better code, but thinking more clearly about
+the problems you're solving.
+
+The investment in learning to program by contract pays dividends
+throughout your career. It transforms how you read other people's
+code, how you design your own components, and how you reason about
+software systems. Most importantly, it provides a path toward the kind
+of software craftsmanship where correctness, clarity, and
+maintainability aren't happy accidents but inevitable outcomes of
+disciplined practice.
+
+Programming by contract isn't just about writing better software—it's
+about becoming a better programmer. The habits of thought and the
+technical disciplines you've encountered in this chapter will serve
+you well regardless of what languages you use, what domains you work
+in, or what challenges you face. In a field where change is constant,
+the fundamental principles of clear communication, careful reasoning,
+and deliberate design remain eternally valuable.
