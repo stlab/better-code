@@ -279,8 +279,8 @@ private—that “bad” state is *encapsulated* by the type, and
 invisible to clients.  By the time we return from `append`, everything
 is back in order.
 
-Because we can control access to the visibility of “bad” states, it
-The formula for upholding a type invariant is tractable.  You
+Because we can control access to the visibility of “bad” states, there
+is a formula for upholding a type invariant.  We
 
 - make stored properties `private` or `private(set)`
 - establish the invariant in the type's `init` method(s), and
