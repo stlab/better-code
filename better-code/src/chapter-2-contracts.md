@@ -112,8 +112,8 @@ Code.  If you can think of a simple and descriptive name for
 something, that's usually a good indicator that there's an abstraction
 waiting to be discovered.
 
-In fact, creating a component directly creates the opportunity for an
-additional use site: in testing.  The more code you test separately,
+In fact, creating a component creates an immediate opportunity for
+the code to be reused in tests.  The more code you test separately,
 the better it is for correctness.  The more you can use understandable
 abstractions, the simpler and clearer the use sites become, which is
 better for correctness. Abstraction and correctness support one
@@ -555,13 +555,11 @@ It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
 through the program you have code to ensure that invariant is upheld.
-It would be a great idea to identify and document that whole-program
-invariant in some central location, so maintainers will know to uphold it, and that they
-can rely on it.
-
 #### Encapsulating invariants
 
-An even better idea is to *encapsulate* the invariant in a type,
+It would be a good idea to identify and document that whole-program
+invariant in some central location, so maintainers will know to uphold it, and that they
+can rely on it.  An even better idea, though, is to *encapsulate* the invariant in a type,
 and document _that_.  So instead of using an `SQLDatabase` type
 directly, you could create an `EmployeeDatabase` type with a private
 `SQLDatabase`, whose public API always upholds that invariant.  Now
