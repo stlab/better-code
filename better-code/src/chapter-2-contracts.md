@@ -100,7 +100,7 @@ we had injected the sorting implementation directly into our code,
 we'd have to reason about all of its details, and we'd need a comment
 to tell us that the implementation was sorting the elements.
 
-So it's a common fallacy that factoring out a component only makes
+It's a common fallacy that factoring out a component only makes
 sense if it's used more than once. The real criterion is whether you
 can identify a unit of *abstraction*—the third ingredient of Better
 Code.  If you can think of a simple and descriptive name for
