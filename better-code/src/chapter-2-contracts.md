@@ -85,9 +85,9 @@ from Nathan Gitter: “Local reasoning is the idea that the reader can
 make sense of the code directly in front of them, without going on a
 journey discovering how the code works.”
 
-So in our example, what we know about `sort` allow us to reason about
+So in our example, what we know about `sort` allows us to reason about
 its use without looking at its implementation.  In fact, local
-reasoning is so fundamental that most of our programming best
+reasoning is so fundamental that most accepted best
 practices exist just to support our ability to do it.  It's why we
 use access control, why we break programs into components like
 functions, types, and modules, and why we try to keep them small.
@@ -96,9 +96,14 @@ functions, types, and modules, and why we try to keep them small.
 
 Obviously, “knowing something about `sort`” is only possible and
 relevant because `sort` is a separate component with its own name. If
-we had injected the sorting implementation directly into our code,
-we'd have to reason about all of its details, and we'd need a comment
-to tell us that the implementation was sorting the elements.
+we had inlined the sorting code directly into some other function,
+we'd need to leave a comment for maintainers telling them
+that the code was meant to sort. Even with the comment, to
+fully understand the surrounding function, maintainers would
+have to reason through the sorting algorithm's details.  
+The comment itself is a code smell: every time we write a comment
+that describes what the next piece of code is about to do, we should
+ask whether that code can be its own function.
 
 It's a common fallacy that factoring out a component only makes
 sense if it's used more than once. The real criterion is whether you
@@ -110,7 +115,7 @@ waiting to be discovered.
 In fact, creating a component directly creates the opportunity for an
 additional use site: in testing.  The more code you test separately,
 the better it is for correctness.  The more you can use understandable
-abstractions, the simpler and clearer the use-sites become, which is
+abstractions, the simpler and clearer the use sites become, which is
 better for correctness. Abstraction and correctness support one
 another in a virtuous cycle.  And abstraction is necessary for
 programming at scale: because we can't keep the whole program in our
@@ -248,12 +253,12 @@ by the technical term “footgun.”
 The other contribution of Meyer's Design by Contract was to apply the
 idea of “invariants” to user-defined types with private parts.  A
 *class invariant* (or *type invariant*), is a condition that holds at
-a type's public API boundary—whenever a type interacts with its
-clients.  When we talk about an instance being “in a good state,” we
+a type's public API boundary—whenever a client interacts with it.
+When we talk about an instance being “in a good state,” we
 mean that its type's invariants are satisfied.
 
-My favorite example is this type whose public interface is like an
-array of pairs, but stores the elements of those pairs in a pair of
+For example, this type's public interface is like an
+array of pairs, but it stores elements of those pairs separate
 arrays.[^array-pairs]
 
 [^array-pairs]: You might want to use a type like this one to store
@@ -295,7 +300,7 @@ length.  It's important to remember that invariants only hold at a
 type's public interface boundary and are routinely violated,
 temporarily, durign a mutation.  For example, in `append`, we have to
 grow one of the arrays first, which breaks the invariant until we've
-done the other push_back.  That's not a problem because the arrays are
+done the second `append`.  That's not a problem because the arrays are
 private—that “bad” state is *encapsulated* by the type, and
 invisible to clients.  By the time we return from `append`, everything
 is back in order.
