@@ -157,7 +157,7 @@ is this composition rule:
 > {P}S{Q} ∧ {Q}T{R} ⇒ {P}S;T{R}
 
 Given two valid Hoare triples, if the postconditions of the first are
-preconditions of the second, we can form a new valid triple describing
+the preconditions of the second, we can form a new valid triple describing
 the effects of performing the operations in sequence.  The notation
 may look exotic, but its meaning should be familiar: this rule simply
 captures the reasoning we use to think informally about statements
@@ -356,8 +356,8 @@ for these new internal states.  Here's one way we could do it:
 Also, the `count` property now reports the wrong length; it needs to
 return `xs.count` instead of `ys.count`.
 
-So a weaker invariant complicated the implementation and made it more
-fragile. In this case, only two adjustments were needed, but in
+As is often the case, a weaker invariant complicated the implementation
+and made it more fragile. Here, only two adjustments were needed, but in
 principle it could be many more. Maintaining a stronger invariant
 is better.  There are two simple approaches:
 
@@ -466,7 +466,7 @@ runtime. But there are caveats:
    the contract code along with the API.  If not, you need to repeat
    the complete contract in documentation.
 
-2. Some contracts are better expressed in English than as code,
+2. Some contracts are better expressed in human language than as code,
 
 3. Some contracts are impossible to express as code.  We'll
    see an example in a moment.
@@ -508,14 +508,14 @@ because:
 1. That puts the two things that should correspond—documentation and
    implementation—next to one another, so you can see when they don't
    match up. People sometimes complain that docs go out of date, but
-   that's kinda the point: without the ability to see that
+   that's exactly the point: without the ability to see that
    inconsistency, there's no way to know that there's a bug.
 
 2. Using comments makes it reasonable to combine the activities of
-   coding and documentation, which—believe it or not—are mutually
+   coding and documentation, which are mutually
    supportive.
 
-3. IDEs and documentation extractors recognize special three-slash
+3. IDEs and documentation extractors recognize special `///` comment
    syntax to provide an improved developer experience. Using the
    recognized syntax opens the door to other forms of processing in
    the future.
@@ -532,10 +532,9 @@ correctness.
 Then, if the APIs aren't *well*-documented (and designed), there's
 little point in looking at their implementations.  Remember, APIs are
 the connective tissue; they're what every client of a component
-interacts with, and will have effects throughout the codebase.  The
-implementation of the API had better be an expression of the contract,
-but deficiencies in the implementation of a function can only do local
-damage.
+interacts with, and will have effects throughout the codebase.  
+A deficient implementation can only do local damage, but a deficient
+contract or design can cause unbounded technical debt.
 
 ### A Tower of Invariants
 
@@ -543,7 +542,7 @@ The tower of abstraction mentioned earlier comes with a tower of
 invariants.  The invariants of `PairArray` are built on—and depend
 on—the invariants of the individual arrays. We can embed `PairArray`
 into some larger data structure with its own invariant, which will
-depend on that of `PairArray`.
+depend on those of `PairArray`.
 
 In fact, you can think of the entire state of your program as one big
 data structure with its own invariants, and formalize what it means
@@ -617,7 +616,7 @@ above, are exposed to users of the type, and thus should be in public
 doc comments.  Others, like the invariant that the members of
 `PairArray` have the same length, are purely part of its
 implementation, and should be encoded in ordinary comments addressed
-privately to the implementor/maintainer of the code.  Note that you
+privately to the maintainer of the code.  Note that you
 can have both: `PairArray` *also* has a public invariant that its
 `count` is non-negative.  We'll get to why this particular invariant
 is not explicitlty documented in a moment…
@@ -942,7 +941,7 @@ func converseOfComplement<T>(_ f: @escaping (T, T)->Bool)
 ```
 
 Therefore, if we have a sorting implementation that works with any
-strict weak order, we can easily converti it to work with any total
+strict weak order, we can easily convert it to work with any total
 preorder by passing the predicate through `converseOfComplement`.
 
 
