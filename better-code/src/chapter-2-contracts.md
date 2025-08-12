@@ -370,7 +370,7 @@ is better.  There are two simple approaches:
     init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
   ```
 
-- Or we can lift the precondition entirely and normalize the internal
+- Or we can remove the precondition entirely and normalize the internal
   representation upon construction:
 
   ```swift
@@ -390,8 +390,7 @@ less-fragile public API.
 
 Looking back at Meyers' definition, you might notice he says contracts
 are “precisely defined specifications,” which is just a fancy word for
-documentation. Like it or not, if you're going to be in the
-correctness game, you need documentation.  Undocumented software is
+documentation. Undocumented software is
 neither correct nor incorrect; it does something, but does it do the
 *right* thing?  There's no way to know.
 
