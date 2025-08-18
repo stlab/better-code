@@ -53,8 +53,8 @@ That's a big part of why we say it's practical.
 ## Reasoning about correctness
 
 How can you know whether your program is correct?  Validating
-correctness seldom requires an elaborate formal proof—usually the sort
-of everyday thinking that we do while programming suffices.
+correctness seldom requires a formal proof—usually the everyday  
+thinking we do while programming works fine.
 
 ```swift
 var names = [ "Sean", "Laura", "Dave", "Crusty" ]
@@ -71,9 +71,9 @@ process is something like this:
 
 That's just an informal proof, and we use that kind of reasoning every
 time we write a line of code. So, regular programming is on the same
-continuum as formally proving correctness.  We're going to explore the
-power that's available by moving toward the formal end of that
-spectrum to see how it enables Better Code.
+continuum as formally proving correctness.  Let's explore how
+injecting just a little more formalism into our process can enable
+Better Code.
 
 ## Local Reasoning
 
@@ -168,8 +168,9 @@ when we write one statement after the next.
 Not all code runs in a straight line, though, so Hoare also gave us a
 tool for reasoning about loops.
 
-A **loop invariant** is a condition that holds before and after each
-iteration.  In this linear search there's an *invariant* that no
+A **loop invariant** is a condition that holds just before a loop,
+after each iteration, and just after the loop.  In this linear search
+there's an *invariant* that no
 element preceding the `i`th one is equal to `x`.
 
 ```swift
@@ -206,9 +207,11 @@ function's author—the function's **contract**:
 
 - The precondition describes which calls to a function should be
   considered valid.
-- The postcondition omits anything that is purely an artifact of the
-  particular implementation, such as what happens when an invalid call
-  is made.
+```suggestion
+- The postcondition specifies only the function's _intended_ behaviors 
+  _when correctly invoked_. Details such as the precise order of equivalent
+  elements after an unstable sort, or what happens when preconditions
+  are violated, are omitted.
 - It is general—describing the result for all inputs the author
   intends to support—so it can be applied in reasoning about any call
   to the function.
@@ -251,7 +254,7 @@ by the technical term “footgun.”
 ### Type Invariants
 
 The other contribution of Meyer's Design by Contract was to apply the
-idea of “invariants” to user-defined types with private parts.  A
+idea of “invariants” to types.  A
 *class invariant* (or *type invariant*), is a condition that holds at
 a type's public API boundary—whenever a client interacts with it.
 When we talk about an instance being “in a good state,” we
