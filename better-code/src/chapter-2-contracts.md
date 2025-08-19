@@ -283,6 +283,10 @@ terms of relationships is one of the themes of Better Code, and you
 can expect us to point relationships out as they come up in our
 material.
 
+Although a software component's implementation must *uphold* its
+contract, it's important to think of a contract as *part of the
+component's interface*, since clients will depend on it.
+
 ### Which code is to blame?
 
 When something goes wrong in software, focusing on which *person* to
@@ -724,10 +728,6 @@ struct DynamicArray<T> {
 }
 ```
 
-The method bodies are collapsed, because contracts are not about what
-you put in your implementations.  Contracts are part of your
-function's interface.
-
 #### Basics
 
 We've started by filling in the most basic part of every documentation
@@ -826,17 +826,18 @@ summary, that should be no surprise.  The summary of a method should
 describe what the method does, and what it should return.  That's
 the postcondition.
 
-So it is *very rare* that a postcondition will need to be separately
-documented.  The only reason you might write it out is if there's some
-aspect of the postcondition you can't easily capture in the summary (
-and remember, the postcondition that can't be fully described in the
-summary is a “code smell”, thus these cases are rare).
+In fact, it's *very rare* that a postcondition will need to be
+separately documented.  The only reason you might write it out is if
+there's some aspect of the postcondition you can't easily capture in
+the summary (and remember, the postcondition that can't be fully
+described in the summary is a “code smell”, thus these cases are
+rare).
 
-So we can erase the separate statement of postconditions.  That said,
-you should always ask yourself how you'd state the postconditions and
-making sure they're completely captured by the summary before you omit
-them.  Considering the postcondition is part of the process that makes
-the summary complete.
+Therefore we can erase the separate statement of postconditions.  That
+said, you should always ask yourself how you'd state the
+postconditions and making sure they're completely captured by the
+summary before you omit them.  Considering the postcondition is part
+of the process that makes the summary complete.
 
 And since we know everything the method does is captured in the summary,
 we can assume everything else in the program is unchanged, so the
