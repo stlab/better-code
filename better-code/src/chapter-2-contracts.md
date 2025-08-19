@@ -152,7 +152,7 @@ For example:
   > {x < Int.max}x+=1{x > Int.min}
 
 What makes preconditions and postconditions useful for formal proofs
-is this composition rule:
+is this *sequencing rule*:
 
 > {P}S{Q} ∧ {Q}T{R} ⇒ {P}S;T{R}
 
@@ -163,10 +163,70 @@ may look exotic, but its meaning should be familiar: this rule simply
 captures the reasoning we use to think informally about statements
 when we write one statement after the next.
 
+For example, take these two independent lines of code:
+
+```swift
+let m = (h - l) / 2
+```
+
+and
+
+```swift
+h = l + m
+```
+
+There are many valid Hoare triples for each of them.  For instance,
+**{*l*+*m*=0}**`h = l + m`**{*h*≤0}**.  This one isn't particularly
+useful, but it is valid because if `l + m == 0` is true before we
+execute it, `h <= 0` will be true afterwards.
+
+The following—more useful—triples will help illustrate the sequencing rule:
+
+- **{*l*≤*h*}**`let m = (h - l )/2`**{*m*≥ 0}**, i.e.
+
+  ```swift
+  // precondition: l <= h
+  let m = (h - l) / 2
+  // postcondition: m >= 0
+  ```
+
+- **{*m*≥0}**`h = l + m`**{*l*≤*h*}**, i.e.
+
+  ```swift
+  // precondition: m >= 0
+  h = l + m
+  // postcondition: l <= h
+  ```
+
+The fact that the first postcondition matches the second
+precondition means that the operations can be executed in
+sequence, with the sequence having the first precondition and the
+second postcondition. Thus there's a new valid triple:
+
+**{*l*≤*h*}**`let m = (h -l )/2; h = l + m`**{*l*≤*h*}**, i.e.
+
+```swift
+  // precondition: l <= h
+  let m = (h - l) / 2
+  h = l + m
+  // postcondition: l <= h
+```
+
+which says that if *l*≤*h* is true on entry to the sequence, it is
+also true on exit.
+
 ### Invariants
 
-Not all code runs in a straight line, though, so Hoare also gave us a
-tool for reasoning about loops.
+When a valid triple has identical precondition and postcondition,
+Hoare calls that condition an **invariant** of the operation, a
+condition that the operation preserves.  The preceding example is
+distilled from the *binary search* algorithm, where *l*≤*h* is an
+invariant of the sequence.  Knowing that *l*≤*h* at each step is
+crucial to understanding the algorithm's correctness.
+
+The sequencing rule is good for code that runs in a straight line, but
+not all code is like that. Hoare also gave us a tool for reasoning
+about loops.
 
 A **loop invariant** is a condition that holds just before a loop,
 after each iteration, and just after the loop.  In this linear search
