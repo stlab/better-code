@@ -704,7 +704,7 @@ Guidelines](https://www.swift.org/documentation/api-design-guidelines/),
 only slightly modified.
 
 ```swift
-/// A resizable random-access collection of `T`s.
+/// A resizable random-access `Collection` of `T`s.
 struct DynamicArray<T> {
 
   /// Removes and returns the last element.
@@ -738,7 +738,7 @@ thing *is* or *does*.
 The first one
 
 ```swift
-/// A resizable random-access collection of `T`s.
+/// A resizable random-access `Collection` of `T`s.
 struct DynamicArray<T>
 ```
 
@@ -755,8 +755,8 @@ Now let's look at the documentation for the first method, called
 
 As you can see from the summary, it removes and returns the last
 element. Notice that the phrase “last element” is meaningful only
-because we documented that `DynamicArray` is a collection, which we
-know is a sequence of elements.
+because we documented that `DynamicArray` is a `Collection`, i.e.
+a `Sequence` of elements that supports multiple iteration passes.
 
 The summary for a method should tell us what the method returns, and
 what its other effects are, if any.  This method is a little unusual
