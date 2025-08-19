@@ -533,8 +533,8 @@ runtime. But there are caveats:
 
 2. Some contracts are better expressed in human language than as code,
 
-3. Some contracts are impossible to express as code.  We'll
-   see an example in a moment.
+3. Some contracts are impossible to express as code, or impossible to
+   express efficiently.  We'll see an example in a moment.
 
 We'll discuss contract checking as a separate topic in the next
 chapter.
@@ -909,20 +909,25 @@ the elements arranged from least to greatest. The contract gives an
 explicit precondition that isn't implied by the summary: it requires
 that the predicate be a strict weak ordering.
 
-Note that _some_ precondition on the predicate is needed just to
-make the result a meaningful sort with respect to the predicate.  For
-example, a totally unconstrained predicate could return random boolean
-values, and there's no reasonable sense in which the function could be
-said to leave the elements sorted with respect to that.  So the
+_Some_ precondition on the predicate is needed just to make the result
+a meaningful sort with respect to the predicate.  For example, a
+totally unconstrained predicate could return random boolean values,
+and there's no reasonable sense in which the function could be said to
+leave the elements sorted with respect to that.  Therefore the
 predicate at least has to be stable. To leave elements meaningfully
 sorted, the predicate has to be *transitive*: if it is `true` for
 elements (*i*, *j*), it must also be true for elements (*i*, *j*+1).
 A strict weak ordering has both of these properties, among others.
 
-Note also that the performance of this method is documented.  Time and
+Note that the performance of this method is documented.  Time and
 space complexity have to be part of the contract if you want your
 clients to be able to reason locally about the performance of their
 own code.
+
+The strict weak ordering requirement is a great example of a
+precondition that can't be efficiently checked.  To do so would
+require at least *N*² comparisons, where *N* is the number of
+elements, which would violate the complexity bound of the algorithm.
 
 The summary gives the postcondition that no two adjacent elements are
 out-of-order according to the predicate.  The contract is perfectly
