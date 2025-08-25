@@ -486,10 +486,10 @@ development at scale becomes infeasible.
 
 The catch is that the code you are writing is almost never at the top
 of the tower.  Someone else, or future-you, is going to have to build
-on the code you're writing. There's no difference between public and
-private stuff where documentation is concerned.  Every component is
-API to somebody, so when we say “API” we mean any interface boundary
-in the codebase, however internal.
+on the code you're writing. Thus, there's no difference between public
+and private interfaces where documentation is concerned.  Every
+component is API to somebody, so when we say “API” we mean any
+interface boundary in the codebase, however internal.
 
 #### Contract Checking Features
 
