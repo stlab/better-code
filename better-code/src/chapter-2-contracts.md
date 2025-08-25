@@ -1090,7 +1090,7 @@ precondition(
   "Total preorder required; did you pass a strict-weak ordering?")
 ```
 
-### Project-Wide Documentation Policies
+## Project-Wide Documentation Policies
 
 The reason you haven't seen complexity documented in examples before
 `sort` is that we have a policy that operations have constant
