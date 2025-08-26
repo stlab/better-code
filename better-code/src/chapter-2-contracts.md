@@ -1333,64 +1333,24 @@ violates the requirements of `bucketed`:
 ## Conclusion
 
 Programming by contract establishes a framework for understanding
-correctness, for reasoning locally about program semantics, and for
-evolving existing code.  Fundamentally, that makes documentation a
-central part of.
+correctness, for knowing what to test, for reasoning locally about
+program semantics, for distributing work across programmers, for
+evolving existing code, and even for evaluating API quality.  It is a
+practical discipline built on the kind of informal reasoning every
+programmer applies daily.
 
-The journey through contracts has revealed several transformative
-insights. First, that correctness isn't an unrealistic ideal but a
-practical discipline built on the kind of informal reasoning we
-already do when we code. Second, that documentation isn't overhead but
-essential infrastructure—the connective tissue that makes large-scale
-software development possible. Third, that the act of writing clear
-contracts naturally drives us toward better designs, simpler APIs, and
-more robust systems.
-
-The power of contracts lies not just in what they prevent, but in what
-they enable. They enable local reasoning by allowing you to understand
-code without diving into implementation details. They enable confident
-refactoring by making the expected behavior explicit. They enable
-effective testing by clarifying exactly what needs to be
-verified. Most importantly, they enable collaborative development by
-creating shared understanding about how components should behave.
-
-The discipline outlined in this chapter—from documenting every
-declaration to establishing project-wide policies, from choosing
-strong invariants to designing types that encapsulate complexity—might
-initially seem demanding. However, experienced practitioners discover
-that contracts don't slow development down; they speed it up. When you
-catch design problems early through the act of writing contracts, when
-you immediately know where bugs originate, when you can refactor with
-confidence and build upon stable abstractions, the compound effect is
-dramatically improved productivity.
-
-The techniques you've learned here scale from individual functions to
-entire systems. Type invariants compose into program
-invariants. Component contracts build towers of abstraction. Local
-correctness drives system-wide reliability. Whether you're building a
-small utility or a large distributed system, contracts provide the
-intellectual framework for managing complexity.
+By treating contract documentation as essential infrastructure—the
+connective tissue of our software—and making it part of the design
+process, we can write Better Code the first time around, and build
+programs efficiently, at scale.
 
 As you apply these ideas in your own work, remember that like any
-powerful tool, contracts require practice to master. Start
-small—document the declarations you're working on, think explicitly
-about preconditions and postconditions, design your types to maintain
-clear invariants. As these practices become natural, you'll find
-yourself writing not just better code, but thinking more clearly about
-the problems you're solving.
-
-The investment in learning to program by contract pays dividends
-throughout your career. It transforms how you read other people's
-code, how you design your own components, and how you reason about
-software systems. Most importantly, it provides a path toward the kind
-of software craftsmanship where correctness, clarity, and
-maintainability aren't happy accidents but inevitable outcomes of
-disciplined practice.
-
-Programming by contract isn't just about writing better software—it's
-about becoming a better programmer. The habits of thought and the
-technical disciplines you've encountered in this chapter will serve
-you well regardless of what languages you use, what domains you work
-in, or what challenges you face. In a field where change is constant,
-the fundamental principles of clear communication, careful reasoning,
-and deliberate design remain eternally valuable.
+powerful tool, contracts require practice to master. Start small:
+document all new declarations, think explicitly about preconditions
+and postconditions, and design your types to maintain clear
+invariants. Existing components with insufficient contract
+documentation create a cycle of repeated reverse-engineering.  When
+you discover how these components work, instead of throwing that work
+away, capture it in new documentation.  As these practices become
+natural, you'll find yourself writing not just better code, but
+thinking more clearly about the problems you're solving.
