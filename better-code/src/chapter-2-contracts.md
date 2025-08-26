@@ -922,7 +922,9 @@ A strict weak ordering has both of these properties, among others.
 Note that the performance of this method is documented.  Time and
 space complexity have to be part of the contract if you want your
 clients to be able to reason locally about the performance of their
-own code.
+own code.  In fact, we can view the performance contract of the
+function as part of its postconditions, which brings all the
+function's guarantees under one name: its postconditions.
 
 The strict weak ordering requirement is a great example of a
 precondition that can't be efficiently checked.  To do so would
@@ -1081,7 +1083,7 @@ returns false for equal elements.  But if you don't happen to consider
 that case, you won't get the sort you expected… sometimes.  Whether to
 break with precedent in order to get a simpler API with a clearer
 contract is an engineering decision you will have to make. To reduce
-the risk you could add this assertion, which will stop the program if
+the risk you could add this assertion[^checks], which will stop the program if
 the ordering is strict-weak:
 
 ```
@@ -1089,6 +1091,18 @@ precondition(
   self.isEmpty || areInOrder(first!, first!),
   "Total preorder required; did you pass a strict-weak ordering?")
 ```
+
+[^checks]: See the next chapter for more on checking contracts at
+    runtime.
+
+### The Moral of the Story
+
+The dramatic cascade of API improvements we saw with the `sort`
+example was a direct consequence of writing and evaluating the
+contract. It's easy—and quite common—to put off writing documentation,
+but the transformations we saw here are only possible if documenting
+contracts is treated not as an afterthought, but as a fundamental part
+of the API design process.
 
 ## Project-Wide Documentation Policies
 
@@ -1132,12 +1146,196 @@ recommend embedding these policies in your project's coding standard
 document, near the top where it is less likely to be treated as an
 afterthought.
 
-# Conclusion
+## Code and Contract Evolution
 
-Programming by contract represents a fundamental shift in how we
-approach software development—from hoping our code works to knowing it
-works, and from building on uncertain foundations to constructing
-reliable abstractions.
+One of the most powerful features of contracts is that they allow us
+to replace the *implementation* of a function without breaking its
+correct clients.  As long as the new implementation fulfills the
+postconditions, and relies on nothing more than the preconditions,
+those clients will continue to function as before. Again, this is
+local reasoning in action: we can reason about changes to a given
+function without going on a journey to inspect all of its callers.
+
+But suppose you want to change a function's contract? The
+correctness-preserving changes are those that weaken the function's
+preconditions and/or strengthen its postconditions.  For example, this
+method returns the number of steps from the start of a collection to
+an occurence of some value.
+
+```swift
+extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and an occurrence
+  /// of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -> Int {...}
+}
+```
+
+Suppose we weaken the postcondition?
+
+```swift
+extension Collection where Element: Equatable {
+  /// Returns a value less than or equal to the number elements
+  /// between the start and an occurrence of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -> Int {...}
+}
+```
+
+Before the change, clients had a right to expect this assertion to
+pass:
+
+```swift
+assert(
+  c[c.index(c.startIndex, offsetBy: c.offsetFromStart(x))] == 'x`)
+```
+
+but with the new contract a correct implementation of the method could
+be `{ return 0 }`, and that assertion would surely fail for many valid
+inputs to the function, e.g. `[1, 2, 3].offsetFromStart(3)`
+
+Strengthening the precondition has a similar effect:
+
+```swift
+extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and an occurrence
+  /// of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x` and `x` != `first`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -> Int {...}
+}
+```
+
+After that change, the following line of code has developed a new bug!
+
+```swift
+let i = [1, 2, 3].offsetFromStart(1) // 1 == [1, 2, 3].first
+```
+
+The ability to (non-locally!) break all the clients of a function
+means we must be extraordinarily careful to follow the rules when
+evolving a contract.  Now let's see how that plays out.
+
+Strengthening the postcondition might look like this:
+
+```swift
+extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and the first
+  /// occurrence of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -> Int {...}
+}
+```
+
+We now guarantee we'll find the first occurrence of `x`, rather than
+just any occurrence. Since clients had no right to expect anything
+*other* than the first occurrence, no clients can be broken by this
+change.
+
+From there, let's weaken the precondition by simply removing it:
+
+```swift
+extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and the first
+  /// occurrence of the value `x`, or `count` if `x` is not found.
+  func offsetFromStart(_ x: Element) -> Int {...}
+}
+```
+
+If you read carefully, this might appear to also be a weakening of the
+postcondition.  After all, before the change, clients had a right to
+expect never to get `count` as a result.  However, that new
+possibility only occurs in cases that were disallowed before the
+change.  Clients that were correct before the change had to ensure
+that `x` was contained in the collection, and those clients cannot
+observe a result of `count` unless they adjust their code to take
+advantage of the weakened precondition.
+
+Remember that performance guarantees are part of a function's
+postconditions: without breaking client code, they can be strengthened
+to promise more efficiency, but never weakened.
+
+## Polymorphism and Higher-Order Functions
+
+Similar rules apply to the contracts for protocol conformances: a
+method satisfying a protocol requirement can have weaker preconditions
+and/or stronger postconditions than required by the protocol:
+
+Here, the conformance strengthens the performance guarantee given by
+the protocol requirement:
+
+```swift
+protocol Searchable: Collection {
+  /// Returns the first position where `x` occurs.
+  ///
+  /// - Complexity: at most `count` comparisons and index adjustment
+  ///   calls.
+  func index(of x: Element) -> Index
+}
+
+extension SortedArray: Searchable {
+  /// Returns the first position where `x` occurs.
+  ///
+  /// - Complexity: at most log2(`count`) comparisons and index
+  ///   adjustment calls.
+  func index(of x: Element) -> Index
+}
+```
+
+Function parameters of function type act similarly: a function or
+closure passed as an argument can have weaker preconditions and/or
+stronger guarantees than those specified by the callee.  Take this
+function for instance:
+
+```swift
+extension Collection {
+  /// Returns a mapping from `bucket(x)` for all elements `x`, to the
+  /// set of elements `y` such that `bucket(y) == bucket(x)`.
+  ///
+  /// - Precondition: `bucket(x)` is non-negative for all elements `x`.
+  func bucketed(per bucket: (Element)->Int) -> [Int: Set<Element>]
+  { ... }
+}
+```
+
+There's a requirement[^stated-as] on the postcondition of `bucket`: it
+must return only numbers greater than -1.  This call passes a function
+that returns only 0 or 1; a strictly stronger postcondition:
+
+[^stated-as]: The requirement is, as usual for function requirements,
+    stated as a precondition. We avoid using the word “precondition”
+    here to make it clearer that we're discussing the contract
+    required of the function's *parameter*, `bucket`.
+
+```swift
+(0..<10).bucketed { $0 % 2 }
+```
+
+That call is clearly fine.  This one, however, passes a function whose
+postcondition is neither identical nor strictly stronger.  That
+violates the requirements of `bucketed`:
+
+```swift
+(0..<10).bucketed { $0 - 2 }
+```
+
+## Conclusion
+
+Programming by contract establishes a framework for understanding
+correctness, for reasoning locally about program semantics, and for
+evolving existing code.  Fundamentally, that makes documentation a
+central part of.
 
 The journey through contracts has revealed several transformative
 insights. First, that correctness isn't an unrealistic ideal but a
