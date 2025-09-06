@@ -413,7 +413,7 @@ Now the invariant becomes `xs.count <= ys.count`.  We call that a
 
 Let's see what effect the new invariant would have on the rest of the
 implementation.  Most of it is unchanged, but to maintain the same
-meaning, the `append` method must to account for these new internal
+meaning, the `append` method must account for these new internal
 states.  Here's one way we could do it:
 
 ```swift
