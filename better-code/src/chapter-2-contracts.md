@@ -389,12 +389,9 @@ invariant.
 #### How To Choose a Type Invariant
 
 Often, you have a choice about how strong to make your type's
-invariant.  For example, in `PairArray`, we could have chosen the
-invariant `x.count <= y.s.count`.  We call that a *weaker* invariant
-because it allows many more internal states.
-
-Let's assume that there's some method that can create a condition
-where `x.count < y.count`:
+invariant.  For example, because of the way `PairArray` was written,
+it has an invariant that `xs.count == ys.count`, but if we add this
+initializer, we'd have to weaken that invariant:
 
 ```swift
   /// An instance with the value of `zip(xs, ys)`.
@@ -406,9 +403,18 @@ where `x.count < y.count`:
 [Note: when sequences of unequal length are `zip`ped, the result
 has the length of the shorter sequence.]
 
-Now let's see what happens to the rest of the implementation.  Most of
-it is unchanged, but in the `append` method, we now need to account
-for these new internal states.  Here's one way we could do it:
+Now the invariant becomes `xs.count <= ys.count`.  We call that a
+*weaker* invariant because it allows many more internal states. [^weaken]
+
+[^weaken]: If we removed the precondition on this initializer, without
+    changing its implementation, the invariant would become empty, or
+    `true`, which is the weakest possible invariant: it allows the
+    lengths of `xs` and `ys` to be completely unrelated.
+
+Let's see what effect the new invariant would have on the rest of the
+implementation.  Most of it is unchanged, but to maintain the same
+meaning, the `append` method must account for these new internal
+states.  Here's one way we could do it:
 
 ```swift
   /// Adds `e` to the end.
@@ -419,15 +425,20 @@ for these new internal states.  Here's one way we could do it:
   }
 ```
 
-Also, the `count` property now reports the wrong length; it needs to
-return `xs.count` instead of `ys.count`.
+Also, the `count` property needs to be changed to  return `xs.count`
+instead of `ys.count`.
 
 As is often the case, a weaker invariant complicated the implementation
 and made it more fragile. Here, only two adjustments were needed, but in
-principle it could be many more. Maintaining a stronger invariant
-is better.  There are two simple approaches:
+principle there could be many more.
 
-- We can strengthen the precondition of the new `init` method:
+Instead of allowing the invariant to be weakened, we can adjust the
+new initializer to maintain the original invariant, thus avoiding
+downstream consequences for the rest of the implementations.  There are two simple
+approaches:
+
+- We can strengthen the precondition of the new `init` method,
+  requiring the `xs` and `ys` arguments to have the same length:
 
   ```swift
     /// An instance with the value of `zip(xs, ys)`.
@@ -436,7 +447,7 @@ is better.  There are two simple approaches:
     init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
   ```
 
-- Or we can remove the precondition entirely and normalize the internal
+- Or, we can remove the precondition entirely and normalize the internal
   representation upon construction:
 
   ```swift
@@ -449,8 +460,14 @@ is better.  There are two simple approaches:
     }
   ```
 
-The latter approach is better, as it results in a simpler and
-less-fragile public API.
+Either approach is acceptable, and ordinarily one should favor the
+stronger precondition, which restricts the valid inputs to ones that
+are obviously meaningful, and which doesn't add potentially-costly
+normalization steps.  In this case, however, there is an existing
+operation, `zip`—which does not impose a precondition—whose semantics
+we can match and use to describe the results of our new API.  The
+normalization approach yields a more coherent system with a simpler
+contract for the new API.
 
 ### It's Documentation
 
