@@ -144,7 +144,7 @@ $S$ establishes **postcondition** $Q$.
 
 For example:
 
-- if we start with $\{$ `x == 2` $\}$ (precondition), after `x += 1`, $\{$ `x == 3` $\}$ (postcondition):
+- if we start with `x == 2` (precondition), after `x += 1`, `x == 3` (postcondition):
 
   > $\{$ `x == 2` $\}$ `x += 1` $\{$ `x == 3` $\}$
 
