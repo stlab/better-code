@@ -135,26 +135,29 @@ terminology.
 
 Hoare used this notation, called a “Hoare triple,”
 
-> {P}S{Q}
+> $\{P\}S\{Q\}$
 
-which is an assertion that if **precondition** *P* is met, operation
-*S* establishes **postcondition** *Q*.
+which is an assertion that if **precondition** $P$ is met, operation
+$S$ establishes **postcondition** $Q$.
+
+<!-- This had been using math for pre and post conditions, but I find mixing math and code makes it look like we are talking about different `x` and $x$ variables and equality vs. assignment gets confusing. I think if the operation is expressed in code, the conditions should be expressed in code. -->
 
 For example:
 
-- if we start with `x == 2` (precondition), after `x += 1`, `x == 3` (postcondition):
+- if we start with $\{$ `x == 2` $\}$ (precondition), after `x += 1`, $\{$ `x == 3` $\}$ (postcondition):
 
-  > {x == 2}x+=1{x == 3}
+  > $\{$ `x == 2` $\}$ `x += 1` $\{$ `x == 3` $\}$
+
 
 - if `x` is less than the maximum integer (precondition), after `x
   += 1`, `x` is greater than the minimum integer (postcondition):
 
-  > {x < Int.max}x+=1{x > Int.min}
+  > $\{$`x < Int.max`$\}$ `x += 1` $\{$`x > Int.min`$\}$
 
 What makes preconditions and postconditions useful for formal proofs
 is this *sequencing rule*:
 
-> {P}S{Q} ∧ {Q}T{R} ⇒ {P}S;T{R}
+> $\{P\}S\{Q\} \wedge \{Q\}T\{R\} \Rightarrow \{P\}S;T\{R\}$
 
 Given two valid Hoare triples, if the postconditions of the first are
 the preconditions of the second, we can form a new valid triple describing
@@ -176,13 +179,13 @@ h = l + m
 ```
 
 There are many valid Hoare triples for each of them.  For instance,
-**{*l*+*m*=0}**`h = l + m`**{*h*≤0}**.  This one isn't particularly
+$\{$ `l + m == 0` $\}$ `h = l + m` $\{$ `h <= 0` $\}$. This one isn't particularly
 useful, but it is valid because if `l + m == 0` is true before we
 execute it, `h <= 0` will be true afterwards.
 
 The following—more useful—triples will help illustrate the sequencing rule:
 
-- **{*l*≤*h*}**`let m = (h - l )/2`**{*m*≥ 0}**, i.e.
+- $\{$ `l <= h` $\}$ `let m = (h - l )/2` $\{$ `m >= 0` $\}$, i.e.,
 
   ```swift
   // precondition: l <= h
@@ -190,7 +193,7 @@ The following—more useful—triples will help illustrate the sequencing rule:
   // postcondition: m >= 0
   ```
 
-- **{*m*≥0}**`h = l + m`**{*l*≤*h*}**, i.e.
+- $\{$ `m >= 0` $\}$ `h = l + m` $\{$ `l <= h` $\}$, i.e.,
 
   ```swift
   // precondition: m >= 0
@@ -203,16 +206,16 @@ precondition means that the operations can be executed in
 sequence, with the sequence having the first precondition and the
 second postcondition. Thus there's a new valid triple:
 
-**{*l*≤*h*}**`let m = (h -l )/2; h = l + m`**{*l*≤*h*}**, i.e.
+$\{$ `l <= h` $\}$ `let m = (h - l) / 2; h = l + m` $\{$ `l <= h` $\}$, i.e.,
 
 ```swift
-  // precondition: l <= h
-  let m = (h - l) / 2
-  h = l + m
-  // postcondition: l <= h
+// precondition: l <= h
+let m = (h - l) / 2
+h = l + m
+// postcondition: l <= h
 ```
 
-which says that if *l*≤*h* is true on entry to the sequence, it is
+which says that if `l <= h` is true on entry to the sequence, it is
 also true on exit.
 
 ### Invariants
@@ -251,12 +254,12 @@ step in understanding what it does.
 
 ## Design By Contract
 
-> *…a software system is viewed as a set of communicating components
+> *&hellip;a software system is viewed as a set of communicating components
 > whose interaction is based on precisely defined specifications of
-> the mutual obligations — contracts.*
+> the mutual obligations &ndash; contracts.*
 >
->   —Building bug-free O-O software: An Introduction to Design by Contract™
->    https://www.eiffel.com/values/design-by-contract/introduction/
+>   &mdash; Building bug-free O-O software: An Introduction to Design by Contract&trade;
+>    <https://www.eiffel.com/values/design-by-contract/introduction/>
 
 In the mid 1980s, The French computer scientist Bertrand Meyer took
 Hoare Logic, and shaped it into a practical discipline for software
@@ -293,10 +296,10 @@ When something goes wrong in software, focusing on which *person* to
 blame is counterproductive, but deciding which *code* is to blame is
 the first step.  Contracts tell us which code needs fixing:
 
-- If preconditions aren't satisifed, that's a bug in the caller.  The
+- If preconditions aren't satisfied, that's a bug in the caller.  The
   function is not required to make any promises[^no-promises] in that case.
 
-- If preconditions are statisfied but postconditions are not
+- If preconditions are satisfied but postconditions are not
   fulfilled, that's a bug in the callee, or in something it calls.
 
 [^no-promises]: In fact, a function *shouldn't* make any promises in
@@ -324,7 +327,7 @@ When we talk about an instance being “in a good state,” we
 mean that its type's invariants are satisfied.
 
 For example, this type's public interface is like an
-array of pairs, but it stores elements of those pairs separate
+array of pairs, but it stores elements of those pairs in separate
 arrays.[^array-pairs]
 
 [^array-pairs]: You might want to use a type like this one to store
@@ -364,7 +367,7 @@ struct PairArray<X, Y> {
 The invariant for this type is that the private arrays have the same
 length.  It's important to remember that invariants only hold at a
 type's public interface boundary and are routinely violated,
-temporarily, durign a mutation.  For example, in `append`, we have to
+temporarily, during a mutation.  For example, in `append`, we have to
 grow one of the arrays first, which breaks the invariant until we've
 done the second `append`.  That's not a problem because the arrays are
 private—that “bad” state is *encapsulated* by the type, and
@@ -479,7 +482,7 @@ neither correct nor incorrect; it does something, but does it do the
 
 > All undocumented software is waste. It's a liability for a company.
 >
-> —Alexander Stepanov (https://youtu.be/COuHLky7E2Q?t=1773)
+> &mdash; Alexander Stepanov (<https://youtu.be/COuHLky7E2Q?t=1773>)
 
 
 Documentation is also essential for local reasoning.  We build atop
@@ -699,7 +702,7 @@ implementation, and should be encoded in ordinary comments addressed
 privately to the maintainer of the code.  Note that you
 can have both: `PairArray` *also* has a public invariant that its
 `count` is non-negative.  We'll get to why this particular invariant
-is not explicitlty documented in a moment…
+is not explicitly documented in a moment…
 
 ### Making It Tractable
 
@@ -712,7 +715,7 @@ Now, not every contract is as simple as the ones we've shown so far,
 but simplicity is a goal.  In fact, if you can't write a terse,
 simple, but _complete_ contract for a component, there's a good chance
 it's badly designed.  A classic example is the C library `realloc`
-function, which does at least three different things—allocate, deallocate, and resize 
+function, which does at least three different things—allocate, deallocate, and resize
 dynamic memory—all of which
 need to be described. A better design would have separated these
 functions.  So simple contracts are both easy to digest and easy to
@@ -822,7 +825,7 @@ part of the method*.
   /// - Precondition: `self` is non-empty.
   /// - Postcondition: The length is one less than before
   ///   the call. Returns the original last element.
- public mutating func popLast() -> T { ... }
+  public mutating func popLast() -> T { ... }
 ```
 
 The invariant of this function is the rest of the elements, which are
@@ -835,7 +838,7 @@ unchanged:
   /// - Postcondition: The length is one less than before
   ///   the call. Returns the original last element.
   /// - Invariant: the values of the remaining elements.
- public mutating func popLast() -> T { ... }
+  public mutating func popLast() -> T { ... }
 ```
 
 Now, if the postcondition seems a bit glaringly redundant with the
@@ -865,7 +868,7 @@ omitted.
   /// Removes and returns the last element.
   ///
   /// - Precondition: `self` is non-empty.
- public mutating func popLast() -> T { ... }
+  public mutating func popLast() -> T { ... }
 ```
 
 In fact, the precondition is implied by the summary too.  You
@@ -884,7 +887,7 @@ should be sufficient:
 
 ```swift
   /// Removes and returns the last element.
- public mutating func popLast() -> T { ... }
+  public mutating func popLast() -> T { ... }
 ```
 
 In practice, once you are comfortable with this discipline, the
@@ -926,6 +929,8 @@ the elements arranged from least to greatest. The contract gives an
 explicit precondition that isn't implied by the summary: it requires
 that the predicate be a strict weak ordering.
 
+<!-- SRP: this section bothers me. "among others" instead of fully spelling out the requirements, using (i, j + 1) which may not exist, and the n^2 comparisons without calling out the O(n^3) complexity or which properties could be practically checked. Also is "stable" the term we want to use? Regular and deterministic are also candidates. I've tried to rewrite this a couple of times, but it just gets too complex and the main point is lost. -->
+
 _Some_ precondition on the predicate is needed just to make the result
 a meaningful sort with respect to the predicate.  For example, a
 totally unconstrained predicate could return random boolean values,
@@ -933,7 +938,7 @@ and there's no reasonable sense in which the function could be said to
 leave the elements sorted with respect to that.  Therefore the
 predicate at least has to be stable. To leave elements meaningfully
 sorted, the predicate has to be *transitive*: if it is `true` for
-elements (*i*, *j*), it must also be true for elements (*i*, *j*+1).
+elements $(i, j)$, it must also be true for elements $(i, j + 1)$.
 A strict weak ordering has both of these properties, among others.
 
 Note that the performance of this method is documented.  Time and
@@ -944,8 +949,9 @@ function as part of its postconditions, which brings all the
 function's guarantees under one name: its postconditions.
 
 The strict weak ordering requirement is a great example of a
-precondition that can't be efficiently checked.  To do so would
-require at least *N*² comparisons, where *N* is the number of
+precondition that can't be efficiently checked.  Even if we could assume the
+comparison is stable, to do so would
+require at least $n^2$ comparisons, where $n$ is the number of
 elements, which would violate the complexity bound of the algorithm.
 
 The summary gives the postcondition that no two adjacent elements are
@@ -967,9 +973,9 @@ understood, is another source of complexity. In fact we should
 probably put a link in the documentation to a definition.
 
 ```swift
-/// - Precondition: `areInIncreasingOrder` is [a strict weak
-///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
-///   over the elements of `self`.
+  /// - Precondition: `areInIncreasingOrder` is [a strict weak
+  ///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
+  ///   over the elements of `self`.
 ```
 
 We don't normally add examples to our documentation—it makes
@@ -1002,8 +1008,8 @@ the summary could have avoided swapping elements in the comparison and
 negating the result:
 
 ```swift
-/// Sorts the elements so that `areInOrder(self[i],
-/// self[i+1])` is true for each `i` in `0 ..< length - 2`.
+  /// Sorts the elements so that `areInOrder(self[i],
+  /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
 ```
 
 If we view a strict weak ordering as a generalization of what `<` does, the
@@ -1028,29 +1034,28 @@ Therefore, if we have a sorting implementation that works with any
 strict weak order, we can easily convert it to work with any total
 preorder by passing the predicate through `converseOfComplement`.
 
-
 Note that the name of the predicate became simpler: it no longer tests
 that its arguments represent an _increase_.  Instead, it tells us
 whether the order is correct.  Because the summary is no longer
 tricky, we can drop the example, and we're left with this:
 
 ```swift
-/// Sorts the elements so that `areInOrder(self[i],
-/// self[i+1])` is true for each `i` in `0 ..< length - 2`.
-///
-/// - Precondition: `areInOrder` is a [total
-///   preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
-///   over the elements of `self`.
-/// - Complexity: at most N log N comparisons, where N is the number
-///   of elements.
-mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+  /// Sorts the elements so that `areInOrder(self[i],
+  /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
+  ///
+  /// - Precondition: `areInOrder` is a [total
+  ///   preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+  ///   over the elements of `self`.
+  /// - Complexity: at most N log N comparisons, where N is the number
+  ///   of elements.
+  mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
 ```
 
 But we can go further and use a much simpler and more natural summary:
 
 ```swift
-/// Sorts the elements so that all adjacent pairs satisfy
-/// `areInOrder`.
+  /// Sorts the elements so that all adjacent pairs satisfy
+  /// `areInOrder`.
 ```
 
 Usually, the less our documentation looks like code (without
@@ -1081,13 +1086,13 @@ precondition there without overly complicating it, making the final
 declaration:
 
 ```swift
-/// Sorts the elements so that all adjacent pairs satisfy the [total
-/// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
-/// `areInOrder`.
-///
-/// - Complexity: at most N log N comparisons, where N is the number
-///   of elements.
-mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+  /// Sorts the elements so that all adjacent pairs satisfy the [total
+  /// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+  /// `areInOrder`.
+  ///
+  /// - Complexity: at most N log N comparisons, where N is the number
+  ///   of elements.
+  mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
 ```
 
 There is one factor we haven't considered in making these changes:
@@ -1103,10 +1108,10 @@ contract is an engineering decision you will have to make. To reduce
 the risk you could add this assertion[^checks], which will stop the program if
 the ordering is strict-weak:
 
-```
-precondition(
-  self.isEmpty || areInOrder(first!, first!),
-  "Total preorder required; did you pass a strict-weak ordering?")
+```swift
+  precondition(
+    self.isEmpty || areInOrder(first!, first!),
+    "Total preorder required; did you pass a strict-weak ordering?")
 ```
 
 [^checks]: See the next chapter for more on checking contracts at
@@ -1155,7 +1160,6 @@ For example,
 > - Document the performance of every operation that doesn't execute in
 >   constant time and space.
 
-
 It is reasonable to put information in the policies without which the
 project's other documentation would be incomplete or confusing, but
 you should be aware that it implies policies *must be read*. We
@@ -1177,7 +1181,7 @@ But suppose you want to change a function's contract? The
 correctness-preserving changes are those that weaken the function's
 preconditions and/or strengthen its postconditions.  For example, this
 method returns the number of steps from the start of a collection to
-an occurence of some value.
+an occurrence of some value.
 
 ```swift
 extension Collection where Element: Equatable {
@@ -1285,7 +1289,7 @@ to promise more efficiency, but never weakened.
 
 ## Polymorphism and Higher-Order Functions
 
-Similar rules apply to the contracts for protocol conformances: a
+Similar rules apply to the contracts for protocol conformance: a
 method satisfying a protocol requirement can have weaker preconditions
 and/or stronger postconditions than required by the protocol:
 

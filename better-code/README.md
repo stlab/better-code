@@ -19,7 +19,8 @@ Download the installer from [here](https://win.rustup.rs/).
 ### Install mdBook
 
 ```bash
-cargo install mdbook
+cargo install mdbook@0.4.48
+cargo install mdbook-katex
 ```
 
 ### Building and Serving the Book
