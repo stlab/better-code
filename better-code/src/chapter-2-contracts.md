@@ -152,7 +152,7 @@ For example:
 - if `x` is less than the maximum integer (precondition), after `x
   += 1`, `x` is greater than the minimum integer (postcondition):
 
-  > $\{$`x < Int.max`$\}$ `x += 1` $\{$`x > Int.min`$\}$
+  > $\{$ `x < Int.max` $\}$ `x += 1` $\{$ `x > Int.min` $\}$
 
 What makes preconditions and postconditions useful for formal proofs
 is this *sequencing rule*:
