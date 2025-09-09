@@ -135,7 +135,7 @@ terminology.
 
 Hoare used this notation, called a “Hoare triple,”
 
-> $\lbrace P\rbrace S\lbrace Q\rbrace $
+> $\{P\}S\{Q\}$
 
 which is an assertion that if **precondition** $P$ is met, operation
 $S$ establishes **postcondition** $Q$.
@@ -146,18 +146,18 @@ For example:
 
 - if we start with `x == 2` (precondition), after `x += 1`, `x == 3` (postcondition):
 
-  > $\lbrace $ `x == 2` $\rbrace $ `x += 1` $\lbrace $ `x == 3` $\rbrace $
+  > $\{$ `x == 2` $\}$ `x += 1` $\{$ `x == 3` $\}$
 
 
 - if `x` is less than the maximum integer (precondition), after `x
   += 1`, `x` is greater than the minimum integer (postcondition):
 
-  > $\lbrace $ `x < Int.max` $\rbrace $ `x += 1` $\lbrace $ `x > Int.min` $\rbrace $
+  > $\{$ `x < Int.max` $\}$ `x += 1` $\{$ `x > Int.min` $\}$
 
 What makes preconditions and postconditions useful for formal proofs
 is this *sequencing rule*:
 
-> $\lbrace P\rbrace S\lbrace Q\rbrace  \wedge \lbrace Q\rbrace T\lbrace R\rbrace  \Rightarrow \lbrace P\rbrace S;T\lbrace R\rbrace $
+> $\{P\}S\{Q\} \wedge \{Q\}T\{R\} \Rightarrow \{P\}S;T\{R\}$
 
 Given two valid Hoare triples, if the postconditions of the first are
 the preconditions of the second, we can form a new valid triple describing
@@ -179,13 +179,13 @@ h = l + m
 ```
 
 There are many valid Hoare triples for each of them.  For instance,
-$\lbrace $ `l + m == 0` $\rbrace $ `h = l + m` $\lbrace $ `h <= 0` $\rbrace $. This one isn't particularly
+$\{$ `l + m == 0` $\}$ `h = l + m` $\{$ `h <= 0` $\}$. This one isn't particularly
 useful, but it is valid because if `l + m == 0` is true before we
 execute it, `h <= 0` will be true afterwards.
 
 The following—more useful—triples will help illustrate the sequencing rule:
 
-- $\lbrace $ `l <= h` $\rbrace $ `let m = (h - l )/2` $\lbrace $ `m >= 0` $\rbrace $, i.e.,
+- $\{$ `l <= h` $\}$ `let m = (h - l )/2` $\{$ `m >= 0` $\}$, i.e.,
 
   ```swift
   // precondition: l <= h
@@ -193,7 +193,7 @@ The following—more useful—triples will help illustrate the sequencing rule:
   // postcondition: m >= 0
   ```
 
-- $\lbrace $ `m >= 0` $\rbrace $ `h = l + m` $\lbrace $ `l <= h` $\rbrace $, i.e.,
+- $\{$ `m >= 0` $\}$ `h = l + m` $\{$ `l <= h` $\}$, i.e.,
 
   ```swift
   // precondition: m >= 0
@@ -206,7 +206,7 @@ precondition means that the operations can be executed in
 sequence, with the sequence having the first precondition and the
 second postcondition. Thus there's a new valid triple:
 
-$\lbrace $ `l <= h` $\rbrace $ `let m = (h - l) / 2; h = l + m` $\lbrace $ `l <= h` $\rbrace $, i.e.,
+$\{$ `l <= h` $\}$ `let m = (h - l) / 2; h = l + m` $\{$ `l <= h` $\}$, i.e.,
 
 ```swift
 // precondition: l <= h
