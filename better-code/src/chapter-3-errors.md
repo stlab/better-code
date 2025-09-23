@@ -30,8 +30,12 @@ When we write the word “error” in normal type, we mean the idea above,
 distinct from the related Swift `Error` protocol, which we'll always
 spell in code font.
 
-We'll divide errors into two categories:
+We'll divide errors into three categories:
 
+> - **Input error**: the program's external inputs are malformed.  For
+>   example, a `{` without a matching `}` is discovered in a JSON
+>   file.
+>
 > - **Bug**: code contains an avoidable[^avoidable] mistake. For
 >    example, an `if` statement might test the logical inverse of the
 >    correct condition.
@@ -43,45 +47,59 @@ We'll divide errors into two categories:
 [^avoidable]: Although “bugs” are inevitable, every *specific* bug is
     avoidable.
 
-## Recovery
+## Error Recovery
 
-The idea of recovery from errors may have started in the domain of compilers.
+Let's begin by talking about what it means to “recover from an error.”
+Perhaps the [earliest use of the
+term](https://dl.acm.org/doi/10.1145/800028.808489) was in the domain
+of compilers, where the challenge, after detecting a flaw in the
+input, is to continue to process the rest of the input meaningfully.
+Consider a simple syntax error: the simplest possiblities are that the
+next or previous symbol is extra, missing, or misspelled.  Guessing
+correctly affects not only the quality of the error message, but also
+whether further diagnostics will be useful. For example, in this code,
+the `while` keyword is misspelled:
 
-OK, So what do we mean by recovery?
-So when I asked the web which I E do a lot, most of the hits define error recovery in terms of what a parser does when it hits a syntax error in your code and that kind of surprised me because it's it's kind of an esoteric but thing.
-But, but yeah, it's a well established, uh idea in in compiler engineering.
-So let's say that you left out a semicolon.
-Umm, so this is just some C code, right?
-Uh, the parts are could just stop right there, right here.
-And if she one diagnostic about the missing symbol?
-Uh, if that's the only possibility in that syntactic position, otherwise it might, it might have a less useful diagnostic, but most programming languages, the they're they don't do that, even though I often I wish they would.
-They wanna give me all of the potentially useful diagnostics about errors and the rest of my code, and so you know, if the parser just starts, our starts over as though as though this is the beginning of the document, you know this is the whole document and discards its state.
-Umm, you know, I'm going to get a lot of bogus error messages.
-That's a pretty poor recovery because although the program continues, it's doing something that almost certainly doesn't make any sense.
-So you know, it thinks F is a type.
-Name it thinks X is a type name.
-It's complaining about a type specifier.
-It's and then there's this extra closing brace that doesn't match anything right where, whereas it was there.
-So instead of doing that, parsers typically try to recover by pretending I had written something correct.
-In this case, it just injects a phantom semicolon and continues so as a first cut and here that's why you end up with this with this second error that that makes a little bit more sense, right?
-That call to, to F would be at least syntactically legal.
-If I'd put the the close paren.
-Earlier, OK.
-So.
-Umm OK so so as a first cut, let's say the covery is continuing to execute doing sensible work, right?
-And but I really like a quote I found in a stack overflow answer.
-I mean, well, we're still not, we're still not getting down to it.
-Very technical definition.
-I think this really captures the spirit, they said.
-It's to Sally forth entirely unscathed, as those such an inconvenient event had never occurred in the 1st place.
-And So what do they mean by unscathed?
-Well, they mean that the program state is intact.
-Not only are the invariants) upheld, umm, but the state makes sense given the inputs the program has received.
-So in like that parsing case, if you start over, you know from the beginning after the error, then the state doesn't really make sense given the inputs.
-It doesn't correspond to what you've already seen.
-Umm, so here's another example.
-If we have an error while we're applying a blur to some image, it's not enough that the users document is still a well formed file, right?
+```swift
+func f(x: inout Int) {
+  whilee x < 10 {
+    x += 1
+  }
+}
+```
+
+As of this writing, the Swift compiler treats `whilee` as an
+identifier and issues five unhelpful errors, four of which point to
+the remaining otherwise-valid code.  That's not an indictment of
+Swift; doing this job correctly is nontrivial.
+
+<!-- The reference below is a Jul 15, 2016 stack overflow answer that
+supposedly quotes an article at
+http://javaconceptoftheday.com/difference-between-error-vs-exception-in-java/
+but I have checked the wayback machine and can't find that phrase
+anywhere on the page (nor anywhere else on the modern web, with
+Google). The point is to capture the idea of invariants being
+intact. -- DWA -->
+
+More generally, [it has been
+said](https://stackoverflow.com/a/38387506) that recovering from an
+error means that the program can “sally forth entirely unscathed,”
+i.e. that the program state is intact—its invariants are upheld.
+
+Also, the state must make sense given the correct inputs received so
+far. “Making sense” is necessarily a subjective judgement, so examples
+are called for.
+
+- The initial state of a compiler, before it has seen any input,
+  certainly meets the compiler's invariants. But when an error is encountered,
+  resuming with that state would ignore the context seen so far that
+  can help inform further diagnostics.  If the following text did not
+  match what is expected at the beginning of a source file, it would
+  be flagged as an error.
+
+- If we have an error while we're applying a blur to some image, it's not enough that the users document is still a well formed file, right?
 It also can't have some random or half finished changes that they didn't request.
+
 So that's that would be that would be very scathed, OK.
 OK, so let's talk about recovering from a bug.
 So what would that mean?
@@ -766,3 +784,633 @@ Nick DeMarco   1:09:06
 File.
 
 Nick DeMarco stopped transcription
+
+## PART 2 ##
+
+Alright, welcome back everybody.
+Umm.
+So just to refresh where we where well, first of all, for those of you who who don't remember part one or weren't here, umm this is a very slick presentation where I show you no slides and just this document that I wrote up with my notes is is in the background cuz it contains some examples which I'll no want you to look at.
+Umm, so where we were at, we were talking about exceptions and I just wanna review a few things just for background.
+You know, I tried to.
+I tried to demystify exceptions.
+A little bit there.
+They're just a control flow mechanism.
+I and and they don't introduce any new.
+Problems to error handling, but if you're Handling errors right, you have basically all the same issues to to think about whether you're using return types or not, but they they do optimize for.
+For things a little differently, they optimize for nonlocal error handling right where, where it's very likely that your immediate caller doesn't have anything to do with the error, and they're just gonna need to propagate it up.
+And they also optimized for the they tend to to erase the types of error information in, which tends to prevent, uh, code churn has has different kinds of errors end up propagated through the code and just turns out to be a good thing for for most code, which mostly doesn't care about, uh, about what types you've actually got in the.
+In the air, this cause most of the code is just propagating OK.
+So and we were about to talk about Wendy's exceptions and when not to.
+OK.
+And I wanna start by by piercing some of the the aphorisms you may have heard about this because there's a lot of really nice sounding advice about when to use exceptions.
+That's either meaningless or really vague, so like, use exceptions for exceptional conditions, right?
+Well, how do I measure what's an exceptional condition?
+I don't know.
+Don't use exceptions for control flow.
+That one specifically.
+I know that's really popular around Adobe and even appears in our one of our coding guidelines documents, but come on, if you're using exceptions, you're using them for control flow because that's what it is, right?
+Umm exceptions.
+Change which code executes next.
+So I hope I can improve on that advice a little bit.
+So umm, first of all, you can use exceptions for things that aren't obviously failures.
+Umm so for example, when the user cancels a command, an exception is appropriate here because the control flow pattern is identical to the one where the command runs out of disk space.
+For example, the condition ends up propagated to the top level.
+OK.
+Umm, uh.
+And in this case, the recovery is just very slightly different, right?
+There's nothing to report to the user when they cancel, but all the intermediate levels between the point where the failure is initiated and the point at the top of your event loop are the same.
+So it would be silly to explicitly propagate cancellation using some other mechanism in parallel with the implicit propagation of failures that you get from exceptions.
+So uh, but if you make the choice to to use exceptions to deal with user cancellation, I would strongly urge you to in your in your thinking and in your terminology classify this case as a failure, right?
+I said it's OK to use exceptions for things that aren't obviously failures, but you can call this a failure.
+Otherwise, if you don't do that, you're gonna undo all of the benefits you've got by separating failures from postconditions,.
+Right.
+And you'll have to include unless the user cancels, in which case you know an exception is thrown in the description of all of the functions that it could be cancelled, right?
+So in the end, my broad advice is only use exceptions for failures, but be open minded about what you call a failure.
+Actually, even if you're not using exceptions, any condition whose control flow follows the same path as nonlocal failures should probably be classified as a failure.
+OK.
+Umm, another prime example of a non obvious place to use exceptions is the discovery of a syntax error and some input right in the general case you're parsing this input out of a file and IO failures can occur, and Wilf and what's gonna happen, right?
+If you have some nested call stack where you're, you've got a recursive descent for service.
+Say umm uh.
+When you hit this IO error, the control flow is going to be the same as the control flow.
+When you hit a syntax error.
+So if you call the syntax error, the failure of the parsing routine and use the same error reporting mechanism you you have a win for your code.
+OK.
+So those are some places where you can use exceptions next when not to use them right?
+Don't use exceptions for bugs when a bug is detected, the program can't proceed reliably, right?
+And what happens when you throw?
+Well, there is a whole set of unwinding actions that happen.
+It destroys things on the stack.
+It changes where the stack pointer is and all of that happens before your debugger were your crash report.
+If if you even get one occurs, right?
+So you're destroying valuable information that you might need to find a bug.
+Furthermore, anything that you do that's extra once a budget is reported is that much more likely to cause a problem.
+Maybe maybe corrupt your document.
+Open security hold and finally it can hide the bug from developers because after all, when you throw an exception that delegates responsibility for how to deal with it to your callers and your callers, maybe you know don't feel like stopping the application, right?
+Maybe they wanna swallow the exception and continue that.
+As I said before, it is not a service to delegate that choice to your to your callers.
+It's a burden, right?
+Don't don't give your your clients extra decisions to make the specially not don't open the door to bad decisions like continuing after a bug is detected, so you've just make your function that much harder to use.
+OK.
+So another thing that, yeah.
+
+David Sankel   9:20
+It looks like there's a a question in the chat Dinesh, you wanna go ahead?
+
+Dinesh Agarwal   9:24
+Yeah.
+OK.
+Thank you.
+So I just had a quick question.
+So Dave, you mentioned that if it detect a bug, please don't pass it as exception.
+But while the code is in production, ideally the bug would translate as an exception.
+I really don't understand that.
+What exactly it means to like detect a bug if a developer is detecting a bug, they will try to fix it, right?
+
+Dave Abrahams   9:53
+Uh, OK, so you said a few different things that I guess need to be responded to if the developer has.
+
+Dinesh Agarwal   10:00
+Yeah. OK.
+
+Dave Abrahams   10:01
+So let's let me respond to the last thing first.
+Cause that one easy if the developer detects a bug, ideally they would try to fix it.
+Yes, I agree.
+OK.
+So then about production, so we were you were you present for part one of the talk?
+
+Dinesh Agarwal   10:19
+I joined 5 minutes late.
+
+Dave Abrahams   10:21
+OK, so so I pretty sure that we covered this in part one.
+So once a bug is detected, if you continue to run, you increase the chance that you silently corrupt the users data in an unrecoverable way, right?
+So for example, let's you can take Photoshop, which periodically saves document to recovery files you have.
+You know, even there are more sophisticated systems that will also dribble out the commands that have executed successfully so far, so that you so that the application can replay them regardless.
+You know that that's a solid state before the before the bug is detected, or at least there's a very high likelihood once the bug is detected.
+Now you're proceeding based on incorrect assumptions and what can very easily happen is that those incorrect assumptions lead to corruption and the document that the user doesn't see, so they they proceed and then they save their document and it's all over, right?
+You can never get that.
+
+Dinesh Agarwal   11:36
+Got it.
+I see.
+I see.
+Cool.
+Thank you.
+Got it.
+
+Dave Abrahams   11:43
+OK.
+
+Dustin Passofaro   11:44
+I'm can I can I step in there too?
+Because I think I'm also not understanding I I I shared his question actually and I was here for part one, so maybe I missed, maybe I wasn't understanding something there.
+
+Dave Abrahams   11:47
+Sure.
+Yeah, you were.
+I remember you.
+
+Dustin Passofaro   11:56
+Ah, good.
+That's good.
+
+Dave Abrahams   11:58
+Yeah, you had good questions, so.
+
+Dustin Passofaro   11:59
+Umm well or yeah I I hope.
+I hope this question is is also memorable, but we'll see.
+I was also thinking sometimes a bug will come up and we'll we'll present itself as an exception.
+Umm and awesome that I'll let you keep going.
+
+Dave Abrahams   12:14
+That's my next point.
+Yes.
+So as it says Ohh my my finger doesn't quite reach it, I can scroll it down right right there.
+If you use components that misguidedly throw things like logic errors or domain errors or invalid arguments at you, those things all represent bugs.
+Don't let those exceptions propagate.
+Catch them and terminate the application.
+Otherwise, you're just doing.
+You're just essentially indirectly doing what we've just said is a bad idea.
+OK umm now.
+Uh, there are some systems like Python.
+
+Dinesh Agarwal   13:05
+It's so you didn't run, but it's a very interesting statement.
+Like we understand that there is some misguided code in the uh code base.
+Is there any guidance or is there any guidelines how how do we decide it's misguided a function or maybe code piece of code?
+
+Dave Abrahams   13:27
+OK, well this this is a very simple criterion if the code.
+Response to bugs, in other words, misuse of the code right precondition violations by throwing exception.
+That's misguided.
+
+Dinesh Agarwal   13:49
+But that we would know once we basically run it multiple times and basically let's say if there is a library that is getting loaded, we have not run it multiple times.
+It's dynamic library.
+In that case, is there any guidance would you like to share some?
+Maybe sanity.
+Shall we do some sanity for that code before relying on that? Ohh.
+
+Dave Abrahams   14:13
+Known OK so.
+So I you know, I probably shouldn't assume this but but my basic my basic assumption is that the components that you use have documented APIs APIs.
+OK, so that means they, you know, they tell you what they're going to do. Umm.
+Although you know when there's a preconditioned failure, there are obligations to do things.
+There are no obligations to do anything, so I guess discovering what you know, discovering these misguided uh things.
+Uh probably ends up having to be a product of auditing or or, you know, when you observe these, these kinds of misguided exceptions during runtime.
+
+Dinesh Agarwal   15:09
+Got it.
+
+Dave Abrahams   15:09
+Umm so yeah.
+
+Sean Parent   15:14
+Or comment that your list there is is pretty good and you know a lot of people will just inherit from student logic error.
+Uh.
+For for anything that's a bug, and so.
+So that's a good case if you're.
+If you catch a Sood logic error.
+You might want to treat it you know, as as fatal all the places in Photoshop where it puts up a dialog box that says a program error has occurred.
+Umm, it's fine to tell the user that, but the next thing should be save out or recovery document and exit so.
+
+Dave Abrahams   15:50
+Umm yeah.
+That said, I mean you shouldn't.
+You shouldn't make the assumption that every component you're you use is going to be misguided, right?
+Then you'll then you'll have try catch blocks all over the place and basically try catch blocks if you.
+If you write your code right, should be extremely rare, mostly only at the top level.
+Some you know the exception is.
+Sometimes you have an otherwise an unmanaged resource and you need to clean it up.
+So usually you can deal with that by managing it in a destructor, but something like you're initializing on initialized memory and you know an exception is thrown while you're doing that.
+You might need a cache block to go and denialist all of the elements you've initialized, right?
+So very rare.
+OK.
+Umm.
+And all that said, I want to also acknowledge that there are some.
+There are some systems like Python where using exceptions to report bugs is just part of the fabric of the system, right?
+In fact, in Python they use exceptions to exit loops, which is.
+As a little while arming to some people, but in Python you just you can't use this rule that that if you see one of these things you you stop the program.
+You have to let it propagate.
+OK.
+Umm.
+And there's a hand.
+
+Josep Valls   17:33
+Hi, yes, I think I was for so I mostly programming Python so that that's me but even in Java when network is in place there are lots of things that are very commonly reported exception but by means train libraries, anything from time out to to access like temporary resource access.
+
+Dave Abrahams   17:34
+Shouldn't.
+Are those bugs?
+
+Josep Valls   17:58
+So, but those are the bugs.
+But these these exceptions seems to be handled in a trackage, so we have lots.
+
+Dave Abrahams   18:05
+No.
+Well, yeah, not not immediately, right.
+So generally the pattern is there's some place, so remember, exceptions are for nonlocal error handling, right?
+That they are generally for things that can't be responded to by the immediate caller.
+So generally in the general case, the pattern is there's one try catch block, sort of at the top level of the application that that catches all of the things that propagate out of operations that fit.
+
+Josep Valls   18:51
+But simple things like a retry.
+Will there be a good excuse for an exception to where the library throws a?
+
+Dave Abrahams   18:57
+Yeah.
+Right.
+Yeah.
+So so if you have to retry a network operation now, right.
+So that's what I'm what I've been calling a local failure and you might have a component that misguidedly uses exceptions to report local failures, in which case, yes, you do need a local Tri catch.
+But as I also said in the previous section, local failures are are far and away much more rare than nonlocal failures.
+There's there's just a few low level functions that that need to report local failures, so if you have, if you get a a component that reports a local failure with an exception, what you can do is put a little wrapper around it and use that wrapper everywhere.
+Make that wrapper report the error differently.
+So which is going to be my next piece of advice is don't use exceptions for local failures.
+They're not optimized for that.
+
+Josep Valls   20:13
+Yeah.
+
+Dave Abrahams   20:13
+Does that help?
+
+Josep Valls   20:15
+Yes, I guess I'll get more context.
+When after thought process things.
+
+Dave Abrahams   20:22
+OK, we can come back to that.
+There will be time for questions at the end.
+Are there other hands that we should deal with?
+
+David Sankel   20:30
+We've got one more hand in the queue, is he?
+
+Izzy Muerte   20:32
+Yeah, so this isn't actually a question, just a small note that in the same shift in philosophy, people are mentioning in the chat, Python has also been moving towards the approach of we shouldn't be throwing exceptions everywhere.
+And so in recent versions of Python, they've made optimizations to the internal compiler for C Python runtime to not actually throw the, you know, stop, stop, loop, or stop iteration error, and the other ones that are used for control logic, as in more recent years, they've discovered ways to optimize it.
+So they're actually starting to shift away from that.
+They can't get rid of that behavior, unfortunately, because of 30 plus years. If that behavior.
+So, but that's a that's the worst case scenario.
+Fall back for what happens now in Python.
+
+Dave Abrahams   21:26
+That's good to know.
+Umm yeah, I I strongly suspect there are also not separating the bug case from the from the failure case.
+Umm.
+So they're gonna keep reporting, you know, invalid arguments and and other bugs to you using exceptions.
+
+Izzy Muerte   21:48
+Umm that has been discouraged for new types that go into the Python's dead Lib.
+There's still like some functions in the Python stdlib that's still do that, umm, but you'll see more of like a types integer error like if you pass the wrong number of arguments, obviously or like an assertion error.
+
+Dave Abrahams   22:03
+It.
+
+Izzy Muerte   22:05
+Rarely these days you get a value error except for like the built in types because they just had those four for decades at this point.
+
+Dave Abrahams   22:11
+Yeah.
+So, so from the perspective of what I'm saying in this talk type signature error and argument Error, all of those things are equivalent.
+They're they're exceptions thrown to indicate, you know, precondition failures, failures of the of the caller to do the right thing. Umm.
+
+Izzy Muerte   22:33
+Right.
+That's that's partially a result of Python's dynamic execution and not not static typing.
+
+Dave Abrahams   22:39
+Yeah.
+Yeah, it's like, you know, you have a an interactive interpreter, right?
+And so when you hit a bug, you need to be able to get back to the prompt and they use exceptions.
+To do that, you know if it were me, I would prefer that there was some parallel, but but different mechanisms so that I could so that I could keep the handling of those things separate.
+But but I understand why they only have one.
+OK, so.
+Uh, next piece of advice.
+Don't use exceptions for local failures right there.
+There are optimized for the patterns of Handling.
+Uh, problem.
+Far from its source, so if you use them for local failures, that means you're gonna write a lot more catch blocks, which increases the complexity of code, right?
+It's usually easy to tell what kind of whether a failure is local or not local, but I mean, just think about what the client a typical client is going to have to do.
+But if you're writing a function and you really can't guess whether it's failure is going to be handled locally or not, maybe you should consider writing two functions, right?
+One that that reports its failure using some other mechanism.
+Umm.
+And you know, one can call the other, so you don't need to reimplement it.
+OK, next consider the performance implications of throwing.
+So most languages actually aren't like this, but C implementations are usually biased really heavily towards optimizing the non failure case.
+Umm, so that Handling of failure runs one or two orders of magnitude slower than code that's not Handling failure.
+So, and that's tends to be a really great trade off because it allows them to skip explicit checks and all the branch prediction failures and other costs associated with checking for the error case on the hot path in the in the code, right.
+And so this is what meant by zero cost exception handling.
+Umm, if you've heard that term, uh and non local failures are rare in, you know, in terms of like the number of instructions executed and they don't happen repeatedly inside of tight loops, right?
+But you know, if you're writing it, that also means if you're writing a tight loop, you know that's really on hot paths.
+You don't want to repeatedly throw exceptions in there and and catch them.
+If you're writing a real time system, for example, though, you might really want to think twice about using exceptions at all, because there's a.
+It might be hard to predict the amount of slowdown that happens in those rare cases where an exception is actually thrown OK.
+So I have an example that I think is God is useful so.
+So I was one of the founding members of boost and and was involved in the design of the Boost Graph library and but when we were discussing that design, we realized that occasionally a particular use of a graph algorithm might wanna stop early.
+Umm.
+Now I guess to understand this.
+Ohh well, I'll get to that.
+OK, so for example Dijkstra's algorithm is.
+That's an algorithm that finds all of the paths from A to B in order from shortest to longest, right?
+So if you you give it two points in the graph, it'll tell you all of the the different ways to get from one to the other.
+But suppose you want to find the 10 shortest paths and then stop.
+Well, the way the the algorithms work, you pass them a visitor object that gets notified about results as they are discovered, right?
+So they you can think of the algorithm as a loop that calls the visitor every time it finds a new path, for example.
+And in fact, there are lots of notification points for various intermediate conditions, not just for finding the complete path.
+Umm.
+And so if we're going to handle this early stop thing explicitly, we need to generate an explicit test in the algorithm code after each of these points in the algorithms inner loop.
+Right.
+Uh.
+So instead of doing that, which would both make the algorithm harder to read and uh and cost performance for branching, we decided to take advantage of C++'s bias toward optimizing the non failure case.
+We set a visitor that wants to stop early.
+Can just throw an exception right now.
+To be perfectly fair, I don't think we ever benchmarked the effects of this choice, right?
+So it might actually have been wrong from an optimization point of view in the end, but it was at least plausibly right, so there's nothing wrong with the with using an exception for that in principle.
+If it actually gets you a performance win.
+So finally you might also need to consider development culture and the way they the way your team uses their tools.
+So some people typically set up their debuggers to stop whenever an exception occurs, and if you're in a team where that's an important practice, you might need to take some extra care not to throw when there's an alternate path to success, right?
+Some developers get upset when code stops in a case that will eventually succeed.
+OK, so enough about exceptions.
+Umm.
+So finally we come to the this is the good part.
+This was originally gonna be the focus of the entire talk.
+OK.
+Umm, so I wanna talk about the obligations of the failing function and and of its caller.
+So umm question is what do you put in the contract for a function that could fail and what does each side, the caller and the callee?
+What do they need to do to ensure correctness?
+So OK, the callee.
+First of all, there's a documentation obligation you have to document any local failures and what they mean, because you're gonna report them as part of the as part of the return value, right? And.
+Nonlocal failures you want to document at their source, right?
+But not where they're just propagated from other functions that that they use.
+So the problem is if you document them where they're propagated, you have the same problem as if you would included the types of the details of the failure in the type information right, which we talked about last time, creates a lot of churn as as failure reasons that don't really change anything about about the code end up changing.
+Uh, as as you've all of your function implementations.
+So.
+OK so in code.
+If you're the callee, if you have any unmanaged resources you've allocated, like you've opened a temporary file, you need to make sure that those things are are released.
+Umm, the other example I I had is the the uninitialized memory that you're initializing right?
+The the lifetime of those of those objects that you've put into that memory is a resource, and that needs to be.
+They need to be, uh, denialist.
+OK.
+No, there's there's an optional thing that can be really useful if you're a mutating function.
+So and and that is to consider saying that your transaction that if and that if there is a failure, the function has no effects.
+Umm, that's often called the strong guarantee.
+OK, now that can be a really useful guarantee to give when it falls out of the implementation, or at least a an efficient implementation.
+Umm, but you don't want to do this if it adds performance cost.
+So for example, the simplest way to give us a transactional guarantee on a function that mutates data is to do what I call copy and swap.
+So first you make a copy of the data, you mutate the copy and place, and only when that succeeds, then you swap it back into place, right?
+Swap it back to the original data and.
+Sure, that ends up being transactional, but you pay the cost of making a full copy of the data and you don't wanna.
+You don't want to preemptively do that?
+Umm, because uh, what happens is often your caller doesn't need that.
+That strong guarantee, right?
+And what happens if all of the you know components get composed?
+So what happens if all components do that copy and swap thing?
+Now you have an exponential increase in cost, where at every level you're making copies.
+It's sort of the same reason that we don't do object level locking, right.
+Uh, you know, for umm concurrency logging, you know thread thread locking.
+I saying this right you why we don't have a mutex in every object because.
+Clients might need transactionality at a different level, right?
+Might need your.
+Your component might be a part of a bigger component and then you transactionality on that whole component.
+So the locking of your individual component is a waste.
+So to get the strong guarantee, sometimes you can do this just by reordering the operations you're performing.
+For example, if you do all of the things that can fail before you actually make any mutations that are visible to clients, now you have the strong guarantee.
+Umm uh so.
+For you know, the simple example is, umm do all your memory allocations up front, then make changes that can't throw and and it's transactional.
+So that's a useful thing to dock document when you can get it.
+Right.
+No, the caller umm.
+So the caller's obligation is to discard any partially completed mutations to program state.
+So if the caller is just calling a non mutating function right pinned and it throws, they don't have to do anything, they can just allow the the failure to propagate unless they happen to have some recovery strategy.
+But I hope I already said this having a recovery strategy is really rare.
+That usually means it's a nonlocal Error.
+A nonlocal failure.
+I mean, sorry, that usually means it's a local failure and the function shouldn't have been throwing in the 1st place so.
+Umm.
+So if you pass something to the function and and the function is gonna is gonna mutate that thing, you need to make sure that that thing gets gets discarded unless the function has given you this strong transactional guarantee.
+Which case, it still has its original meaning, and it's and it's original value, right?
+So when I say discard partial mutations to program state, umm, we have to talk about what counts as program state.
+So that's data that can have an observable effect on the future behavior of your code.
+So for example your if you have a log file that you're just streaming information into, that doesn't count as program state, right?
+Because you never read it.
+You never change, but the Programs behavior based on what's gone in there.
+OK so.
+So how do you arrange to discard partially mutated state?
+Well, there's really only one strategy that really scales up in practice when mutations can fail.
+Well, aside from the strategy of never mutating anything, but arguably that doesn't scale up either. Right?
+Because then there's costs of copying.
+So if you're, if you're not writing in a functional language, the pure functional language like Haskell, which most of us aren't, you have mutation.
+Mutation can fail so.
+So how do we manage discarding these partial mutations well?
+Normally, the only strategy I've found that scales U is to propagate the responsibility for discarding this partial mutation.
+All the way up to the top of the application and So what that means is.
+You're at the top level.
+Do you have to take this copy and swap strategy right?
+You essentially you're gonna mutate a copy of the existing data and only replace the old copy when the mutation succeeds.
+So but if you have a large data structure that could be really expensive, right?
+To we we can't afford to copy an entire Photoshop document every time we make a change.
+Well, actually we can, right?
+And why?
+Why is that the we do we actually do it?
+And it's possible because Photoshop documents are essentially a persistent data structure.
+You know, persistent, that's a confusing name because it doesn't have anything to do with persistence in the usual sense.
+A persistent data structure is 1 where a partial mutation of a copy ends up sharing a lot of storage with the original.
+So we store in Photoshop separate document for each state in the undo history.
+But these copies share storage for any parts that weren't mutated between revisions, and this sharing behavior falls out naturally when you compose your data structure from copy on write parts.
+So the original copy has basically 0 cost.
+It's about, you know, bumping a reference count and then when you start to make changes, something is checking the reference count saying ohh if there's more than one reference.
+Now I need to copy that part of the data that's changing.
+So everybody follow that one, make sure I.
+Yeah.
+So there are some hints that's.
+Let's hear from those.
+
+Stephen DiVerdi   40:05
+Hey.
+Yeah.
+Thanks Dave.
+And and question and if this is harping on a previous topic then then let me know when we can just skip it.
+But what I'm wondering is, it seems like what you just described about this mechanism for copying, mutating, and then replacing with the ability to handle local failures and robust to local failures also works for being robust to local errors.
+And so I don't, I guess I still don't understand why that wouldn't be preferable to handle errors within that same framework of mutating a copy and then replacing it a transactional manner instead of crashing the application.
+
+Dave Abrahams   40:45
+Well.
+This is.
+Is a good question.
+If you really have, if you really have data isolation and and you know that the only thing being mutated is this is this copy that will be discarded.
+I think you might be safe.
+To continue.
+Uh, Sean?
+
+Sean Parent   41:26
+Yeah, I agree with that that the question is, do you really have data isolation?
+And my answer would be, you know, in in C++, almost certainly not.
+Ohm so.
+
+Dave Abrahams   41:41
+Yeah.
+
+Sean Parent   41:41
+Yeah.
+
+Dave Abrahams   41:41
+There, there, there's there's.
+There's often, usually there's something that's being mutated that isn't the that isn't just the document state and and that that.
+Whose?
+Whose mutation isn't going to get undone by by discarding the partially mutated document state.
+For example, you might have a queue of background operations, right?
+Things get added to that queue.
+Right.
+And we don't have a we don't have a way to rollback that ad and some mutation fails.
+
+Stephen DiVerdi   42:30
+OK. Thanks.
+
+Dave Abrahams   42:38
+I guess I guess another another issue is like so part of the way we get this copy on write behavior with Photoshop is using the VM system with the you know which is.
+A bunch of copy on write tiles essentially.
+So if a bug were detected in that.
+That would that would undermine the guarantees of the that you get from having copy on, right?
+Right.
+So the the the real problem with with bugs is you can't count on the systems that that uh normally give you this.
+This their recovery property.
+Uh, David sankel.
+
+David Sankel   43:29
+Yeah, I was just going to say that, you know, if if a bug is detected.
+You all you know is that a bug is.
+Detective, you have.
+You have no idea of what the nature of the bug is.
+I mean it could be corrupted memory, so even if you try to take your you know copy on write Das structure and discard it, it could be the old thing got messed up somehow because of some random thing.
+You really, if you're really know nothing about the nature of a bug when it happened.
+So the idea of recovering from it is.
+Umm, it's not really sound I think.
+
+Dave Abrahams   44:07
+Yeah.
+So I mean I have to like we have to think about, we have to think about the the nature of the environment in which we're running, so.
+So I if if I think about you know how this would how this would play out in Hilo or in Rust?
+Umm, you know, provided the bug didn't occur in unsafe code which has to be very carefully vetted.
+Then you really know what stuff you're you're you're mutating.
+When you do a mutation right and so you've really wouldn't know that the original state was was intact.
+The problem with C++ is that.
+We don't really have those kinds of protections and when there's a bug, it very typically leads to undefined behavior, which very typically could corrupt your old state, right?
+It's undefined behavior and other words, it can do anything.
+That's one of the you know, if you look at the C standard and and find all of the places where it says the behavior is undefined and you know there are lots of those and a lot of a lot of them apply in many, many places like there are statements like you know if any argument to a standard library function violates a precondition, the behavior is undefined.
+Right.
+And so that's the problem with with the C++ environment.
+So it can really can undermine all of the guarantees that you would be getting from something like like copy on write system.
+OK.
+Umm.
+Moving on.
+Uh, I can't see if there are any more hands because I've got a window covering it, but I think there aren't good.
+Umm OK so.
+Yeah, some, some, some last advice.
+Uh that I just added.
+Uh.
+About what to do when an assertion fires?
+Umm.
+And this is because especially what not to do because we see this a lot.
+So first of all, don't remove the assertion, because the program seems to work when you take it out right the.
+That's that's just the case you've tested.
+Right.
+And the what?
+The assertion is saying.
+Usually it's usually a precondition check with the assertion is if it's a precondition check, the assertion is saying.
+The the owner of the function is saying you did something for which I'm not guaranteeing any particular result.
+I don't know what was what result you should expect to get under these conditions.
+Right.
+So just taking it out doesn't make the program work.
+The there are probably some effects that you aren't able to observe that that put the program in a broken state.
+Uh.
+Another thing not to do is don't go to the owner of the assertion and complain that they're crashing the program.
+Remember the an assertion is a controlled shutdown in response to a detected bug, right?
+And the first thing you need to do is to understand what kind of check is being performed, right?
+So if it's a precondition check in someone else's component, that's probably your bug.
+You're probably calling that that component in the wrong way.
+Another possibility is that it's a self check, right?
+What people often called sanity check, although we we try not to use that term anymore these days.
+Umm.
+Or it's a post condition check.
+Uh, and in those cases, you want to talk to the the owner of the code about why the assumptions might have been violated.
+That is, is very possibly a bug in the code that you're using, but this just reminds us why it's important to have different kinds of assertion macros or functions that tell you what their purpose is so that when they fire, people know what to do about them.
+Uh, and my last bit of advice is you probably don't wanna use assertions.
+Umm, you know the same functions you use for checking preconditions for doing your unit tests.
+One reason is people often uh.
+So typically when a unit test failure occurs, you don't go ahead using the same data, right?
+You typically throw it out and go on to another test, and the other test you know uses fresh data and so that hasn't invalidated the rest of your testing.
+People would like to hear about all of the test failures rather than just the just the first one.
+So the assertions that exit the program aren't really appropriate there.
+You want a different suite for doing those kind of checks, and that's all I've got for you.
+Ready to open the floor to questions.
+
+David Sankel   50:11
+Folks can go ahead and put your hands up if you would like to.
+Uh.
+Ask a question.
+Build a queue.
+
+Dave Abrahams   50:22
+I have the feeling that I didn't.
+I didn't quite adequately deal with everybody's.
+I questions that came up during the talk, so I'm happy to revisit those.
+Got one hand?
+
+David Sankel   50:36
+At Philip, go ahead.
+
+Philip Levy   50:38
+And like to go back to a comment you made about.
+The Boost graph library and raising exceptions to terminate that and you were pondering whether that was actually a good thing to have done based on performance, and it was wondering, is the notion that the fact that a visitor could raise an exception affecting performance of the execution you know of of non exceptional cases or just the cost of terminating the the algorithm by just raising that one exception?
+
+Dave Abrahams   51:21
+OK, I'm I'm going to try to try to answer your question as I understand, but I'm OK.
+
+Philip Levy   51:28
+Well, let me just clarify a little bit.
+My expectations would be that raising an exception to terminate the algorithm wouldn't affect the performance of the execution of the algorithm.
+The termination is a one time thing versus you know many thousands of nodes.
+You may be looking at and so I was wondering why you were pondering that.
+
+Dave Abrahams   51:47
+Right.
+That's the trade off we thought would love me.
+So.
+So Philip, yes, that that's the tradeoff that we thought we were making we because because C++ biases in favor of the straight line code, we thought this would be, this would be a good optimization.
+My my reason for questioning it is I don't think we ever actually did any measurements.
+That's all.
+
+Philip Levy   52:16
+OK, alright.
+So it's it's an unknown, but there's no reason to believe it would be a problem.
+
+Dave Abrahams   52:22
+Right, that's correct.
+
+Philip Levy   52:24
+OK. Thank.
+Thank you.
+
+Dave Abrahams   52:27
+I suppose if these graph algorithms were themselves used in tight loops on small problems where where the amount of straight line execution was low and you were throwing exceptions to terminate, that would be that would be bad, right?
+If the algorithm was used repeatedly, umm, go ahead.
+
+Sean Parent   52:48
+So I think the others, I, David, there is there was an assumption that the checks at each node to see if there was a termination requested would be expensive and under modern hardware it probably costs you something, but it's a little hard to say.
+
+Dave Abrahams   53:13
+Yeah, I mean, you know, it's really hard to say without measuring.
+
+Sean Parent   53:14
+She tested.
+
+Dave Abrahams   53:17
+That's pretty much always the case for for performance.
+You know, there's a there's a solid argument that, you know, the the functions on visitors are usually inlined.
+When all of those intermediate visit points are are, you know are no OPS, the compiler can see it, and then it could skip the checks.
+So like you know, the lesson is always measured before you make conclusions about performance.
