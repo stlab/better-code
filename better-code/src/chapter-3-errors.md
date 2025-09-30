@@ -106,9 +106,6 @@ are called for.
   well-formed document that is subtly changed from its state before
   the error would be especially bad.
 
-These examples show that even if invariants are upheld, a program can
-be very scathed indeed.
-
 ### What About Recovery From Bugs?
 
 We've just seen an examples of recovery from an input error and a failure.
@@ -124,17 +121,9 @@ cosmic microwave background radiation that the universe started with a
 big bang.  We know something happened, but we don't know exactly where,
 how or why.
 
-Assuming we have a detectable bug, usually that means somebody's checking a precondition and that precondition check fails.
-And that means there's a bug in the collar that caused them to pass an invalid argument.
-So when that happens though, you're not really detecting the bug itself.
-You're detecting one of its symptoms like some kind of a cosmic echo.
+So can we “sally forth unscathed?”  The problem is that you can't
+know.  The downstream effects of ###### STOPPED HERE #######
 
-The bug itself occurred some indefinite point before that.
-Right then, there's a series of logical conclusions that the the code may have made about what it had that are incorrect.
-That led it to produce this input that you you see doesn't satisfy (preconditions,.
-OK.
-So can you Sally forth on scathed?
-Well, the problem is you don't know, right?
 Because of the bug, your program state could be very, very scathed indeed.
 Umm.
 
