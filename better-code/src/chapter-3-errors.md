@@ -44,21 +44,21 @@ We'll divide errors into three categories:
 >   though its preconditions were satisfied.  For example, writing a
 >   file might fail because the filesystem is full.
 
-[^avoidable]: Although “bugs” are inevitable, every *specific* bug is
+[^avoidable]: While bugs are inevitable, every *specific* bug is
     avoidable.
 
 ## Error Recovery
 
 Let's begin by talking about what it means to “recover from an error.”
-Perhaps the [earliest use of the
-term](https://dl.acm.org/doi/10.1145/800028.808489) was in the domain
-of compilers, where the challenge, after detecting a flaw in the
-input, is to continue to process the rest of the input meaningfully.
-Consider a simple syntax error: the simplest possiblities are that the
-next or previous symbol is extra, missing, or misspelled.  Guessing
-correctly affects not only the quality of the error message, but also
-whether further diagnostics will be useful. For example, in this code,
-the `while` keyword is misspelled:
+[Perhaps the earliest use
+](https://dl.acm.org/doi/10.1145/800028.808489) of the term “error
+recovery” was in the domain of compilers, where the challenge, after
+detecting a flaw in the input, is to continue to process the rest of
+the input meaningfully.  Consider a simple syntax error: the simplest
+possiblities are that the next or previous symbol is extra, missing,
+or misspelled.  Guessing correctly affects not only the quality of the
+error message, but also whether further diagnostics will be
+useful. For example, in this code, the `while` keyword is misspelled:
 
 ```swift
 func f(x: inout Int) {
@@ -91,29 +91,44 @@ far. “Making sense” is necessarily a subjective judgement, so examples
 are called for.
 
 - The initial state of a compiler, before it has seen any input,
-  certainly meets the compiler's invariants. But when an error is encountered,
-  resuming with that state would ignore the context seen so far that
-  can help inform further diagnostics.  If the following text did not
-  match what is expected at the beginning of a source file, it would
-  be flagged as an error.
+  certainly meets its invariants. But when an error is
+  encountered, resuming with that state would ignore the context seen
+  so far that can help inform further diagnostics.  If the following
+  text did not match what is expected at the beginning of a source
+  file, it would be flagged as an error.  We the error might, for
+  example have been detected in some deeply (correctly) nested
+  construct. If that state isn't preserved, each closing delimiter of
+  that construct will be flagged as a new error.
 
-- If we have an error while we're applying a blur to some image, it's not enough that the users document is still a well formed file, right?
-It also can't have some random or half finished changes that they didn't request.
+- In a desktop graphics application, it's not enough that upon error
+  (say, file creation fails), the user has a well-formed document; an
+  empty document is not an acceptable result.  Leaving them with a
+  well-formed document that is subtly changed from its state before
+  the error would be especially bad.
 
-So that's that would be that would be very scathed, OK.
-OK, so let's talk about recovering from a bug.
-So what would that mean?
-Well, first it is sumes that you had some way to detect the bug, right?
-And not all bugs are detectable, but let's assume that this one is.
-So an example of a nondetectable bug is you are trying to sort something, but you're but you're comparison function returns random results.
-So, so that doesn't satisfy the requirements for the the sorting function.
-It's a precondition that that there's no way to actually check for.
-OK.
-Uh, so, uh.
-So let's assume that we have a detectable bug, and usually that means some somebody's checking a precondition and that precondition check fails.
+These examples show that even if invariants are upheld, a program can
+be very scathed indeed.
+
+### What About Recovery From Bugs?
+
+We've just seen an examples of recovery from an input error and a failure.
+What would it mean to recover from a bug?
+
+First, the bug needs to be detected.  As we saw in the previous
+chapter, not all bugs are detectable. Also, it's important to admit
+that when a runtime bug check fails, we're not detecting the bug
+per-se: since bugs are flaws in *code*, finding bugs involves
+analyzing the program.  We're really detecting a *downstream effect*
+that the bug has on *data*, akin to the way physicists conclude from
+cosmic microwave background radiation that the universe started with a
+big bang.  We know something happened, but we don't know exactly where,
+how or why.
+
+Assuming we have a detectable bug, usually that means somebody's checking a precondition and that precondition check fails.
 And that means there's a bug in the collar that caused them to pass an invalid argument.
 So when that happens though, you're not really detecting the bug itself.
 You're detecting one of its symptoms like some kind of a cosmic echo.
+
 The bug itself occurred some indefinite point before that.
 Right then, there's a series of logical conclusions that the the code may have made about what it had that are incorrect.
 That led it to produce this input that you you see doesn't satisfy (preconditions,.
