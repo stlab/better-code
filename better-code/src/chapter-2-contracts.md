@@ -936,7 +936,7 @@ a meaningful sort with respect to the predicate.  For example, a
 totally unconstrained predicate could return random boolean values,
 and there's no reasonable sense in which the function could be said to
 leave the elements sorted with respect to that.  Therefore the
-predicate at least has to be stable. To leave elements meaningfully
+predicate at least has to be deterministic. To leave elements meaningfully
 sorted, the predicate has to be *transitive*: if it is `true` for
 elements $(i, j)$, it must also be true for elements $(i, j + 1)$.
 A strict weak ordering has both of these properties, among others.
