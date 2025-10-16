@@ -949,9 +949,9 @@ function as part of its postconditions, which brings all the
 function's guarantees under one name: its postconditions.
 
 The strict weak ordering requirement is a great example of a
-precondition that can't be efficiently checked.  Even if we could assume the
-comparison is stable, to do so would
-require at least $n^2$ comparisons, where $n$ is the number of
+precondition that can't be checked: there's no way to verify that a function
+is deterministic. Even if we could assume determinism, a complete check
+requires at least $n^3$ comparisons, where $n$ is the number of
 elements, which would violate the complexity bound of the algorithm.
 
 The summary gives the postcondition that no two adjacent elements are
