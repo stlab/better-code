@@ -1,10 +1,11 @@
 {
-    "grammarly.selectors": [
-        {
-            "language": "markdown",
-            "scheme": "file"
-        }
-    ],
     "rewrap.autoWrap.enabled": true,
-    "rewrap.wrappingColumn": 80
+    "rewrap.wrappingColumn": 80,
+    "cSpell.words": [
+        "footgun",
+        "Gitter",
+        "irreflexivity",
+        "preorder"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }

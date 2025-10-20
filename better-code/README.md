@@ -16,7 +16,7 @@ curl https://sh.rustup.rs -sSf | sh
 **Windows:**
 Download the installer from [here](https://win.rustup.rs/).
 
-### Install mdBook
+### Install (or update) mdBook
 
 ```bash
 cargo install mdbook
