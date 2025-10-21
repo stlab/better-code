@@ -135,7 +135,7 @@ terminology.
 
 Hoare used this notation, called a “Hoare triple,”
 
-> $\{P\}S\{Q\}$
+> $\lbrace P \rbrace S \lbrace Q \rbrace$
 
 which is an assertion that if **precondition** $P$ is met, operation
 $S$ establishes **postcondition** $Q$.
@@ -157,7 +157,7 @@ For example:
 What makes preconditions and postconditions useful for formal proofs
 is this *sequencing rule*:
 
-> $\{P\}S\{Q\} \wedge \{Q\}T\{R\} \Rightarrow \{P\}S;T\{R\}$
+> $\lbrace P \rbrace S \lbrace Q \rbrace \wedge \lbrace Q \rbrace T \lbrace R \rbrace \Rightarrow \lbrace P \rbrace S;T \lbrace R \rbrace$
 
 Given two valid Hoare triples, if the postconditions of the first are
 the preconditions of the second, we can form a new valid triple describing
