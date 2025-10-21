@@ -482,7 +482,7 @@ neither correct nor incorrect; it does something, but does it do the
 
 > All undocumented software is waste. It's a liability for a company.
 >
-> &mdash; Alexander Stepanov (<https://youtu.be/COuHLky7E2Q?t=1773>)
+> &mdash;Alexander Stepanov (<https://youtu.be/COuHLky7E2Q?t=1773>)
 
 
 Documentation is also essential for local reasoning.  We build atop
