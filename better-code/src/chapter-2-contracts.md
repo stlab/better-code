@@ -224,7 +224,7 @@ When a valid triple has identical precondition and postcondition,
 Hoare calls that condition an **invariant** of the operation, a
 condition that the operation preserves.  The preceding example is
 distilled from the *binary search* algorithm, where *l*≤*h* is an
-invariant of the sequence.  Knowing that *l*≤*h* at each step is
+invariant of the algorithm.  Knowing that *l*≤*h* at each step is
 crucial to understanding the algorithm's correctness.
 
 The sequencing rule is good for code that runs in a straight line, but
