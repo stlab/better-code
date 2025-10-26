@@ -1,5 +1,7 @@
 # Contracts
 
+> No informal agreements—get it in writing.
+
 Software development at scale is fundamentally about managing
 complexity and establishing trust between components. When you call a
 function, use a library, or interact with an API, you're entering into
