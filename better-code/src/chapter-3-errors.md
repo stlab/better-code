@@ -111,57 +111,63 @@ are called for.
 We've just seen an examples of recovery from an input error and a failure.
 What would it mean to recover from a bug?
 
-First, the bug needs to be detected.  As we saw in the previous
-chapter, not all bugs are detectable. Also, it's important to admit
-that when a runtime bug check fails, we're not detecting the bug
-per-se: since bugs are flaws in *code*, finding bugs involves
-analyzing the program.  We're really detecting a *downstream effect*
-that the bug has on *data*, akin to the way physicists conclude from
-cosmic microwave background radiation that the universe started with a
-big bang.  We know something happened, but we don't know exactly where,
-how or why.
+First, the bug needs to be detected, and that is not assured. As we
+saw in the previous chapter, not all precondition violations are
+detectable. Also, it's important to admit that when a runtime bug
+check fails, we're not detecting the bug per-se: since bugs are flaws
+in *code*, actually detecting bugs involves analyzing the program.
+We're really detecting a *downstream effect* that the bug has on
+*data*, like some kind of cosmic echo.  We know something happened,
+but we don't know exactly where, how or why.
 
 So can we “sally forth unscathed?”  The problem is that you can't
-know.  The downstream effects of ###### STOPPED HERE #######
+know.  The downstream effects of the problem could have affected many
+things you didn't test for, and you can't test for everything, or your
+code would spend more time on that than on fulfilling its purpose.
+Because of the bug, your program state could be very, very scathed
+indeed.
 
-Because of the bug, your program state could be very, very scathed indeed.
-Umm.
+Sallying forth at this point is a terrible idea.
 
+- First, there are effects in the outside world.
 
-Umm OK?
-OK, so your program state if it's scathed selling 4th at this point is a terrible idea for lots of reasons.
-So there's sort of two categories.
-First, there are effects in the outside world.
-I don't know.
+  - so the users data might be corrupted, right?
+    And they might say that that way and they'll lose the last good state they had.
+    So that's that's pretty serious.
 
-Uh, so the users data might be corrupted, right?
-And they might say that that way and they'll lose the last good state they had.
-Right.
-So that's that's pretty serious.
-The other thing is, if you've done in a security evaluation, the assumptions that underlie that evaluation might be violated.
-So by continuing, you may be opening a security hole and so it like sort of to sum up, you don't have enough information about the state of your system to do a recovery to to Sally forth reliably.
-And you can't.
-You also can't detect whether you've.
-Recovered correctly, right?
-There's there's nothing to look at and the penalties that we just talked about for failure to do it correctly are really, really high.
-OK.
-So that's one category, but then there's also the impact on the development process.
-So if you Sally forth the bug is gonna be masked and we'll never get fixed until at some point, you know, somebody will observe the effects of this.
-It's gonna affect your, your customers and your and if it you know when it affects the really important customer, your management may insist that you do something about it.
-Right now all you'll have is evidence you don't remember.
-You didn't detect the bug.
-You don't have a detection of the bug.
-You have some very distant echo in the users document that's corrupted and now now it's a long process to, you know, try to figure out where that corruption came from.
-Right.
-You're you've you've gotten the information very, very late.
-Last of all, most code is correct, so you're “bug,” recovery code will never run.
-Probably it certainly isn't gonna get tested.
-I if it got tested, you're not gonna ship the tested one because you're gonna fix the.
-You're gonna fix the problem right?
-All of this recovery code bloats your program and every single line is a liability with no offsetting benefits.
-So.
-Yeah, I think this is.
-This is an interesting insight.
+  - if you've done a security evaluation, the assumptions that
+    underlie that evaluation might be violated.  So by continuing, you
+    may be opening a security hole
+
+  - You also can't detect whether you've recovered correctly.  There's
+    there's nothing to look at and the penalties that we just talked
+    about for failure to do it correctly are really, really high.
+
+- then there's also the impact on the development process.
+
+  - if you Sally forth the bug is gonna be masked and we'll never get
+    fixed until at some point, you know, somebody will observe the
+    effects of this
+
+  - It's gonna affect your, your customers and your and if it you know
+    when it affects the really important customer, your management may
+    insist that you do something about it.
+
+  - You didn't detect the bug.  You don't have a detection of the bug.
+    You have some very distant echo in the users document that's
+    corrupted and now now it's a long process to, you know, try to
+    figure out where that corruption came from.
+
+  - most code is correct, so you're “bug,” recovery code will never
+    run. it certainly isn't gonna get tested.  if it got tested, you're
+    gonna fix the problem, so now you're shipping a lot of code that's
+    just protection against future programming mistakes.
+
+    All of this recovery code bloats your program and every single line
+    is a liability with no offsetting benefits.
+
+### Actual Bug Recovery
+
 I mean, they're do exist robust systems, right?
 So they they can recover from bugs.
 How do they do that?
@@ -170,12 +176,15 @@ It's almost always basically always.
 It's outside the process, right?
 Maybe the robustness of the system comes from redundancy.
 You have you have three different processes and they all vote on the result.
-The like this is the kind of thing you might see in like the F22 Joint Strike Fighter, right?
+The like this is the kind of thing you might see in like the F22 Joint Strike Fighter.
 So yeah, there could be a bug.
 First of all, they you know they check the code a lot more carefully than we do, but but they also put in safeguards in place so that so that if you know you have three systems voting on the result and one disagrees, you can kill that process and start it up again.
 Umm.
 So yeah, sometimes it's possible to design a system to recover from books, but don't expect to do it in in your process.
 To sum up, uh in general you can't recover from bugs and it's a bad idea to try.
+
+### Correct in-process response to bugs
+
 So what can you do?
 Well, the way to handle bugs is to stop the program before any more damage is done and generate a crash report for debuggable image that captures as much information as you possibly can about the state of the program.
 So there's a chance of fixing the bug.
@@ -183,6 +192,8 @@ Umm, be there might be some small emergency shutdown procedure.
 You might need to perform like saving information about the failing command so your application can offer to retry it for you when you restart it.
 Were you?
 You know, maybe you can say something to the user about the reason that you're exiting.
+
+
 So this is bad, right?
 This is really bad if if you don't do something, really go out of your way to do something about it, it's gonna be experienced as a crash by the users, but it's the only way to prevent much worse consequences of a botched recovery attempt.
 Remember the chances of battery are really high because you don't have enough information to do it reliably.
@@ -192,6 +203,9 @@ It's not going to slip by those people unnoticed and then hit your customers in 
 So you can though, mitigate this experience of of crashing right?
 For example, you could say something to the user about the reasons that you're exiting, and you can actually make it sound pretty responsible. So.
 So this is important.
+
+### Embracing Early Termination
+
 You know, a lot of people have a hard time accepting the idea of voluntarily crashing or exiting right?
 Exiting early is really what that should say, but you know we should face it.
 You're bug detection isn't the only reason that the program might exit early, right?
@@ -206,13 +220,15 @@ Umm so.
 In fact, there are platforms that actually force you to live under constraint of, you know, no early exit, right.
 So on an iPhone or iPad, for example, to save battery and keep your foreground apps responsive, the OS might kill your process anytime it's in the background.
 But it's going to make it look to the user like the the app is still running and when the user switches back, every app is supposed to complete the illusion by coming back up in the same state it was killed in.
-I can tell you that as a user, it's really jarring when you encounter an app that doesn't do that, right?
+I can tell you that as a user, it's really jarring when you encounter an app that doesn't do that correctly?
 So the point is resilience to early termination is something that you can and should design into the system.
 So Photoshop uses a variety of strategies for this, so we already we always save documents into a new file and then atomically swap that file into place only after the save succeeds.
 So we never crash, leaving some half written corrupted document on disk, right?
 We also periodically save backups so you only had Most lose the last few minutes of work, but we could be more ambitious about this, right?
 We, if we needed to tighten that up, we could maybe save a record of changes since the last fall back backup.
-OK.
+
+### Assertions
+
 Umm, so the usual mechanism that we have for terminating a program when a bug is detected is called an assertion, and traditionally it's spelled, you know something like this and this spelling comes from C and C++.
 If you're programming in in some other language, you probably have something similar and the the facility from C is pretty straightforward.
 Either it's disabled, in which case it generates no code at all, even the.
@@ -230,6 +246,7 @@ Yeah, I should have.
 I meant to to make this distinction earlier, right?
 Exiting because of an assertion is not a crash, right?
 This is a controlled stop for calculated reasons.
+
 Umm so but the problem with leaving assertions on and release is that some checks are too expensive to ship.
 And let's be honest, a lot of programmers are gonna go with their gut about what's too expensive instead of measuring.
 So we really need a second expensive assert, right?
@@ -260,6 +277,9 @@ Because there are terminate handlers and those would run.
 That gives you a chance to do some origin.
 See shut down measures.
 So that's another reason to engineer your own assertions, even if you're only engineering one.
+
+### Fighting For the Right To Die.
+
 OK, so at this point somebody always asks, but you know I I'm not allowed to terminate.
 My manager says that that we have to keep running no matter what.
 Right.
@@ -272,23 +292,39 @@ And if you lose that fight today, right.
 You wanna keep fighting, but in the meantime, fail as noisily as possible, preferably by when at least when you're not shipping the code, get it to terminate right and also set yourself up to deal with the day that that you win the fight because at some point the cost of of following this possible this policy are gonna become obvious.
 And so that means use a suite of assertions that, well, today they don't terminate, but you can change their behavior when you do win the fight, OK.
 
+## Failures
+
 I I don't know if we're going to get to the end because of the scope expansion anyway, so as much as we all love talking about bugs, it's time to leave bugs behind and talk about failures.
 
+> - **Failure**: a function could not fulfill its postconditions even
+>   though its preconditions were satisfied.  For example, writing a
+>   file might fail because the filesystem is full.
+
+
 So let's say you identify a condition where your function is unable to fulfill its primary purpose, so that can occur in one of two ways.
-Either something you're function calls has a precondition that you can't be sure you're prepared to satisfy, or something you're function calls. Itself.
-Reports the failure to you so usually have two choices at this point.
-So one is you can say that your inability to make progress reflects a bug in the caller, right?
-You can make not XD be a precondition of your function or you can make X failure right, which means that all of the code in the system is correct.
-Umm, that's counterintuitive, but you should actually always prefer to classify that situation as a bug in the caller, as long as it satisfies the criteria for acceptable (preconditions,.
-So there there are a few things you need to satisfy, right?
-It needs to be possible for the caller to ensure the condition, right?
-There's no way for the caller to ensure there's enough disk space to save a file, because other processes can come and use up any space that might have been free before the call.
-So you can't make there's enough disk to save a precondition.
-The the other way in which something might not be a suitable precondition is if it takes as much work for the caller to ensure it as the work you're gonna do in in performing the operation in the end anyway.
-So for example, if if they're deserializing a document, umm and you find that it's corrupted, you can't make it a precondition that the file is well formed, because determining whether it's well formed or not is the same work that as doing the deserialization so.
+
+Either
+
+1. something your function calls has a precondition that you can't be sure you're prepared to satisfy, or
+2. something your function calls. Itself reports a failure.
+
+
+you so usually have two choices at this point.
+
+1. Make it a precondition violation: your inability to make progress reflects a bug in the caller
+2. Make it a failure, which means that all of the code in the system is correct.
+
+It's counterintuitive, but you should actually always prefer to classify that situation as a bug in the caller, as long as it satisfies the criteria for acceptable preconditions:
+
+- it must be possible for the caller to ensure the condition.  There's no way for the caller to ensure there's enough disk space to save a file, because other processes can come and use up any space that might have been free before the call. So you can't make there's enough disk to save a precondition.
+- The the other way in which something might not be a suitable precondition is if it takes as much work for the caller to ensure it as the work you're gonna do in in performing the operation in the end anyway.  So for example, if if they're deserializing a document, umm and you find that it's corrupted, you can't make it a precondition that the file is well formed, because determining whether it's well formed or not is the same work that as doing the deserialization so.
+
 OK, so prefer to make it a precondition, but.
-If you can't satisfy a post condition and you're incorrect code, you're in correct code.
-That's a failure.
+
+If you can't satisfy a post condition and you're in correct code, That's a failure.
+
+> **Definition**
+
 So why am I tying this definition to postconditions, other than to bind our understanding of Error Handling to under to the way we understand correctness?
 That's a valuable thing, but there's there are more reasons.
 So first of all, it's simplifies and improves understandability of contracts.
