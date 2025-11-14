@@ -30,7 +30,7 @@ When we write the word “error” in normal type, we mean the idea above,
 distinct from the related Swift `Error` protocol, which we'll always
 spell in code font.
 
-We'll divide errors into three categories:
+We'll divide errors into three categories:[^common-definition]
 
 > - **Input error**: the program's external inputs are malformed.  For
 >   example, a `{` without a matching `}` is discovered in a JSON
@@ -46,6 +46,11 @@ We'll divide errors into three categories:
 
 [^avoidable]: While bugs are inevitable, every *specific* bug is
     avoidable.
+
+[^common-definition]: While some folks like to use the word “error” to
+refer only to *failures*, as the authors have done in the past, the
+use of “error” to encompass all three of these categories appears to
+be more widespread.
 
 ## Error Recovery
 
@@ -83,22 +88,26 @@ intact. -- DWA -->
 
 More generally, [it has been
 said](https://stackoverflow.com/a/38387506) that recovering from an
-error means that the program can “sally forth entirely unscathed,”
-i.e. that the program state is intact—its invariants are upheld.
+error allows a program to “to sally forth, entirely unscathed, as
+though 'such an inconvenient event' never had occurred in the first
+place.”
 
-Also, the state must make sense given the correct inputs received so
-far. “Making sense” is necessarily a subjective judgement, so examples
-are called for.
+Being “unscathed” means two things: first, that the program state is
+intact—its invariants are upheld so its code is not relying on any
+newly-incorrect assumptions.  Second, that the state makes sense
+given the correct inputs received so far. “Making sense” is
+necessarily a subjective judgement, so examples are called for.
 
 - The initial state of a compiler, before it has seen any input,
-  certainly meets its invariants. But when an error is
+  certainly meets the compiler's invariants. But when an error is
   encountered, resuming with that state would ignore the context seen
   so far that can help inform further diagnostics.  If the following
   text did not match what is expected at the beginning of a source
-  file, it would be flagged as an error.  We the error might, for
-  example have been detected in some deeply (correctly) nested
-  construct. If that state isn't preserved, each closing delimiter of
-  that construct will be flagged as a new error.
+  file, it would be flagged as an error.  The error might, for example
+  have been detected in some otherwise-correct deeply nested
+  construct. If the compiler's state is reset to its initial
+  conditions, each closing delimiter of that construct would be
+  flagged as a new error.
 
 - In a desktop graphics application, it's not enough that upon error
   (say, file creation fails), the user has a well-formed document; an
@@ -116,12 +125,13 @@ saw in the previous chapter, not all precondition violations are
 detectable. Also, it's important to admit that when a runtime bug
 check fails, we're not detecting the bug per-se: since bugs are flaws
 in *code*, actually detecting bugs involves analyzing the program.
-We're really detecting a *downstream effect* that the bug has on
-*data*, like some kind of cosmic echo.  We know something happened,
-but we don't know exactly where, how or why.
+We're really detecting a *downstream effect* that the bug has had on
+*data*. When we observe that a precondition has been violated, we know
+something invalid occurred, but we don't necessarily know exactly
+where, how, or the full extent of the damaged data.
 
 So can we “sally forth unscathed?”  The problem is that you can't
-know.  The downstream effects of the problem could have affected many
+know. The downstream effects of the problem could have affected many
 things you didn't test for, and you can't test for everything, or your
 code would spend more time on that than on fulfilling its purpose.
 Because of the bug, your program state could be very, very scathed
@@ -131,40 +141,34 @@ Sallying forth at this point is a terrible idea.
 
 - First, there are effects in the outside world.
 
-  - so the users data might be corrupted, right?
-    And they might say that that way and they'll lose the last good state they had.
-    So that's that's pretty serious.
+  - In an editing application he user's document might be corrupted
+    and they might save it that way, losing the last good state they
+    had.
 
-  - if you've done a security evaluation, the assumptions that
+  - If you've done a security evaluation, the assumptions that
     underlie that evaluation might be violated.  So by continuing, you
     may be opening a security hole
 
-  - You also can't detect whether you've recovered correctly.  There's
-    there's nothing to look at and the penalties that we just talked
-    about for failure to do it correctly are really, really high.
+  - You don't have enough information about the state of your system
+    to do it reliably, you can't detect whether you've done it
+    correctly, and the penalties we just discussed for failure to do
+    it correctly are astronomical.
 
-- then there's also the impact on the development process.
+Then, there's also the impact on the development process.
 
-  - if you Sally forth the bug is gonna be masked and we'll never get
-    fixed until at some point, you know, somebody will observe the
-    effects of this
+  - The bug will be at least partially masked.
 
-  - It's gonna affect your, your customers and your and if it you know
-    when it affects the really important customer, your management may
-    insist that you do something about it.
+  - If not completely masked, and addressing it will usually be
+    de-prioritized.
 
-  - You didn't detect the bug.  You don't have a detection of the bug.
-    You have some very distant echo in the users document that's
-    corrupted and now now it's a long process to, you know, try to
-    figure out where that corruption came from.
+  - If the bug ever becomes a priority, it will be harder and more
+    expensive to fix.
 
-  - most code is correct, so you're “bug,” recovery code will never
-    run. it certainly isn't gonna get tested.  if it got tested, you're
-    gonna fix the problem, so now you're shipping a lot of code that's
-    just protection against future programming mistakes.
-
-    All of this recovery code bloats your program and every single line
-    is a liability with no offsetting benefits.
+  - Because most code is correct, so most of your bug-recovery code
+    will never run or be tested. All this recovery code bloats your
+    program and every line [is a
+    liability](https://blog.objectmentor.com/articles/2007/04/16/code-is-a-liability)
+    with no offsetting benefits.
 
 ### Actual Bug Recovery
 
