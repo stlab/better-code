@@ -136,11 +136,12 @@ the problem could have affected many things we didn't test for.
 Because of the bug, your program state could be very, very scathed
 indeed, violating assumptions made when coding and potentially
 compromising security, If user data is quietly corrupted and
-subsequently saved, the damage is permanent.
+subsequently saved, the damage becomes permanent.
 
 In any case, unless the program has no mutable state and no external
 effects, the only principled response to bug detection is to terminate
-the process. [^fault-tolerant]
+the process, possibly after taking some emergency shutdown
+measures such as saving diagnostic information. [^fault-tolerant]
 
 [^fault-tolerant]: There do exist systems that recover from bugs in a
 principled way, using redundancy: for example, functionality could be
@@ -148,45 +149,22 @@ written three different ways by separate teams, and run in separate
 processes that “vote” on results.  In any case, the loser needs to be
 terminated to flush any corrupted program state.
 
-As terrible as that outcome may be, it's better than the alternative.
-
-Immediate dangers aside, sallying forth in the face of a detected bug
-hurts the development process and the health of the codebase. One
-could argue that
-
-Even if the condition is logged, it is at
-least partially masked, and in practice, will usually be
-de-prioritized. If it ever becomes a priority, it will be harder and
-more expensive to fix than if it had immediately . It's easy to make
-bugs drop
-
-
-  - The bug will be at least partially masked.
-
-  - If not completely masked, and addressing it will usually be
-    de-prioritized.
-
-  - If the bug ever becomes a priority, it will be harder and more
-    expensive to fix.
-
-  - Because most code is correct, bug-recovery code will never run or be tested. All this recovery code bloats your
-    program and every line [is a
-    liability](https://blog.objectmentor.com/articles/2007/04/16/code-is-a-liability)
-    with no offsetting benefits.
-
-[^needless-checks]: Even if we _could_ test for everything, our code
-would spend more time on tests than on fulfilling its purpose.  And because most code is correct, the code attempting to recover would be untexted
-
-
-In general, only fault-tolerant systems that can recover from bugs use redundancy
-
-### Actual Bug Recovery
-
-Systems that are resilient to bugs do exist, though.  They do it by adding
-
-Some systems can recover from bugs (e.g. redundant ones).  Processes can't recover.
-
-To sum up, in general you can't recover from bugs, and it's a bad idea to try.  So what can you do?
+As terrible as that outcome may be, it's better than the
+alternative. Recovery code is almost never exercised or tested and
+thus is likely wrong, and the consequences of a botched recovery
+attempt can be worse than termination. To no advantage, most recovery
+code obscures the rest of the code and adds bloat, which hurts
+performance.  Continuing to run after a bug is detected also hurts our
+ability to fix the bug.  When a bug is detected, before any further
+state changes, you want to immediately capture as much information as
+possible that could assist in diagnosis.  In development that
+typically means dropping into a debugger, and in deployed code that
+might mean producing a crash log or core dump.  If deployed code
+continues to run, the bug is obscured and—even if automatically
+reported—will likely be de-prioritized for fixing until it is less
+fresh and thus harder to address.  Worse, it can result in *multiple*
+symptoms that will be reported as separate higher-priority bugs whose
+root cause could have been addressed once.
 
 ## Handling bugs
 
