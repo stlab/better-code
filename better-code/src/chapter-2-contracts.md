@@ -270,9 +270,10 @@ function's author—the function's **contract**:
 - The precondition describes which calls to a function should be
   considered valid.
 - The postcondition specifies only the function's _intended_ behaviors
-  _when correctly invoked_. Details such as the precise order of equivalent
-  elements after an unstable sort, or what happens when preconditions
-  are violated, are omitted.
+  _when correctly invoked_ and _successful_. Details such as the precise
+  order of equivalent elements after an unstable sort, what happens when
+  preconditions are violated, or which errors are reported (more on this
+  in the next chapter) are omitted.
 - It is general—describing the result for all inputs the author
   intends to support—so it can be applied in reasoning about any call
   to the function.
