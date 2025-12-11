@@ -161,38 +161,49 @@ possible that could assist in diagnosis.  In development that
 typically means dropping into a debugger, and in deployed code that
 might mean producing a crash log or core dump.  If deployed code
 continues to run, the bug is obscured and—even if automatically
-reported—will likely be de-prioritized for fixing until it is less
+reported—will likely be de-prioritized until it is less
 fresh and thus harder to address.  Worse, it can result in *multiple*
 symptoms that will be reported as separate higher-priority bugs whose
 root cause could have been addressed once.
 
 ## Handling bugs
 
-You can stop the program before any more damage is done, and generate a crash report or debuggable image that captures as much information as is available about the state of the program, so there's a chance of fixing the bug.  Maybe there's some small emergency shutdown procedure you need to perform, like saving information about the failing command so the application can offer to retry it for you when you restart it.
+The best strategy is to stop the program before any more damage is
+done and generate a crash report or debuggable image that captures as
+much information as is available about the state of the program, so
+there's a chance of fixing the bug.  Maybe there's some small
+emergency shutdown procedure you need to perform, like saving
+information about the failing command so the application can offer to
+retry it for you when you restart it.
 
-Let me be clear: THIS IS BAD. It could be experienced as a crash by users.
-But it's the only way to prevent the much worse consequences of a botched recovery attempt.  Remember, the chances of botchery are high because you don't have enough information to do it reliably.
-Upside: it will also be experienced as a crash by developers, QE teams, and beta testers, giving you a chance to fix the bug.
+Many people have a hard time accepting the idea of voluntarily
+terminating, but let's face it: your bug detection isn't the only
+reason the program might suddenly stop.  The program can crash from an
+undetected bug… or a person can trip over the power cord.  Where it
+matters, software should be designed so that sudden termination is not
+catastrophic.  Techniques for doing that, such as saving backup files,
+are well-known, but outside the scope of this book.
 
-*** You can mitigate the experience of crashing ***
-*** Don't tell me my assertion is a crash ***
-*** An assertion is a controlled shutdown ***
-
-A lot of people have a hard time accepting the idea of voluntarily terminating, but let's face it: your bug detection isn't the only reason the program might suddenly stop.  You can crash from an undetected bug.  Or a person can trip over the power cord.  You should design your software so that these bad things are not catastrophic.
-
-*** In fact you could be more ambitious and try to make it really seamless.  You have to accept this is part of the UX package to even take this on. ***
-
-In fact some platforms force you to live under a similar constraint.  On an iPhone or iPad, for example, to save battery and keep foreground apps responsive, the OS may kill your process any time it's in the background, but will make it look to the user like it's still running.  When the user switches back, every app is supposed to complete the illusion by coming back up in the same state it was killed in.  I can tell you as a user, it can be really jarring when you encounter an app that doesn't do it right.  The point is, resilience to early termination is something you can and should design into the system.
-
-For example, Photoshop uses a variety of strategies: we always save documents into a new file and atomically swap it into place only after the save succeeds, so we never leave a half-saved document on disk.  We also periodically save backups so at most you only lose the last few minutes of work.  If we needed to tighten that up we could, by saving a record of changes since the last full backup.
+In fact, it's often possible to make restarting the app a completely
+seamless experience. On an iPhone or iPad, for example, to save
+battery and keep foreground apps responsive, the OS may kill your
+process any time it's in the background, but will make it look to the
+user like it's still running.  When the user switches back, every app
+is supposed to complete the illusion by coming back up in the same
+state it was killed in.  Resilience to early termination is something
+you can and should design into your system.
 
 ## Assertions
 
-The usual mechanism for terminating a program when a bug is detected is called an assertion and traditionally it spelled something like this:
+The classic mechanism for terminating a program when a bug is detected
+is called an assertion and traditionally it spelled something like
+this:
 
- assert(n >= 0);
+```swift
+assert(n >= 0);
+```
 
-This spelling comes from C and C++.  If you're programming in another language, you probably have something similar.
+This spelling comes from the C programming language.
 
 The C assertion is pretty straightforward: either it's disabled, in which case it generates no code at all—even the check is skipped—or it does the check and exits immediately with a predefined error code if the check fails, usually printing a message containing the text of the failed check and its location in source.
 
