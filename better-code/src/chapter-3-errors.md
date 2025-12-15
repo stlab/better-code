@@ -193,25 +193,123 @@ is supposed to complete the illusion by coming back up in the same
 state it was killed in.  Resilience to early termination is something
 you can and should design into your system.
 
-## Assertions
+## Checking For Bugs
 
-The classic mechanism for terminating a program when a bug is detected
-is called an assertion and traditionally it spelled something like
-this:
+While, as we've seen, not all bugs are detectable, checking for the
+others at runtime is an extremely valuable technique for creating
+robust software.
+
+### Precondition Checks
+
+Swift supplies a function for checking that a precondition is upheld,
+which can be used as follows:
 
 ```swift
-assert(n >= 0);
+precondition(n >= 0)
 ```
 
-This spelling comes from the C programming language.
+*or*
 
-The C assertion is pretty straightforward: either it's disabled, in which case it generates no code at all—even the check is skipped—or it does the check and exits immediately with a predefined error code if the check fails, usually printing a message containing the text of the failed check and its location in source.
+```swift
+precondition(n >= 0, "n == \(n); it must be non-negative.")
+```
 
-Debuggers will commonly stop at the assertion rather than exiting, and even if you're not running in the debugger, on major desktop OSes, you'll get a crash report with the entire program state that can be loaded into a debugger.  So this is great for catching bugs early, before they get shipped, provided people use it.
+In either case, if the condition is false, the program will be
+terminated (or stop if run in a debugger). [^Onone] In debug builds,
+the file and line of the call will be written to the standard error
+stream, along with any message supplied.  In release builds, to save
+on program size, nothing is printed and any expression passed as a
+second argument is never evaluated.
 
-Projects commonly disable assertions in release builds, which has the nice side-effect of making programmers comfortable adding lots of assertions, because they know they won't slow down the release build.  And more bugs get caught early.
+[^Onone]: Actually, if you build your program with `-Onone`, both
+    forms have no effect; the conditional expression will never even
+    be evaluated.  However, `-Onone` makes Swift an unsafe language:
+    any failure to satisfy preconditions can cause *arbitrary
+    behavior*. The results can be so serious that we strongly advise
+    against using `-Onone`, except as an experiment to satisfy
+    yourself that Swift's built-in checks do not have unacceptable
+    cost.  The rest of this book is therefore written as though
+    `-Onone` does not exist.
 
-But unless you really believe you're shipping bug-free software, you might want to leave most assertions on in release builds. In fact, the security of your software might depend on it.  If you're programming in an unsafe language like C++, opportunities to cause undefined behavior are all around you. When you can assert that the conditions for avoiding undefined behavior are met before executing the dangerous operation, the program will come to a controlled stop instead of opening an arbitrarily bad security hole.
+### Assertions
+
+Swift supplies a similar function called `assert`, modeled on the one
+from the C programming language.  Its intended use is as a “soundness
+check,” to validate your own assumptions rather than to make checks at
+function boundaries.  For example, in the binary search algorithm
+mentioned in the previous chapter,
+
+```swift
+  // precondition: l <= h
+  let m = (h - l) / 2
+  h = l + m
+  // postcondition: l <= h
+```
+
+There is no contract supplying the Hoare-style precondition and
+postcondition you see there; they are internal to a single function.
+If violated, they indicate we've failed to understand the code we've
+written: the informal proof we used to evaluate the function's
+correctness was flawed. Replacing those comments with assertions can
+help us uncover those failures during testing of debug builds without
+impacting performance of release builds:
+
+```swift
+  assert(l <= h)
+  let m = (h - l) / 2
+  h = l + m
+  assert(l <= h, "unexpected h value \(h)")
+```
+
+Similarly, `assert` can be useful for ensuring loop invariants are
+correct (see the algorithms chapter). When trying to track down a
+mysterious bug, temporarily adding as many assertions as possible in
+the problem area can be a useful technique for narrowing the scope of
+code you have to review.
+
+Assertions are checked only in debug builds, compiling to nothing in
+release builds. This has the useful effect of allowing programmers to
+use `assert`s liberally without concern for slowing down release
+builds.
+
+> **Note:** when unsafe components are used to build safe ones, any
+> checks that prevent misuse of unsafe functionality must of course be
+> unconditional unless you can prove that the code's logic implies
+> those checks will always pass.
+
+### Postcondition and Expensive Precondition Checks
+
+Checking postconditions is the role of unit tests, so in most cases we
+recommend leaving postcondition checks out of function bodies.
+However, if you can't be confident that unit tests cover enough cases,
+since postconditions are often expensive to check, it might make sense
+to use assertions to check them as a confidence-building
+measure. Similarly, a precondition that can only be checked with a
+significant cost to preformance could be checked with
+`assert`. However, in both cases we suggest using a forwarding
+function whose name describes its meaning, so that `assert` is used
+exclusively for internal soundness checks:
+
+```swift
+public func preconditionUncheckedInRelease(
+  _ condition: @autoclosure () -> Bool,
+  _ message: @autoclosure () -> String = String(),
+  file: StaticString = #file, line: UInt = #line
+) {
+  assert(condition, message, file: file, line: line)
+}
+```
+
+###
+
+Unless you really believe you're shipping bug-free software, you
+might want to leave most assertions on in release builds. In fact, the
+security of your software might depend on it.  If you're programming
+in an unsafe language like C++, opportunities to cause undefined
+behavior are all around you. When you can assert that the conditions
+for avoiding undefined behavior are met before executing the dangerous
+operation, the program will come to a controlled stop instead of
+opening an arbitrarily bad security hole.
 
 The problem with leaving assertions on in release is that some checks are too expensive to ship. And let's be honest; many programmers will go with their gut, instead of measuring, when making that determination. We really need a second, expensive_assert(), that's only on in debug builds, so we continue to catch those bugs early.
 
