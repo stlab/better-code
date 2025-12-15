@@ -296,10 +296,10 @@ When something goes wrong in software, focusing on which *person* to
 blame is counterproductive, but deciding which *code* is to blame is
 the first step.  Contracts tell us which code needs fixing:
 
-- If preconditions aren't satisifed, that's a bug in the caller.  The
+- If preconditions aren't satisfied, that's a bug in the caller.  The
   function is not required to make any promises[^no-promises] in that case.
 
-- If preconditions are statisfied but postconditions are not
+- If preconditions are satisfied but postconditions are not
   fulfilled, that's a bug in the callee, or in something it calls.
 
 [^no-promises]: In fact, a function *shouldn't* make any promises in
@@ -367,7 +367,7 @@ struct PairArray<X, Y> {
 The invariant for this type is that the private arrays have the same
 length.  It's important to remember that invariants only hold at a
 type's public interface boundary and are routinely violated,
-temporarily, durign a mutation.  For example, in `append`, we have to
+temporarily, during a mutation.  For example, in `append`, we have to
 grow one of the arrays first, which breaks the invariant until we've
 done the second `append`.  That's not a problem because the arrays are
 private—that “bad” state is *encapsulated* by the type, and
@@ -685,7 +685,7 @@ Everything you see in a function signature is implicitly part of the
 function's contract. A function with a parameter of type
 `EmployeeDatabase` has a precondition that the database upholds the
 manager invariant, but it doesn't need to be stated explicitly; it's
-enforced automatically by the compiler and the implementor of
+enforced automatically by the compiler and the implementer of
 `EmployeeDatabase`.  So static typing gives you a leg up on the
 “document everything” project. If you were programming in a totally
 dynamic language, like Javascript, or Python without type hints, you
@@ -702,7 +702,7 @@ implementation, and should be encoded in ordinary comments addressed
 privately to the maintainer of the code.  Note that you
 can have both: `PairArray` *also* has a public invariant that its
 `count` is non-negative.  We'll get to why this particular invariant
-is not explicitlty documented in a moment…
+is not explicitly documented in a moment…
 
 ### Making It Tractable
 
@@ -1180,7 +1180,7 @@ But suppose you want to change a function's contract? The
 correctness-preserving changes are those that weaken the function's
 preconditions and/or strengthen its postconditions.  For example, this
 method returns the number of steps from the start of a collection to
-an occurence of some value.
+an occurrence of some value.
 
 ```swift
 extension Collection where Element: Equatable {
