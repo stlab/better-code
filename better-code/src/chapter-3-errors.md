@@ -166,7 +166,7 @@ fresh and thus harder to address.  Worse, it can result in *multiple*
 symptoms that will be reported as separate higher-priority bugs whose
 root cause could have been addressed once.
 
-## Handling bugs
+## How to Handle Bugs
 
 The best strategy is to stop the program before any more damage is
 done and generate a crash report or debuggable image that captures as
@@ -193,13 +193,13 @@ is supposed to complete the illusion by coming back up in the same
 state it was killed in.  Resilience to early termination is something
 you can and should design into your system.
 
-## Checking For Bugs
+### Checking For Bugs
 
 While, as we've seen, not all bugs are detectable, checking for the
 others at runtime is an extremely valuable technique for creating
 robust software.
 
-### Precondition Checks
+#### Precondition Checks
 
 Swift supplies a function for checking that a precondition is upheld,
 which can be used as follows:
@@ -231,7 +231,7 @@ second argument is never evaluated.
     cost.  The rest of this book is therefore written as though
     `-Onone` does not exist.
 
-### Assertions
+#### Assertions
 
 Swift supplies a similar function called `assert`, modeled on the one
 from the C programming language.  Its intended use is as a “soundness
@@ -277,7 +277,7 @@ builds.
 > unconditional unless you can prove that the code's logic implies
 > those checks will always pass.
 
-### Postcondition and Expensive Precondition Checks
+#### Postcondition and Expensive Precondition Checks
 
 Checking postconditions is the role of unit tests, so in most cases we
 recommend leaving postcondition checks out of function bodies.
@@ -357,9 +357,9 @@ the same state in which they were killed.  When you accept that sudden
 termination is part of *every* program's reality, it is easier to
 accept it as a response to bug detection, and to mitigate the effects.
 
-# Failures
+## Failures
 
-OK, as much as we all love bugs, it's time to leave them behind and talk about failures.  Let's say you identify a condition X where your function is unable to fulfill its primary purpose.  That can occur one of two ways:
+As much as we all love bugs, it's time to leave them behind and talk about failures.  Let's say you identify a condition X where your function is unable to fulfill its primary purpose.  That can occur one of two ways:
 
 
 Something your function calls has a precondition that you're not sure would be satisfied.
@@ -373,7 +373,7 @@ It's counterintuitive, you should always prefer to classify X as a bug, as long 
 It is possible to ensure !X.  For example, there's no way for the caller to ensure there's enough disk space to save a file, because other processes can use up any space that might have been free before the call.  So you can't make “there's enough disk to save” a precondition.
 Ensuring !X is considerably less work than the work done by the callee.  For example, if the callee is deserializing a document and finds that it's corrupted, you can't make it a precondition that the file is well-formed, because determining whether it is or not is basically the same work as doing the deserialization.
 
-## Definition
+### Definition
 
   Failure: inability to satisfy a postcondition in correct code.
 
@@ -416,7 +416,7 @@ fn sort(mutating x: [Int], order: Ordering<Int>) throws
 // Sorts `x` according to `order`.
 fn sort(mutating x: [Int], order: Ordering<Int>) throws
 
-## Two kinds of failures
+### Two kinds of failures
 
 If you've spent some time writing code that carefully handles failures, especially in a language like C where all the error propagation is explicit, failures start to fall into two main categories: local and non-local, based on where the recovery is likely to happen.
 
@@ -448,11 +448,11 @@ After every operation that can fail, you're adding “and if there was a failure
 
 There are many layers of this propagation.  None of it depends on the details of the reasons for failure: whether the disk is full or the OS detects directory corruption, or serialization is going to an in-memory archive and you run out of memory, you're going to do the same thing.  Finally, where propagation stops and the failure is handled—let's say this is a desktop app— again, the recovery is usually the same no matter the reasons for the failure: you report the problem to the user and wait for the next command.
 
-### Interlude: Exceptions?
+#### Interlude: Exceptions?
 
 Way back in 1996 I embarked on a mission to dispel the widespread fear, loathing, and misunderstanding around exceptions.  Yes I'm old.  While I've seen some real progress on that over the years, I know some of you out there are still not all that comfortable with the idea. If you'll let me, I think I can help.
 
-#### Just control flow
+##### Just control flow
 
 Cases like this are where the motivation for exceptions becomes really obvious. They eliminate the boilerplate and let you see the code's primary intent:
 
@@ -468,7 +468,7 @@ There's no magic.  Exceptions are just control flow.  Like a switch statement, t
 
 To grok the meaning of this code in its full detail, you mentally add “and if there was a failure, return it” everywhere.  But if you push failures out of your mind for a moment you can see that how the function fulfills its primary purpose leaps out at you in a way that was obscured by all the failure handling.  The effect is even stronger when there's some control flow that isn't related to error handling.
 
-#### Also, type erasure
+##### Also, type erasure
 
 OK, I lied a little when I said exceptions are just control flow.  There's one other big difference between the exception version and the explicit version: the exception version erases the types of the failure data, and catch blocks are just big type switches with dynamic downcasts.
 
@@ -484,7 +484,7 @@ Swift recently added statically-typed error handling in spite of this lesson tha
 
 The moral of the story: sometimes dynamic polymorphism is the right answer.  Non-local error handling is a key example, and the design of most exception systems optimize for that.
 
-### When (and when not) to use exceptions
+#### When (and when not) to use exceptions
 
 There's a lot of nice sounding advice out there about this that is either meaningless or vague, like “use exceptions for exceptional conditions,” or “don't use exceptions for control flow.”  I know that one is really popular around Adobe, but c'mon: if you're using exceptions, you're using them for control flow.  I hope to improve on that advice a little bit.
 
@@ -506,13 +506,13 @@ Here's an example that might open your mind a bit: when we were discussing the d
 
 Finally, you might need to consider your team's development culture and use of tooling.  If people typically have their debuggers set up to stop when an exception occurs, you might need to take extra care not to throw when there's an alternate path to success.  Some developers tend to get upset when code stops in a case that will eventually succeed.
 
-## How to Handle Failure
+### How to Handle Failure
 
 OK, enough about exceptions.  Finally we come to the good part!  Seriously, this was originally going to be the focus of the entire talk.
 
 Let's talk about the obligations of a failing function and of its caller.  What goes in the contract and what does each side need to do to ensure correctness?
 
-### Callee
+#### Callee
 
 Documentation:
 Document local failures and what they mean.
@@ -521,7 +521,7 @@ Document non-local failures at their source, but not where they are simply propa
 Code:
 Release any unmanaged resources you've allocated (e.g. close temporary file).
 
-#### Optional
+##### Optional
 
 If mutating, consider giving the strong/transactional guarantee that if there is a failure, the function has no effects.
 
@@ -529,19 +529,19 @@ Only do this if it has no performance cost. Sometimes it just falls out of the i
 
 Don't pay a performance penalty to get it because not all clients need it and when composing parts all the needless overheads add up massively.
 
-### Caller
+#### Caller
 
 - Discard any partially-completed mutations to program state or propagate the error and that responsibility to your caller.  This partially mutated state is meaningless.
 
 What counts as state?  Data that can have an observable effect on the future behavior of your code.  Your log file doesn't count.
 
-#### Implications as data structures scale up
+##### Implications as data structures scale up
 
 The only strategy that really scales in practice, when mutation can fail, is to propagate responsibility for discarding partial mutations all the way to the top of the application.  That in turn implies mutating a copy of existing data and replacing the old copy only when mutation succeeds.  Either way, you probably end up with a persistent data structure (which is a confusing name—it has nothing to do with persistence in the usual sense).
 
 A persistent data structure is one where a partial mutation of a copy shares a lot of storage with the original.  For example, in Photoshop, we store a separate document for each state in the undo history, but these copies share storage for any parts that weren't mutated between revisions.  This sharing behavior falls out naturally when you compose your data structure from copy-on-write parts.
 
-### What (not) to do when an assertion fires.
+#### What (not) to do when an assertion fires.
 
 - Don't remove the assertion because “without that the program works!”
 - Don't complain to the owner of the assertion that they are crashing the program.
@@ -549,7 +549,7 @@ A persistent data structure is one where a partial mutation of a copy shares a l
  - If it's a precondition check, fix your bug
  - If it's a self-check or postcondition check, talk to the code owner about why their assumptions might have been violated
 
-### Probably different functions for unit testing.
+#### Probably different functions for unit testing.
 
 
 
