@@ -293,41 +293,69 @@ exclusively for internal soundness checks:
 ```swift
 public func preconditionUncheckedInRelease(
   _ condition: @autoclosure () -> Bool,
-  _ message: @autoclosure () -> String = String(),
+  _ message: @autoclosure () -> String = "Precondition violated",
   file: StaticString = #file, line: UInt = #line
 ) {
   assert(condition, message, file: file, line: line)
 }
 ```
 
-###
+The distinction between this check and a use of `assert` is important:
+when it fails, this one indicates a bug in the caller, while a failed
+`assert` normally indicates a bug in the callee.
 
-Unless you really believe you're shipping bug-free software, you
-might want to leave most assertions on in release builds. In fact, the
-security of your software might depend on it.  If you're programming
-in an unsafe language like C++, opportunities to cause undefined
-behavior are all around you. When you can assert that the conditions
-for avoiding undefined behavior are met before executing the dangerous
-operation, the program will come to a controlled stop instead of
-opening an arbitrarily bad security hole.
+All that said, beware the temptation to turn off a precondition check
+in release builds before measuring its effect on performance.  The
+value of stopping the program before things go too far wrong is often
+higher than the cost of any particular check.  Certainly, any
+precondition check in a safe function that ultimately prevents an
+unsafe component from being misused can never be turned off in release
+builds.
 
-The problem with leaving assertions on in release is that some checks are too expensive to ship. And let's be honest; many programmers will go with their gut, instead of measuring, when making that determination. We really need a second, expensive_assert(), that's only on in debug builds, so we continue to catch those bugs early.
+```swift
+/// Exchanges the first and last elements of `x`.
+func swapFirstAndLast(_ x: inout Array<Int>) {
+  precondition(!x.isEmpty)
+  if x.count == 1 { return }
+  x.withUnsafeBufferPointer {
+    f = x.baseAddress
+    l = f + x.count - 1
+    swap(&f[0], &l[0])
+  }
+}
+```
 
-There's another problem with having just one assertion: it doesn't express sufficient intent.  For example, it might be a precondition check, or the asserting function's author might just be double-checking their own reasoning.  When these two assertions fire, the meaning is very different: the first indicates a bug in the caller, the other one is a bug in the callee.  So I really want separate precondition and self_check functions.
+<!-- I need a better example  -->
 
-If I'm writing in a safe-by-default language like Rust or Swift, the checks that prevent undefined behavior, like array bounds checks, are special: I can afford to turn off all the other checks in shipping code, but these checks are the ones upholding safety properties of my system are compromised.  So I want a different assertion for these checks, even if I don't ever anticipate turning off the other ones in a shipped product.  These are the ones that we can't delete from the code.  I might want to turn the other assertions off locally to measure how much overhead they are incurring.
+In this example, the precondition prevents an out-of-bounds access to
+a non-existent first element.
 
-I hope you get the idea.  I'm not going to prescribe the exact set of assertion facilities your project needs, but a carefully engineered suite of these functions with properties appropriate to your project is part of a comprehensive strategy for dealing with bugs.  If you haven't got one, go design it.
+### Emergency Shutdown and Seamless Restarts
 
-One last point about the C++ assert: it's better than nothing, but because it calls abort(), there's no place to put emergency shutdown measures.  You can't even display a message to the user, so to the user it will always feel like a hard, unceremonious crash.  You probably want failed assertions to call terminate() instead, because it allows terminate handlers can run.  So that's another reason to engineer your own assertions, even if you build just one.
+When a bug is detected, it can be useful to take emergency measures
+before shutdown, e.g.:
 
-## What if you're not allowed to terminate?
+- release system resources that aren't automatically reclaimed upon
+  process termination.
+- log user actions to aid in reproducing the violation or in
+  recovering work that would otherwise be lost.
 
-Fight for the right (to terminate). If the system is critical, advocate creating a recovery system outside the process.
-If you lose today
-Fail as noisily as possible, preferably by terminating in non-shipping code.
-Keep fighting
-Be prepared to win someday.  That means use a suite of assertions that don't terminate, but whose behavior you can change when you win the fight.
+Unfortunately, as of this writing, Swift does not provide a facility
+for taking emergency shutdown measures. You cannot release resources
+when a bug is detected, and the only way to generate logs is to do it
+pre-emptively and unconditionally, which is probably a more principled
+approach anyway.
+
+Regardless, it is useful to think about how to create an experience of
+resilience for users.  Bug detection is hardly the only reason your
+process might suddenly terminate. Someone could trip over the power
+cord, or the operating system itself could detect an internal bug,
+causing a “kernel panic” that restarts the hardware.  Some
+environments, such as iOS, may kill any process to better manage
+system resources, with the guideline that programs should come up in
+the same state in which they were killed.  When you accept that sudden
+termination is part of *every* program's reality, it is easier to
+accept it as a response to bug detection, and to mitigate the effects.
 
 # Failures
 
