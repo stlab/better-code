@@ -317,10 +317,10 @@ builds.
 func swapFirstAndLast(_ x: inout Array<Int>) {
   precondition(!x.isEmpty)
   if x.count == 1 { return }
-  x.withUnsafeBufferPointer {
-    f = x.baseAddress
-    l = f + x.count - 1
-    swap(&f[0], &l[0])
+  x.withUnsafeBufferPointer { b in
+    f = b.baseAddress
+    l = f + b.count - 1
+    swap(&f.pointee, &l.pointee)
   }
 }
 ```
