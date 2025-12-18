@@ -286,7 +286,7 @@ release builds. This has the useful effect of allowing programmers to
 use `assert`s liberally without concern for slowing down release
 builds.
 
-#### Postcondition and Expensive Precondition Checks
+### Postcondition and Expensive Precondition Checks
 
 Checking postconditions is the role of unit tests, so in most cases we
 recommend leaving postcondition checks out of function bodies.
@@ -299,6 +299,7 @@ significant cost to preformance could be checked with
 function whose name describes its meaning, so that `assert` is
 used directly only for internal soundness checks:
 
+```
 public func preconditionUncheckedInRelease(
   _ condition: @autoclosure () -> Bool,
   _ message: @autoclosure () -> String = "",
