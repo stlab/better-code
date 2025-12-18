@@ -11,6 +11,14 @@ In the interest of progressive disclosure, we didn't look closely at
 the idea, because behind that simple word lies a chapter's worth of
 discussion.  Welcome to the *Errors* chapter!
 
+Before we get into it, we want you to know that what we present here
+is not the only logically consistent approach to errors, and our
+approach may clash with your instincts.  In the space of approaches,
+ours is the result of optimizing for local reasoning and scalable
+software development, and the justifications for our choices are
+interdependent.  We hope you'll bear with us as we tie them all
+together.
+
 ## Definitions
 
 To understand any topic, it's important to define it crisply, and
