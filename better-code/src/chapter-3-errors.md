@@ -360,7 +360,7 @@ accept it as a response to bug detection, and to mitigate the effects.
 ## Failures
 
 As much as we all love bugs, it's time to leave them behind and talk
-about failures.  Let's say you identify a condition X where your
+about failures.  Let's say you identify a condition `X` where your
 function is unable to fulfill its primary purpose.  That can occur one
 of two ways:
 
@@ -372,16 +372,31 @@ of two ways:
      /// Returns the number of unused elements when a maximal
      /// number of `n`-element chunks are stored in `self`.
      func excessWhenFilled(withChunksOfSize n: Int) {
-       size /
+       count() % n // n == 0 would violate the precondition of %
      }
    }
    ```
+
+2. Something your function uses can itself report a failure:
+
+   ```swift
+   extension Array {
+       /// Writes a textual representation of `self` to a temporary file,
+       /// which is returned.
+     func writeToTempFile(withChunksOfSize n: Int) -> URL {
+       let r = FileManager.defaultTemporaryDirectory
+         .appendingPathComponent(UUID().uuidString)
+       "\(self)".write( // compile error: call can throw; error not handled
+           to: r, atomically: false, encoding: .utf8)
+       return r
+     }
+   }
+   ```
+
+In general, you have two choices: you can make `!X` a precondition of your function, or you can have your function
+
 ###
 
-your function might take an integer parameter that is used
-Something your function calls can itself report a failure.
-
-You usually have two choices at this point:
 Make !X a precondition; X reflects a bug in the caller.
 Make X a failure; all the code is correct.
 
