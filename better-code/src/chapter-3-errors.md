@@ -272,11 +272,6 @@ release builds. This has the useful effect of allowing programmers to
 use `assert`s liberally without concern for slowing down release
 builds.
 
-> **Note:** when unsafe components are used to build safe ones, any
-> checks that prevent misuse of unsafe functionality must of course be
-> unconditional unless you can prove that the code's logic implies
-> those checks will always pass.
-
 ### Postcondition and Expensive Precondition Checks
 
 Checking postconditions is the role of unit tests, so in most cases we
@@ -300,41 +295,33 @@ public func preconditionUncheckedInRelease(
 }
 ```
 
-###
-
-Unless you really believe you're shipping bug-free software, you
-might want to leave most assertions on in release builds. In fact, the
-security of your software might depend on it.  If you're programming
-in an unsafe language like C++, opportunities to cause undefined
-behavior are all around you. When you can assert that the conditions
-for avoiding undefined behavior are met before executing the dangerous
-operation, the program will come to a controlled stop instead of
-opening an arbitrarily bad security hole.
-
-The problem with leaving assertions on in release is that some checks are too expensive to ship. And let's be honest; many programmers will go with their gut, instead of measuring, when making that determination. We really need a second, expensive_assert(), that's only on in debug builds, so we continue to catch those bugs early.
-
-There's another problem with having just one assertion: it doesn't express sufficient intent.  For example, it might be a precondition check, or the asserting function's author might just be double-checking their own reasoning.  When these two assertions fire, the meaning is very different: the first indicates a bug in the caller, the other one is a bug in the callee.  So I really want separate precondition and self_check functions.
-
-If I'm writing in a safe-by-default language like Rust or Swift, the checks that prevent undefined behavior, like array bounds checks, are special: I can afford to turn off all the other checks in shipping code, but these checks are the ones upholding safety properties of my system are compromised.  So I want a different assertion for these checks, even if I don't ever anticipate turning off the other ones in a shipped product.  These are the ones that we can't delete from the code.  I might want to turn the other assertions off locally to measure how much overhead they are incurring.
-
-I hope you get the idea.  I'm not going to prescribe the exact set of assertion facilities your project needs, but a carefully engineered suite of these functions with properties appropriate to your project is part of a comprehensive strategy for dealing with bugs.  If you haven't got one, go design it.
-
-One last point about the C++ assert: it's better than nothing, but because it calls abort(), there's no place to put emergency shutdown measures.  You can't even display a message to the user, so to the user it will always feel like a hard, unceremonious crash.  You probably want failed assertions to call terminate() instead, because it allows terminate handlers can run.  So that's another reason to engineer your own assertions, even if you build just one.
-
-## What if you're not allowed to terminate?
-
-Fight for the right (to terminate). If the system is critical, advocate creating a recovery system outside the process.
-If you lose today
-Fail as noisily as possible, preferably by terminating in non-shipping code.
-Keep fighting
-Be prepared to win someday.  That means use a suite of assertions that don't terminate, but whose behavior you can change when you win the fight.
+> **Note:** when unsafe components are used to build safe ones, any
+> checks that prevent misuse of unsafe functionality must of course be
+> unconditional unless you can prove that the code's logic implies
+> those checks will always pass.
 
 # Failures
 
-OK, as much as we all love bugs, it's time to leave them behind and talk about failures.  Let's say you identify a condition X where your function is unable to fulfill its primary purpose.  That can occur one of two ways:
+OK, as much as we all love bugs, it's time to leave them behind and
+talk about failures.  Let's say you identify a condition X where your
+function is unable to fulfill its primary purpose.  That can occur one
+of two ways:
 
+1. Something your function uses has a precondition that you can't
+   be sure would be satisfied.  For example,
 
-Something your function calls has a precondition that you're not sure would be satisfied.
+   ```swift
+   extension Array {
+     /// Returns the number of unused elements when a maximal
+     /// number of `n`-element chunks are stored in `self`.
+     func excessWhenFilled(withChunksOfSize n: Int) {
+       size /
+     }
+   }
+   ```
+###
+
+your function might take an integer parameter that is used
 Something your function calls can itself report a failure.
 
 You usually have two choices at this point:
