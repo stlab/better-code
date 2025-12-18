@@ -208,8 +208,10 @@ the scope of this book.
 ### Checking For Bugs
 
 While, as we've seen, not all bugs are detectable, checking for the
-others at runtime is an extremely valuable technique for creating
-robust software.
+others at runtime is a powerful way to make code better, by detecting
+coding errors close to their source and creating an incentive to
+prioritize fixing them.
+
 
 #### Precondition Checks
 
@@ -294,53 +296,60 @@ to use assertions to check them as a confidence-building
 measure. Similarly, a precondition that can only be checked with a
 significant cost to preformance could be checked with
 `assert`. However, in both cases we suggest using a forwarding
-function whose name describes its meaning, so that `assert` is used
-exclusively for internal soundness checks:
+function whose name describes its meaning, so that `assert` is
+directly used only for internal soundness checks:
 
 ```swift
 public func preconditionUncheckedInRelease(
   _ condition: @autoclosure () -> Bool,
-  _ message: @autoclosure () -> String = "Precondition violated",
+  _ message: @autoclosure () -> String = "",
   file: StaticString = #file, line: UInt = #line
 ) {
-  assert(condition, message, file: file, line: line)
+  assert(
+    condition, "Precondition violated:" + message,
+    file: file, line: line)
+}
+
+public func postconditionUncheckedInRelease(
+  _ condition: @autoclosure () -> Bool,
+  _ message: @autoclosure () -> String = "",
+  file: StaticString = #file, line: UInt = #line
+) {
+  assert(
+    condition, "Postcondition violated:" + message,
+    file: file, line: line)
 }
 ```
 
-The distinction between this check and a use of `assert` is important:
-when it fails, this one indicates a bug in the caller, while a failed
+The distinction between these checks and a use of `assert` is important:
+on failure, these indicate a bug in the caller, while a failed
 `assert` normally indicates a bug in the callee.
 
-> **Note:** when unsafe components are used to build safe ones, any
-> checks that prevent misuse of unsafe functionality must of course be
-> unconditional unless you can prove that the code's logic implies
-> those checks will always pass.
-
-All that said, beware the temptation to turn off a precondition check
+All that said, resist the temptation to turn off a precondition check
 in release builds before measuring its effect on performance.  The
-value of stopping the program before things go too far wrong is often
-higher than the cost of any particular check.  Certainly, any
+value of stopping the program before things go too far wrong is
+usually higher than the cost of any particular check.  Certainly, any
 precondition check in a safe function that ultimately prevents an
 unsafe component from being misused can never be turned off in release
 builds.
 
 ```swift
-/// Exchanges the first and last elements of `x`.
-func swapFirstAndLast(_ x: inout Array<Int>) {
-  precondition(!x.isEmpty)
-  if x.count == 1 { return }
-  x.withUnsafeBufferPointer { b in
-    f = b.baseAddress
-    l = f + b.count - 1
-    swap(&f.pointee, &l.pointee)
+extension Array {
+  /// Exchanges the first and last elements.
+  mutating func swapFirstAndLast() {
+    precondition(!self.isEmpty)
+    if count() == 1 { return } // swapping would be a no-op.
+    withUnsafeBufferPointer { b in
+      f = b.baseAddress
+      l = f + b.count - 1
+      swap(&f.pointee, &l.pointee)
+    }
   }
 }
 ```
 
-<!-- I need a better example  -->
-
-In this example, the precondition prevents an out-of-bounds access to
-a non-existent first element.
+In this example, the precondition check prevents an out-of-bounds
+access to a non-existent first element.
 
 ## Failures
 
@@ -366,8 +375,8 @@ of two ways:
 
    ```swift
    extension Array {
-       /// Writes a textual representation of `self` to a temporary file,
-       /// which is returned.
+     /// Writes a textual representation of `self` to a temporary file
+     /// whose location is returned.
      func writeToTempFile(withChunksOfSize n: Int) -> URL {
        let r = FileManager.defaultTemporaryDirectory
          .appendingPathComponent(UUID().uuidString)
@@ -378,16 +387,46 @@ of two ways:
    }
    ```
 
-In general, you have two choices: you can make `!X` a precondition of your function, or you can have your function
+> Note: both of the examples above are incomplete.
 
-###
+In general, when condition *c* interferes with fulfilling your
+postcondition, you have two choices: you can make *￢c* a precondition
+of your function, or you can have your function report the error to its
+caller.
 
-Make !X a precondition; X reflects a bug in the caller.
-Make X a failure; all the code is correct.
+Making *￢c* a precondition is appropriate when:
+- It is **possible for the caller to ensure** it is fulfilled.  In the
+  second example above, the call to `write` can fail because the
+  storage is full. Even if the caller were to measure free space
+  before the call and find it sufficient, other processes could fill
+  that space before the call to `write`. We must report a failure in
+  this case:
 
-It's counterintuitive, you should always prefer to classify X as a bug, as long as !X satisfies the criteria for preconditions:
-It is possible to ensure !X.  For example, there's no way for the caller to ensure there's enough disk space to save a file, because other processes can use up any space that might have been free before the call.  So you can't make “there's enough disk to save” a precondition.
-Ensuring !X is considerably less work than the work done by the callee.  For example, if the callee is deserializing a document and finds that it's corrupted, you can't make it a precondition that the file is well-formed, because determining whether it is or not is basically the same work as doing the deserialization.
+   ```swift
+   extension Array {
+     /// Writes a textual representation of `self` to a temporary file
+     /// whose location is returned.
+     func writeToTempFile(withChunksOfSize n: Int) throws -> URL {
+       let r = FileManager.defaultTemporaryDirectory
+         .appendingPathComponent(UUID().uuidString)
+       try "\(self)".write(to: r, atomically: false, encoding: .utf8)
+       return r
+     }
+   }
+   ```
+
+- The work required for the caller to ensure the precondition is much
+  cheaper than the call it is making.  For example, when deserializing
+  a document you might discover that the input is corrupted. The work
+  required by a caller to check for corruption before the call is
+  nearly as high as the cost of deserialization, so well-formedness
+  would be an inappropriate precondition for deserialization.
+
+BY CONSTRUCTION
+##
+
+When both of these conditions are satisfied, you should prefer to make
+*￢c* a precondition.
 
 ### Definition
 
