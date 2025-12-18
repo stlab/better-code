@@ -272,11 +272,6 @@ release builds. This has the useful effect of allowing programmers to
 use `assert`s liberally without concern for slowing down release
 builds.
 
-> **Note:** when unsafe components are used to build safe ones, any
-> checks that prevent misuse of unsafe functionality must of course be
-> unconditional unless you can prove that the code's logic implies
-> those checks will always pass.
-
 #### Postcondition and Expensive Precondition Checks
 
 Checking postconditions is the role of unit tests, so in most cases we
@@ -303,6 +298,11 @@ public func preconditionUncheckedInRelease(
 The distinction between this check and a use of `assert` is important:
 when it fails, this one indicates a bug in the caller, while a failed
 `assert` normally indicates a bug in the callee.
+
+> **Note:** when unsafe components are used to build safe ones, any
+> checks that prevent misuse of unsafe functionality must of course be
+> unconditional unless you can prove that the code's logic implies
+> those checks will always pass.
 
 All that said, beware the temptation to turn off a precondition check
 in release builds before measuring its effect on performance.  The
@@ -359,10 +359,26 @@ accept it as a response to bug detection, and to mitigate the effects.
 
 ## Failures
 
-As much as we all love bugs, it's time to leave them behind and talk about failures.  Let's say you identify a condition X where your function is unable to fulfill its primary purpose.  That can occur one of two ways:
+As much as we all love bugs, it's time to leave them behind and talk
+about failures.  Let's say you identify a condition X where your
+function is unable to fulfill its primary purpose.  That can occur one
+of two ways:
 
+1. Something your function uses has a precondition that you can't
+   be sure would be satisfied.  For example,
 
-Something your function calls has a precondition that you're not sure would be satisfied.
+   ```swift
+   extension Array {
+     /// Returns the number of unused elements when a maximal
+     /// number of `n`-element chunks are stored in `self`.
+     func excessWhenFilled(withChunksOfSize n: Int) {
+       size /
+     }
+   }
+   ```
+###
+
+your function might take an integer parameter that is used
 Something your function calls can itself report a failure.
 
 You usually have two choices at this point:
