@@ -140,13 +140,12 @@ subsequently saved, the damage becomes permanent.
 
 In any case, unless the program has no mutable state and no external
 effects, the only principled response to bug detection is to terminate
-the process, possibly after taking some emergency shutdown
-measures such as saving diagnostic information. [^fault-tolerant]
+the process. [^fault-tolerant]
 
 [^fault-tolerant]: There do exist systems that recover from bugs in a
-principled way, using redundancy: for example, functionality could be
-written three different ways by separate teams, and run in separate
-processes that “vote” on results.  In any case, the loser needs to be
+principled way by using redundancy: for example, functionality could
+be written three different ways by separate teams, and run in separate
+processes that “vote” on results. In any case, the loser needs to be
 terminated to flush any corrupted program state.
 
 As terrible as that outcome may be, it's better than the
@@ -171,18 +170,15 @@ root cause could have been addressed once.
 The best strategy is to stop the program before any more damage is
 done and generate a crash report or debuggable image that captures as
 much information as is available about the state of the program, so
-there's a chance of fixing the bug.  Maybe there's some small
-emergency shutdown procedure you need to perform, like saving
-information about the failing command so the application can offer to
-retry it for you when you restart it.
+there's a chance of fixing the bug.
 
 Many people have a hard time accepting the idea of voluntarily
-terminating, but let's face it: your bug detection isn't the only
-reason the program might suddenly stop.  The program can crash from an
-undetected bug… or a person can trip over the power cord.  Where it
-matters, software should be designed so that sudden termination is not
-catastrophic.  Techniques for doing that, such as saving backup files,
-are well-known, but outside the scope of this book.
+terminating, but let's face it: bug detection isn't the only reason
+the program might suddenly stop.  The program can crash from an
+*un*detected bug in unsafe code… or a person can trip over the power
+cord, or the operating system itself could detect an internal bug,
+causing a “kernel panic” that restarts the hardware.  Software should
+be designed so that sudden termination is not catastrophic.
 
 In fact, it's often possible to make restarting the app a completely
 seamless experience. On an iPhone or iPad, for example, to save
@@ -190,8 +186,16 @@ battery and keep foreground apps responsive, the OS may kill your
 process any time it's in the background, but will make it look to the
 user like it's still running.  When the user switches back, every app
 is supposed to complete the illusion by coming back up in the same
-state it was killed in.  Resilience to early termination is something
-you can and should design into your system.
+state it was killed in.  Non-catastrophic early termination is
+something you can and should design into your system. [^techniques]
+When you accept that sudden termination is part of *every* program's
+reality, it is easier to accept it as a response to bug detection, and
+to mitigate the effects.
+
+[^techniques]: Techniques for ensuring that restarting is seamless,
+such as saving incremental backup files, are well-known, but outside
+the scope of this book.
+
 
 ### Checking For Bugs
 
@@ -330,42 +334,15 @@ func swapFirstAndLast(_ x: inout Array<Int>) {
 In this example, the precondition prevents an out-of-bounds access to
 a non-existent first element.
 
-### Emergency Shutdown and Seamless Restarts
-
-When a bug is detected, it can be useful to take emergency measures
-before shutdown, e.g.:
-
-- release system resources that aren't automatically reclaimed upon
-  process termination.
-- log user actions to aid in reproducing the violation or in
-  recovering work that would otherwise be lost.
-
-Unfortunately, as of this writing, Swift does not provide a facility
-for taking emergency shutdown measures. You cannot release resources
-when a bug is detected, and the only way to generate logs is to do it
-pre-emptively and unconditionally, which is probably a more principled
-approach anyway.
-
-Regardless, it is useful to think about how to create an experience of
-resilience for users.  Bug detection is hardly the only reason your
-process might suddenly terminate. Someone could trip over the power
-cord, or the operating system itself could detect an internal bug,
-causing a “kernel panic” that restarts the hardware.  Some
-environments, such as iOS, may kill any process to better manage
-system resources, with the guideline that programs should come up in
-the same state in which they were killed.  When you accept that sudden
-termination is part of *every* program's reality, it is easier to
-accept it as a response to bug detection, and to mitigate the effects.
-
 ## Failures
 
 As much as we all love bugs, it's time to leave them behind and talk
-about failures.  Let's say you identify a condition `X` where your
+about failures.  Let's say you identify a condition where your
 function is unable to fulfill its primary purpose.  That can occur one
 of two ways:
 
 1. Something your function uses has a precondition that you can't
-   be sure would be satisfied.  For example,
+   be sure would be satisfied:
 
    ```swift
    extension Array {
