@@ -1,4 +1,6 @@
 name: Deploy mdBook to GitHub Pages
+# Tool versions are managed in versions.toml at the repository root.
+# To update mdbook or plugin versions, edit versions.toml and the CI will automatically use them.
 
 on:
   # Runs on pushes targeting the default branch
@@ -26,22 +28,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
           
-      - name: Install mdBook
-        run: cargo install mdbook
+      - name: Install mdBook and plugins
+        run: |
+          chmod +x scripts/install-tools.sh
+          ./scripts/install-tools.sh
         
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
         
       - name: Build with mdBook
-        run: |
-          cd better-code
-          mdbook build
+        run: mdbook build ./better-code
           
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./better-code/book
 
