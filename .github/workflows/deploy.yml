@@ -66,10 +66,28 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout gh-pages branch
+      - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: gh-pages
+          fetch-depth: 0
+      
+      - name: Setup gh-pages branch
+        run: |
+          # Check if gh-pages branch exists
+          if git ls-remote --heads origin gh-pages | grep gh-pages; then
+            echo "gh-pages branch exists, checking out..."
+            git checkout gh-pages
+          else
+            echo "gh-pages branch doesn't exist, creating orphan branch..."
+            git checkout --orphan gh-pages
+            git rm -rf .
+            echo "# Better Code - PR Previews" > README.md
+            git add README.md
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "Initialize gh-pages branch for PR previews"
+            git push origin gh-pages
+          fi
           
       - name: Download build artifact
         uses: actions/download-artifact@v4
