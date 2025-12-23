@@ -97,20 +97,13 @@ When you push changes to the main branch:
 2. The built book is deployed to GitHub Pages
 3. The book becomes available at https://stlab.github.io/better-code/
 
-### Pull Request Previews
+### Pull Request Validation
 
 When you open a pull request:
 
 1. GitHub Actions builds the book to validate your changes
-2. A preview deployment is created at `https://stlab.github.io/better-code/pr-preview/[PR-NUMBER]/`
-3. A comment is posted on the PR with the preview URL
-4. The preview is automatically updated with new commits
-5. The preview is automatically removed when the PR is closed or merged
-
-**Benefits:**
-- Reviewers can see live previews of documentation changes
-- Catch rendering issues before merging
-- No third-party services required - uses GitHub Pages directly
+2. The PR status check shows whether the build succeeded
+3. No deployment occurs - this just validates the book builds correctly
 
 No manual deployment steps are required!
 
