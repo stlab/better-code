@@ -1,0 +1,1466 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Better Code</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A principled and rigorous approach to software development">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-02d57171.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-6f2e7101.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Better Code</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/stlab/better-code" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>This book is the product of our shared belief that programs and
+programming can be better.  Over the years we’ve seen philosophies
+about how to do software engineering come and go; we’ve listened to
+the experts and applied their tips (sometimes to our detriment!)
+Looking back, though, the key ideas underlying our best work weren’t
+the popular ones, and aren’t widely known or taught today.  We wrote
+this book because we think they could make a difference for
+you, too.</p>
+<p>The book’s title comes from Sean’s <em>Better Code</em> series of talks.  The
+first of these, subtitled “Three Goals for Better Code” was given over
+a decade ago, after Herb Sutter suggested Sean lay out practical
+tips a developer could apply immediately to improve their code.  So
+this is above all a practical book.  The authors each have more than
+40 years’ experience writing code that powers real applications in all
+sorts of contexts; the ideas you’ll encounter here are the ones that
+stood the test of time and delivered results at scale.  We think
+you’ll also discover, as we have, that the most impactful practical
+advice is also deeply principled and satisfying—both aesthetically
+and, in some sense, scientifically.</p>
+<p>Better code has more of three ingredients: <strong>correctness, efficiency,
+and abstraction</strong>. Most people have a good intuitive sense of what
+correctness and efficiency are, though we will try to deepen and
+solidify all three ideas throughout the book. Abstraction is less
+commonly understood, so, briefly, it’s the quality of code that is
+more reusable—and paradoxically, more understandable—because
+inessential detail has been “lifted” out. It’s what many people would
+call “higher-level code.”</p>
+<p>Code usually doesn’t get better all at once.  Often we make
+incremental improvement along one of the three axes as we discover the
+nature of the problem we’re solving.</p>
+<p>We’ve tried to structure the book so chapters build on one another,
+but they are interdependent.  A later chapter may deepen an earlier
+one, so we encourage you to circle back and re-read earlier material.
+Each chapter begins with a rubric such as “no raw loops.”  The rubrics
+are often phrased in the negative, to call out red flags, and are
+intended to be aspirational touchstones, not hard rules.  That said,
+we’ve found they are most powerful when we violate them only as an
+absolute last resort, and we suggest you do the same.</p>
+<p>Although the ideas you’ll find here are applicable to any programming
+language, we’ve chosen to write our examples in Swift, for its direct,
+safe support of mutable value semantics (see chapter XX), and generic
+programming (see chapter XX), and because we are able to express them
+without language-specific wrinkles that would need to be explained,
+lengthening the text and distracting from the real issues.  If you
+don’t already know Swift, we’ve provided a brief introduction in
+appendix YY.</p>
+<p>Out of pursuing better code, you should find you have greater
+confidence in your work and that you produce quality results more
+quickly, with less code.  Programs become easier to maintain, and—when
+a bug inevitably occurs—to debug.  At a metaphysical level, Better
+Code is a journey of discovery.  For us it has been an exhilarating
+one.  Wherever you are on that road, we hope you have the same
+experience, and that this book serves as a guide and an ongoing
+companion.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="contracts"><a class="header" href="#contracts">Contracts</a></h1>
+<blockquote>
+<p>No informal agreements—get it in writing.</p>
+</blockquote>
+<p>Software development at scale is fundamentally about managing
+complexity and establishing trust between components. When you call a
+function, use a library, or interact with an API, you’re entering into
+an implicit agreement—but what exactly are the terms of that
+agreement? Without clear, documented expectations, even the most
+carefully crafted code becomes a source of confusion, bugs, and
+maintenance nightmares.</p>
+<p>This chapter introduces  programming by contract, an approach that
+transforms how you think about, design, and implement software
+components. Contracts are more than just comments or
+documentation—they’re the formal agreements that define how different
+parts of your system communicate and collaborate.</p>
+<p>Contracts are the connective tissue of healthy software.  You really
+can’t build software at scale without them.  If you <em>are</em> successfully
+building large software systems, you’re already using  contracts in
+some form, and this chapter should help you make them more powerful.</p>
+<p>Writing contracts isn’t just about preventing bugs—it’s about creating
+a development process where better design emerges naturally, testing
+becomes focused, and documentation actually improves your code. These
+practices will make your software construction both more rigorous and
+more efficient.</p>
+<h2 id="in-pursuit-of-correctness"><a class="header" href="#in-pursuit-of-correctness">In pursuit of Correctness</a></h2>
+<p>Fundamentally, contracts are about the first ingredient of Better
+Code: correctness. It’s popular in some circles to scoff at the idea
+of correct software, on the grounds that bugs are inevitable, and
+because <em>for the most part</em>, we rely on incorrect software every day
+without disaster.  But there is a practical approach to correctness
+that improves both code quality and the programming experience,
+without demanding unrealistic perfection.</p>
+<p>For those who like to think formally, we can define a <em>semi-correct</em>
+program as one for which there exists a valid initial state and
+inputs, such that the program will generate a valid output. As an
+analogy, a broken clock is semi-correct, it is correct twice a
+day. This definition provides a partial ordering of correctness, where
+a program is <em>more correct</em> than another if the initial states under
+which it is correct are a superset of the other.</p>
+<p>So while you may not reach a point where all bugs vanish, you will
+have well-justified confidence in the correctness of your own work
+while maintaining high productivity. Also, the discipline we’ll
+describe here of <strong>programming by contract</strong> removes uncertainty and
+needless complexity from your code and from the process of coding.
+That’s a big part of why we say it’s practical.</p>
+<h2 id="reasoning-about-correctness"><a class="header" href="#reasoning-about-correctness">Reasoning about correctness</a></h2>
+<p>How can you know whether your program is correct?  Validating
+correctness seldom requires a formal proof—usually the everyday<br>thinking we do while programming works fine.</p>
+<pre><code class="language-swift">var names = [ "Sean", "Laura", "Dave", "Crusty" ]
+names.sort()
+print(names[3])
+</code></pre>
+<p>In the example above, how do we know that last line is OK? Our thought
+process is something like this:</p>
+<ul>
+<li>We started with values in indices zero through three of <code>names</code>.</li>
+<li>sorting <code>names</code> rearranges elements without changing the set of valid indices.</li>
+<li>Therefore, in the last line, <code>names</code> still has an element at index <code>3</code>.</li>
+</ul>
+<p>That’s just an informal proof, and we use that kind of reasoning every
+time we write a line of code. So, regular programming is on the same
+continuum as formally proving correctness.  Let’s explore how
+injecting just a little more formalism into our process can enable
+Better Code.</p>
+<h2 id="local-reasoning"><a class="header" href="#local-reasoning">Local Reasoning</a></h2>
+<p>The kind of everyday thinking demonstrated above is only practical if
+we can reason locally about code.  The clearest definition of Local
+Reasoning we’ve found is <a href="https://medium.com/@nathangitter/local-reasoning-in-swift-6782e459d">this
+one</a>
+from Nathan Gitter: “Local reasoning is the idea that the reader can
+make sense of the code directly in front of them, without going on a
+journey discovering how the code works.”</p>
+<p>So in our example, what we know about <code>sort</code> allows us to reason about
+its use without looking at its implementation.  In fact, local
+reasoning is so fundamental that most accepted best
+practices exist just to support our ability to do it.  It’s why we
+use access control, why we break programs into components like
+functions, types, and modules, and why we try to keep them small.</p>
+<h2 id="components-and-abstraction"><a class="header" href="#components-and-abstraction">Components and Abstraction</a></h2>
+<p>Obviously, “knowing something about <code>sort</code>” is only possible and
+relevant because <code>sort</code> is a separate component with its own name. If
+we had inlined the sorting code directly into some other function,
+we’d need to leave a comment for maintainers telling them
+that the code was meant to sort. Even with the comment, to
+fully understand the surrounding function, maintainers would
+have to reason through the sorting algorithm’s details.<br>The comment itself is a code smell: every time we write a comment
+that describes what the next piece of code is about to do, we should
+ask whether that code can be its own function.</p>
+<p>It’s a common fallacy that factoring out a component only makes
+sense if it’s used more than once. The real criterion is whether you
+can identify a unit of <em>abstraction</em>—the third ingredient of Better
+Code.  If you can think of a simple and descriptive name for
+something, that’s usually a good indicator that there’s an abstraction
+waiting to be discovered.</p>
+<p>In fact, creating a component creates an immediate opportunity for
+the code to be reused in tests.  The more code you test separately,
+the better it is for correctness.  The more you can use understandable
+abstractions, the simpler and clearer the use sites become, which is
+better for correctness. Abstraction and correctness support one
+another in a virtuous cycle.  And abstraction is necessary for
+programming at scale: because we can’t keep the whole program in our
+heads, we do what humans always do when faced with complexity: we
+break complicated problems into parts that can be understood in
+isolation.</p>
+<h2 id="hoare-logic"><a class="header" href="#hoare-logic">Hoare Logic</a></h2>
+<p>Programming by contract grew out of Hoare Logic, developed in 1969 by
+the British computer scientist and logician Tony Hoare.  While we
+won’t be using Hoare Logic directly, we’ll discuss it briefly to
+provide historical context, and because it is the source of crucial
+terminology.</p>
+<h3 id="preconditions-and-postconditions"><a class="header" href="#preconditions-and-postconditions">Preconditions and Postconditions</a></h3>
+<p>Hoare used this notation, called a “Hoare triple,”</p>
+<blockquote>
+<p>{P}S{Q}</p>
+</blockquote>
+<p>which is an assertion that if <strong>precondition</strong> <em>P</em> is met, operation
+<em>S</em> establishes <strong>postcondition</strong> <em>Q</em>.</p>
+<p>For example:</p>
+<ul>
+<li>
+<p>if we start with <code>x == 2</code> (precondition), after <code>x += 1</code>, <code>x == 3</code> (postcondition):</p>
+<blockquote>
+<p>{x == 2}x+=1{x == 3}</p>
+</blockquote>
+</li>
+<li>
+<p>if <code>x</code> is less than the maximum integer (precondition), after <code>x += 1</code>, <code>x</code> is greater than the minimum integer (postcondition):</p>
+<blockquote>
+<p>{x &lt; Int.max}x+=1{x &gt; Int.min}</p>
+</blockquote>
+</li>
+</ul>
+<p>What makes preconditions and postconditions useful for formal proofs
+is this <em>sequencing rule</em>:</p>
+<blockquote>
+<p>{P}S{Q} ∧ {Q}T{R} ⇒ {P}S;T{R}</p>
+</blockquote>
+<p>Given two valid Hoare triples, if the postconditions of the first are
+the preconditions of the second, we can form a new valid triple describing
+the effects of performing the operations in sequence.  The notation
+may look exotic, but its meaning should be familiar: this rule simply
+captures the reasoning we use to think informally about statements
+when we write one statement after the next.</p>
+<p>For example, take these two independent lines of code:</p>
+<pre><code class="language-swift">let m = (h - l) / 2
+</code></pre>
+<p>and</p>
+<pre><code class="language-swift">h = l + m
+</code></pre>
+<p>There are many valid Hoare triples for each of them.  For instance,
+<strong>{<em>l</em>+<em>m</em>=0}</strong><code>h = l + m</code><strong>{<em>h</em>≤0}</strong>.  This one isn’t particularly
+useful, but it is valid because if <code>l + m == 0</code> is true before we
+execute it, <code>h &lt;= 0</code> will be true afterwards.</p>
+<p>The following—more useful—triples will help illustrate the sequencing rule:</p>
+<ul>
+<li>
+<p><strong>{<em>l</em>≤<em>h</em>}</strong><code>let m = (h - l )/2</code><strong>{<em>m</em>≥ 0}</strong>, i.e.</p>
+<pre><code class="language-swift">// precondition: l &lt;= h
+let m = (h - l) / 2
+// postcondition: m &gt;= 0
+</code></pre>
+</li>
+<li>
+<p><strong>{<em>m</em>≥0}</strong><code>h = l + m</code><strong>{<em>l</em>≤<em>h</em>}</strong>, i.e.</p>
+<pre><code class="language-swift">// precondition: m &gt;= 0
+h = l + m
+// postcondition: l &lt;= h
+</code></pre>
+</li>
+</ul>
+<p>The fact that the first postcondition matches the second
+precondition means that the operations can be executed in
+sequence, with the sequence having the first precondition and the
+second postcondition. Thus there’s a new valid triple:</p>
+<p><strong>{<em>l</em>≤<em>h</em>}</strong><code>let m = (h -l )/2; h = l + m</code><strong>{<em>l</em>≤<em>h</em>}</strong>, i.e.</p>
+<pre><code class="language-swift">  // precondition: l &lt;= h
+  let m = (h - l) / 2
+  h = l + m
+  // postcondition: l &lt;= h
+</code></pre>
+<p>which says that if <em>l</em>≤<em>h</em> is true on entry to the sequence, it is
+also true on exit.</p>
+<h3 id="invariants"><a class="header" href="#invariants">Invariants</a></h3>
+<p>When a valid triple has identical precondition and postcondition,
+Hoare calls that condition an <strong>invariant</strong> of the operation, a
+condition that the operation preserves.  The preceding example is
+distilled from the <em>binary search</em> algorithm, where <em>l</em>≤<em>h</em> is an
+invariant of the algorithm.  Knowing that <em>l</em>≤<em>h</em> at each step is
+crucial to understanding the algorithm’s correctness.</p>
+<p>The sequencing rule is good for code that runs in a straight line, but
+not all code is like that. Hoare also gave us a tool for reasoning
+about loops.</p>
+<p>A <strong>loop invariant</strong> is a condition that holds just before a loop,
+after each iteration, and just after the loop.  In this linear search
+there’s an <em>invariant</em> that no
+element preceding the <code>i</code>th one is equal to <code>x</code>.</p>
+<pre><code class="language-swift">var i = 0
+while (i != a.count &amp;&amp; a[i] != x) {
+  i += 1
+}
+</code></pre>
+<p>Knowing that’s always true when the loop exits allows us to conclude
+that if <code>i != a.count</code>, the <em>first</em> occurrence of <code>x</code> in <code>a</code> is at
+index <code>i</code>.  Anything else would contradict the loop invariant.</p>
+<p>Loops are difficult to reason about in general, which is
+why we suggest you avoid them (see the Algorithms chapter). But when
+you <em>do</em> have a loop, identifying its invariant is often the first
+step in understanding what it does.</p>
+<h2 id="design-by-contract"><a class="header" href="#design-by-contract">Design By Contract</a></h2>
+<blockquote>
+<p><em>…a software system is viewed as a set of communicating components
+whose interaction is based on precisely defined specifications of
+the mutual obligations — contracts.</em></p>
+<p>—Building bug-free O-O software: An Introduction to Design by Contract™
+https://www.eiffel.com/values/design-by-contract/introduction/</p>
+</blockquote>
+<p>In the mid 1980s, The French computer scientist Bertrand Meyer took
+Hoare Logic, and shaped it into a practical discipline for software
+engineering that he called “Design By Contract.”  Meyer was focused on
+software components—types and methods.  He realized that there’s
+special power in the Hoare triple that captures the intentions of a
+function’s author—the function’s <strong>contract</strong>:</p>
+<ul>
+<li>The precondition describes which calls to a function should be
+considered valid.</li>
+<li>The postcondition specifies only the function’s <em>intended</em> behaviors
+<em>when correctly invoked</em> and <em>successful</em>. Details such as the precise
+order of equivalent elements after an unstable sort, what happens when
+preconditions are violated, or which errors are reported (more on this
+in the next chapter) are omitted.</li>
+<li>It is general—describing the result for all inputs the author
+intends to support—so it can be applied in reasoning about any call
+to the function.</li>
+<li>An author can evolve the implementation so that valid uses by
+clients stay valid and retain their meaning.</li>
+</ul>
+<p>Contracts describe the rules that govern how one piece of software
+talks to another. In other words, they’re relationships.  Thinking in
+terms of relationships is one of the themes of Better Code, and you
+can expect us to point relationships out as they come up in our
+material.</p>
+<p>Although a software component’s implementation must <em>uphold</em> its
+contract, it’s important to think of a contract as <em>part of the
+component’s interface</em>, since clients will depend on it.</p>
+<h3 id="which-code-is-to-blame"><a class="header" href="#which-code-is-to-blame">Which code is to blame?</a></h3>
+<p>When something goes wrong in software, focusing on which <em>person</em> to
+blame is counterproductive, but deciding which <em>code</em> is to blame is
+the first step.  Contracts tell us which code needs fixing:</p>
+<ul>
+<li>
+<p>If preconditions aren’t satisfied, that’s a bug in the caller.  The
+function is not required to make any promises<sup class="footnote-reference" id="fr-no-promises-1"><a href="#footnote-no-promises">1</a></sup> in that case.</p>
+</li>
+<li>
+<p>If preconditions are satisfied but postconditions are not
+fulfilled, that’s a bug in the callee, or in something it calls.</p>
+</li>
+</ul>
+<p>And if you ever find yourself with something that’s clearly a bug but
+you can’t decide which code to blame, that’s a sign that a contract is
+missing or incomplete.  A system that exposes these situations, where
+everybody is playing by the rules but things still go wrong, is known
+by the technical term “footgun.”</p>
+<h3 id="type-invariants"><a class="header" href="#type-invariants">Type Invariants</a></h3>
+<p>The other contribution of Meyer’s Design by Contract was to apply the
+idea of “invariants” to types.  A
+<em>class invariant</em> (or <em>type invariant</em>), is a condition that holds at
+a type’s public API boundary—whenever a client interacts with it.
+When we talk about an instance being “in a good state,” we
+mean that its type’s invariants are satisfied.</p>
+<p>For example, this type’s public interface is like an
+array of pairs, but it stores elements of those pairs separate
+arrays.<sup class="footnote-reference" id="fr-array-pairs-1"><a href="#footnote-array-pairs">2</a></sup></p>
+<pre><code class="language-swift">/// A series of `(X, Y)` pairs.
+struct PairArray&lt;X, Y&gt; {
+  // Invariant: `xs.count == ys.count`
+
+  /// The first part of each element.
+  private var xs: [X] = []
+
+  /// The second part of each element.
+  private var ys: [Y] = []
+
+  /// An empty instance.
+  public init() {}
+
+  /// The `i`th element.
+  public subscript(i: Int) -&gt; (X, Y) {
+    (xs[i], ys[i])
+  }
+
+  /// The length.
+  public var count: Int { ys.count }
+
+  /// Adds `e` to the end.
+  public mutating func append(_ e: (X, Y)) {
+    xs.append(e.0)
+    ys.append(e.1)
+  }
+}
+</code></pre>
+<p>The invariant for this type is that the private arrays have the same
+length.  It’s important to remember that invariants only hold at a
+type’s public interface boundary and are routinely violated,
+temporarily, during a mutation.  For example, in <code>append</code>, we have to
+grow one of the arrays first, which breaks the invariant until we’ve
+done the second <code>append</code>.  That’s not a problem because the arrays are
+private—that “bad” state is <em>encapsulated</em> by the type, and
+invisible to clients.  By the time we return from <code>append</code>, everything
+is back in order.</p>
+<p>Because we can control access to the visibility of “bad” states, there
+is a formula for upholding a type invariant.  We</p>
+<ul>
+<li>make stored properties <code>private</code> or <code>private(set)</code></li>
+<li>establish the invariant in the type’s <code>init</code> method(s), and</li>
+<li>in <code>mutating</code> methods and in the mutation clauses of subscripts
+and computed properties, ensure the invariant is intact:
+<ul>
+<li>before returning to the caller</li>
+<li>before passing <code>self</code> as a parameter</li>
+<li>before calling a non-private method or subscript—or accessing a non-private computed property—of <code>self</code>.</li>
+</ul>
+</li>
+</ul>
+<p>Non-mutating operations can’t disturb the invariant, and any mutating
+operation that only uses the type’s public API trivially upholds the
+invariant.</p>
+<h4 id="how-to-choose-a-type-invariant"><a class="header" href="#how-to-choose-a-type-invariant">How To Choose a Type Invariant</a></h4>
+<p>Often, you have a choice about how strong to make your type’s
+invariant.  For example, because of the way <code>PairArray</code> was written,
+it has an invariant that <code>xs.count == ys.count</code>, but if we add this
+initializer, we’d have to weaken that invariant:</p>
+<pre><code class="language-swift">  /// An instance with the value of `zip(xs, ys)`.
+  ///
+  /// - Precondition: `xs.count &lt;= ys.count`.
+  init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
+</code></pre>
+<p>[Note: when sequences of unequal length are <code>zip</code>ped, the result
+has the length of the shorter sequence.]</p>
+<p>Now the invariant becomes <code>xs.count &lt;= ys.count</code>.  We call that a
+<em>weaker</em> invariant because it allows many more internal states. <sup class="footnote-reference" id="fr-weaken-1"><a href="#footnote-weaken">3</a></sup></p>
+<p>Let’s see what effect the new invariant would have on the rest of the
+implementation.  Most of it is unchanged, but to maintain the same
+meaning, the <code>append</code> method must account for these new internal
+states.  Here’s one way we could do it:</p>
+<pre><code class="language-swift">  /// Adds `e` to the end.
+  public mutating func append(_ e: (X, Y)) {
+    ys.removeRange(xs.count...) // &lt;=====
+    xs.append(e.0)
+    ys.append(e.1)
+  }
+</code></pre>
+<p>Also, the <code>count</code> property needs to be changed to  return <code>xs.count</code>
+instead of <code>ys.count</code>.</p>
+<p>As is often the case, a weaker invariant complicated the implementation
+and made it more fragile. Here, only two adjustments were needed, but in
+principle there could be many more.</p>
+<p>Instead of allowing the invariant to be weakened, we can adjust the
+new initializer to maintain the original invariant, thus avoiding
+downstream consequences for the rest of the implementations.  There are two simple
+approaches:</p>
+<ul>
+<li>
+<p>We can strengthen the precondition of the new <code>init</code> method,
+requiring the <code>xs</code> and <code>ys</code> arguments to have the same length:</p>
+<pre><code class="language-swift">  /// An instance with the value of `zip(xs, ys)`.
+  ///
+  /// - Precondition: `xs.count == ys.count`.
+  init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
+</code></pre>
+</li>
+<li>
+<p>Or, we can remove the precondition entirely and normalize the internal
+representation upon construction:</p>
+<pre><code class="language-swift">  /// An instance with the value of `zip(xs, ys)`.
+  init(xs: [X], ys: [Y]) {
+    (self.xs, self.ys) = (xs, ys)
+    let l = Swift.min(xs.count, ys.count)
+    self.xs.removeRange(l...)
+    self.ys.removeRange(l...)
+  }
+</code></pre>
+</li>
+</ul>
+<p>Either approach is acceptable, and ordinarily one should favor the
+stronger precondition, which restricts the valid inputs to ones that
+are obviously meaningful, and which doesn’t add potentially-costly
+normalization steps.  In this case, however, there is an existing
+operation, <code>zip</code>—which does not impose a precondition—whose semantics
+we can match and use to describe the results of our new API.  The
+normalization approach yields a more coherent system with a simpler
+contract for the new API.</p>
+<h3 id="its-documentation"><a class="header" href="#its-documentation">It’s Documentation</a></h3>
+<p>Looking back at Meyers’ definition, you might notice he says contracts
+are “precisely defined specifications,” which is just a fancy word for
+documentation. Undocumented software is
+neither correct nor incorrect; it does something, but does it do the
+<em>right</em> thing?  There’s no way to know.</p>
+<blockquote>
+<p>All undocumented software is waste. It’s a liability for a company.</p>
+<p>—Alexander Stepanov (https://youtu.be/COuHLky7E2Q?t=1773)</p>
+</blockquote>
+<p>Documentation is also essential for local reasoning.  We build atop
+libraries and a programming language, which run on an operating
+system, which runs on computer hardware, which ultimately depends on
+the laws of physics.  So what keeps us from recursing, non-locally,
+down to the limits of known physics when we think about how a program
+works?</p>
+<h4 id="building-a-tower-of-abstraction"><a class="header" href="#building-a-tower-of-abstraction">Building a Tower of Abstraction</a></h4>
+<p>The answer is documentation.  We can use libraries and our programming
+language without digging into their implementations because they are
+documented. Compiler engineers can do their jobs because the hardware
+manufacturers document the architecture and instruction sets. Hardware
+designers succeed because physicists document the laws of physics.
+That’s the tower we’re building.  Each layer of documentation defines
+an abstraction boundary that eliminates the need to research an
+implementation when reasoning about code. Without it, quality software
+development at scale becomes infeasible.</p>
+<p>The catch is that the code you are writing is almost never at the top
+of the tower.  Someone else, or future-you, is going to have to build
+on the code you’re writing. Thus, there’s no difference between public
+and private interfaces where documentation is concerned.  Every
+component is API to somebody, so when we say “API” we mean any
+interface boundary in the codebase, however internal.</p>
+<h4 id="contract-checking-features"><a class="header" href="#contract-checking-features">Contract Checking Features</a></h4>
+<p>You may have heard that some languages have features to support “Design
+by Contract.”  In general, that means you can write <em>parts</em> of your
+contracts as code, and get some checking at runtime to make sure these
+contracts are upheld. <sup class="footnote-reference" id="fr-compile_time_checks-1"><a href="#footnote-compile_time_checks">4</a></sup></p>
+<pre><code class="language-swift">struct MyArray&lt;T&gt; {
+  ...
+
+  // Returns the `i`th element.
+  @requires(i &gt;= 0 &amp;&amp; i &lt; self.count)
+  fun getNth(i: Integer): T
+
+  ...
+}
+</code></pre>
+<p>The idea started with Bertrand Meyer’s own Eiffel language, and was
+picked up by many others, including D, Scala, Kotlin, and
+Clojure. Other languages, like Rust and Python, have contract
+libraries that provide a near-native contract programming experience.</p>
+<p>If you use one of these languages, fantastic; <em>absolutely do</em> leverage
+those features and libraries.  That can reduce the amount of pure
+documentation you need to write and add automated contract checking at
+runtime. But there are caveats:</p>
+<ol>
+<li>
+<p><strong>Contracts are fundamentally documentation</strong>, even if they’re
+expressed in code, so they must appear in the API descriptions
+consumed by client programmers. If you’re using contract checking
+with automated documentation extraction tools make sure they expose
+the contract code along with the API.  If not, you need to repeat
+the complete contract in documentation.</p>
+</li>
+<li>
+<p>Some contracts are better expressed in human language than as code,</p>
+</li>
+<li>
+<p>Some contracts are impossible to express as code, or impossible to
+express efficiently.  We’ll see an example in a moment.</p>
+</li>
+</ol>
+<p>We’ll discuss contract checking as a separate topic in the next
+chapter.</p>
+<h4 id="document-everything"><a class="header" href="#document-everything">Document Everything</a></h4>
+<p>So <strong>every declaration needs to be documented</strong>. We realize that’s not
+standard industry practice, and to many people it sounds like a huge
+burden!  Read on, though, and we’ll show you how it can be done both
+thoroughly <em>and economically</em>.  To see that it’s possible, look again
+at the documentation shown for <code>PairArray</code>.  It tells you everything
+you need to know to use or test each declared element, but is not
+burdensome to write.</p>
+<p>Comprehensively documenting your declarations is not only practical
+and necessary, but it has <em>benefits</em> beyond correctness and local
+reasoning: it helps you improve your APIs and can even increase overall
+development speed. But you’ll only see those benefits if you document <em>as
+you code</em>. If documentation is an afterthought, it can only ever be
+experienced as overhead.</p>
+<p>If you take this discipline seriously, you’ll begin to notice that the
+poorly designed or named components haven’t been documented clearly
+and concisely.  Sometimes that documentation is obviously unachievable
+because the design simply has too many wrinkles.  In other cases
+you’ll find the design can be salvaged by driving it towards a simpler
+contract. Improvements in development speed come from arriving at the
+right design earlier, since a poor experience for readers of your
+documentation becomes a “code smell.”</p>
+<h4 id="use-documentation-comments"><a class="header" href="#use-documentation-comments">Use Documentation Comments</a></h4>
+<p>Contract documentation should always go in your code as comments,
+because:</p>
+<ol>
+<li>
+<p>That puts the two things that should correspond—documentation and
+implementation—next to one another, so you can see when they don’t
+match up. People sometimes complain that docs go out of date, but
+that’s exactly the point: without the ability to see that
+inconsistency, there’s no way to know that there’s a bug.</p>
+</li>
+<li>
+<p>Using comments makes it reasonable to combine the activities of
+coding and documentation, which are mutually
+supportive.</p>
+</li>
+<li>
+<p>IDEs and documentation extractors recognize special <code>///</code> comment
+syntax to provide an improved developer experience. Using the
+recognized syntax opens the door to other forms of processing in
+the future.</p>
+</li>
+</ol>
+<h4 id="on-code-review"><a class="header" href="#on-code-review">On Code Review</a></h4>
+<p>Contracts also deserve early attention in code reviews.  The <em>first
+step</em> should be to review the APIs: all declarations (e.g. function
+signatures) and their associated contracts.  A change that omits
+documentation for any declaration should be sent back for revision,
+because there’s no way to make a judgement about that component’s
+correctness.</p>
+<p>Then, if the APIs aren’t <em>well</em>-documented (and designed), there’s
+little point in looking at their implementations.  Remember, APIs are
+the connective tissue; they’re what every client of a component
+interacts with, and will have effects throughout the codebase.<br>A deficient implementation can only do local damage, but a deficient
+contract or design can cause unbounded technical debt.</p>
+<h3 id="a-tower-of-invariants"><a class="header" href="#a-tower-of-invariants">A Tower of Invariants</a></h3>
+<p>The tower of abstraction mentioned earlier comes with a tower of
+invariants.  The invariants of <code>PairArray</code> are built on—and depend
+on—the invariants of the individual arrays. We can embed <code>PairArray</code>
+into some larger data structure with its own invariant, which will
+depend on those of <code>PairArray</code>.</p>
+<p>In fact, you can think of the entire state of your program as one big
+data structure with its own invariants, and formalize what it means
+for the program to “be in a good state” that way.  For example, you
+might have a database of employees, each of which has its own ID, and
+which also stores the ID of the employee’s manager (the CEO gets to be
+their own manager).</p>
+<p>It’s an invariant of your program that a manager ID can’t just be
+random; it has to identify an employee that’s in the database—that’s
+part of what it means for the program to be in a good state, and all
+through the program you have code to ensure that invariant is upheld.</p>
+<h4 id="encapsulating-invariants"><a class="header" href="#encapsulating-invariants">Encapsulating invariants</a></h4>
+<p>It would be a good idea to identify and document that whole-program
+invariant in some central location, so maintainers will know to uphold it, and that they
+can rely on it.  An even better idea, though, is to <em>encapsulate</em> the invariant in a type,
+and document <em>that</em>.  So instead of using an <code>SQLDatabase</code> type
+directly, you could create an <code>EmployeeDatabase</code> type with a private
+<code>SQLDatabase</code>, whose public API always upholds that invariant.  Now
+you can remove the invariant-upholding logic from the rest of your
+code.  This is one of the most powerful code transformations you can
+make.</p>
+<pre><code class="language-swift">/// The employees of a company.
+///
+/// Invariant: every employee has a manager in the database.
+struct EmployeeDatabase {
+  /// The raw storage.
+  private var storage: SQLDatabase;
+
+  /// Adds a new employee named `name` with manager `m`, returning the
+  /// new employee's ID.
+  ///
+  /// - Precondition: `m` identifies an employee.
+  public addEmployee(_ name: String, managedBy m: EmployeeID) -&gt; EmployeeID
+
+  /// Removes the employee identified by `e`.
+  ///
+  /// - Precondition: `e` identifies an employee who is not the
+  ///   manager of any other employee.
+  public remove(_ e: EmployeeID)
+
+  ...
+}
+</code></pre>
+<p>Upholding invariants is the <em>entire purpose</em> of access control, so use
+<code>private</code> whenever you can!</p>
+<h4 id="the-power-of-type-information"><a class="header" href="#the-power-of-type-information">The Power of Type Information</a></h4>
+<p>Everything you see in a function signature is implicitly part of the
+function’s contract. A function with a parameter of type
+<code>EmployeeDatabase</code> has a precondition that the database upholds the
+manager invariant, but it doesn’t need to be stated explicitly; it’s
+enforced automatically by the compiler and the implementer of
+<code>EmployeeDatabase</code>.  So static typing gives you a leg up on the
+“document everything” project. If you were programming in a totally
+dynamic language, like Javascript, or Python without type hints, you
+have to put a lot more of that sort of information into the written
+documentation.</p>
+<h4 id="public-and-private-invariants"><a class="header" href="#public-and-private-invariants">Public And Private Invariants</a></h4>
+<p>Some invariants, such as the one documented for <code>EmployeeDatabase</code>
+above, are exposed to users of the type, and thus should be in public
+doc comments.  Others, like the invariant that the members of
+<code>PairArray</code> have the same length, are purely part of its
+implementation, and should be encoded in ordinary comments addressed
+privately to the maintainer of the code.  Note that you
+can have both: <code>PairArray</code> <em>also</em> has a public invariant that its
+<code>count</code> is non-negative.  We’ll get to why this particular invariant
+is not explicitly documented in a moment…</p>
+<h3 id="making-it-tractable"><a class="header" href="#making-it-tractable">Making It Tractable</a></h3>
+<p>If we’re going to integrate documentation into our programming so
+tightly, we need to make sure it’s neither intrusive for the
+maintainer to read nor burdensome for the author to write.  Ideally,
+it should help both of them.</p>
+<p>Now, not every contract is as simple as the ones we’ve shown so far,
+but simplicity is a goal.  In fact, if you can’t write a terse,
+simple, but <em>complete</em> contract for a component, there’s a good chance
+it’s badly designed.  A classic example is the C library <code>realloc</code>
+function, which does at least three different things—allocate, deallocate, and resize
+dynamic memory—all of which
+need to be described. A better design would have separated these
+functions.  So simple contracts are both easy to digest and easy to
+write.</p>
+<p>Let’s look at another example. The methodology we’ll be following here is based on the <a href="https://www.swift.org/documentation/api-design-guidelines/">Swift API
+Design
+Guidelines</a>,
+only slightly modified.</p>
+<pre><code class="language-swift">/// A resizable random-access `Collection` of `T`s.
+struct DynamicArray&lt;T&gt; {
+
+  /// Removes and returns the last element.
+  public mutating func popLast() -&gt; T { ... }
+
+  /// The `i`th element.
+  public subscript(i: Int) -&gt; T { ... }
+
+  /// The length.
+  public var length: Int { ... }
+    .
+    .
+    .
+
+  /// The number of elements that can be stored before storage is
+  /// reallocated.
+  private var capacity: Int { ... }
+}
+</code></pre>
+<h4 id="basics"><a class="header" href="#basics">Basics</a></h4>
+<p>We’ve started by filling in the most basic part of every documentation
+comment: a summary sentence fragment that minimally describes what the
+thing <em>is</em> or <em>does</em>.</p>
+<p>The first one</p>
+<pre><code class="language-swift">/// A resizable random-access `Collection` of `T`s.
+struct DynamicArray&lt;T&gt;
+</code></pre>
+<p>gives us the context we need to understand the methods: we’re looking
+at the declaration of dynamic array type that holds any number of Ts.</p>
+<p>Now let’s look at the documentation for the first method, called
+“popLast.”</p>
+<pre><code class="language-swift">  /// Removes and returns the last element.
+  public mutating func popLast() -&gt; T { ... }
+</code></pre>
+<p>As you can see from the summary, it removes and returns the last
+element. Notice that the phrase “last element” is meaningful only
+because we documented that <code>DynamicArray</code> is a <code>Collection</code>, i.e.
+a <code>Sequence</code> of elements that supports multiple iteration passes.</p>
+<p>The summary for a method should tell us what the method returns, and
+what its other effects are, if any.  This method is a little unusual
+in that it both mutates the array and returns a result, which means
+you need to decide what to emphasize in the summary: the removal or
+the returned value.  Here we’ve emphasized the mutation, which is
+normally what you want. That emphasis is reflected by the name, which
+describes the mutation rather than the return value.</p>
+<p>You’d generally only emphasize the return value if the mutation
+is something incidental that doesn’t affect the program’s meaning,
+like updating a cache.</p>
+<p>Notice also that we’ve omitted needless words: we didn’t write, “the
+last element of the <code>DynamicArray</code>,” because the type sets the context
+for its methods.  Remember, every word the reader has to process takes
+mental energy and contributes to perceived complexity.  We use all the
+necessary words, but no more than necessary.</p>
+<h4 id="details"><a class="header" href="#details">Details</a></h4>
+<p>Let’s continue by spelling out the preconditions, postconditions,
+and invariants of <code>popLast()</code>.</p>
+<p>What are the preconditions for removing an element?  Obviously, there
+needs to be an element to remove.</p>
+<pre><code class="language-swift">  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+  public mutating func popLast() -&gt; T { ... }
+</code></pre>
+<p>A client of this method is considered to have a bug unless
+the array has an element.  OK, so what about postconditions?</p>
+<p>The postconditions are the effects of the method plus any returned
+result.  If the preconditions are met, but the postconditions are not,
+and the function does not report an error, we’d say the method has a
+bug.  The bug could be in the documentation of course, <em>which is a
+part of the method</em>.</p>
+<pre><code class="language-swift">  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+  /// - Postcondition: The length is one less than before
+  ///   the call. Returns the original last element.
+ public mutating func popLast() -&gt; T { ... }
+</code></pre>
+<p>The invariant of this function is the rest of the elements, which are
+unchanged:</p>
+<pre><code class="language-swift">  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+  /// - Postcondition: The length is one less than before
+  ///   the call. Returns the original last element.
+  /// - Invariant: the values of the remaining elements.
+ public mutating func popLast() -&gt; T { ... }
+</code></pre>
+<p>Now, if the postcondition seems a bit glaringly redundant with the
+summary, that should be no surprise.  The summary of a method should
+describe what the method does, and what it should return.  That’s
+the postcondition.</p>
+<p>In fact, it’s <em>very rare</em> that a postcondition will need to be
+separately documented.  The only reason you might write it out is if
+there’s some aspect of the postcondition you can’t easily capture in
+the summary (and remember, the postcondition that can’t be fully
+described in the summary is a “code smell”, thus these cases are
+rare).</p>
+<p>Therefore we can erase the separate statement of postconditions.  That
+said, you should always ask yourself how you’d state the
+postconditions and making sure they’re completely captured by the
+summary before you omit them.  Considering the postcondition is part
+of the process that makes the summary complete.</p>
+<p>And since we know everything the method does is captured in the summary,
+we can assume everything else in the program is unchanged, so the
+invariant is also trivially implied.  And that is also very commonly
+omitted.</p>
+<pre><code class="language-swift">  /// Removes and returns the last element.
+  ///
+  /// - Precondition: `self` is non-empty.
+ public mutating func popLast() -&gt; T { ... }
+</code></pre>
+<p>In fact, the precondition is implied by the summary too.  You
+can’t remove and return the last element if there’s no last element,
+right?</p>
+<p>Whether or not to omit an implied precondition may be a slightly
+different judgement from the others, because it’s information every
+client needs in order to use the function correctly. We recommend
+omitting explicit documentation of any implied precondition unless
+it’s quite subtle.  With that policy, a client must assume that
+anything required for the summary to make sense is a precondition.  In
+this case it’s not subtle that having a last element is required if
+you are going to remove the last element, so the original declaration
+should be sufficient:</p>
+<pre><code class="language-swift">  /// Removes and returns the last element.
+ public mutating func popLast() -&gt; T { ... }
+</code></pre>
+<p>In practice, once you are comfortable with this discipline, the
+thought process behind writing this documentation is straightforward;
+it need not take more than a few seconds:</p>
+<ul>
+<li>Write a summary.</li>
+<li>If it doesn’t completely describe the postconditions
+<ol>
+<li>Try to make it do so, or if that is just too awkward,</li>
+<li>add a postcondition clause.</li>
+</ol>
+</li>
+<li>If there are any preconditions not straightforwardly implied by the
+summary, add a precondition clause.</li>
+</ul>
+<h3 id="a-more-complicated-example"><a class="header" href="#a-more-complicated-example">A More Complicated Example</a></h3>
+<p>Let’s take a look at a traditional sorting algorithm.</p>
+<pre><code class="language-swift">extension DynamicArray {
+  /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
+  /// self[i])` is false for each `i` in `0 ..&lt; length - 2`.
+  ///
+  /// - Precondition: `areInIncreasingOrder` is a strict weak ordering
+  ///   over the elements of `self`.
+  /// - Complexity: at most N log N calls to `areInIncreasingOrder`, where N is
+  ///   the number of elements.
+  mutating func sort&lt;T&gt;(areInIncreasingOrder: (T, T)-&gt;Bool) { ... }
+}
+
+var a = [7, 9, 2, 7]
+a.sort(areInIncreasingOrder: &lt;)
+print(a)     // prints [2, 7, 7, 9]
+</code></pre>
+<p>This method sorts the elements according to some comparison predicate
+<code>areInIncreasingOrder</code>.  So if we pass it the less-than operator,
+which is true when the first argument is less than the second, we get
+the elements arranged from least to greatest. The contract gives an
+explicit precondition that isn’t implied by the summary: it requires
+that the predicate be a strict weak ordering.</p>
+<p><em>Some</em> precondition on the predicate is needed just to make the result
+a meaningful sort with respect to the predicate.  For example, a
+totally unconstrained predicate could return random boolean values,
+and there’s no reasonable sense in which the function could be said to
+leave the elements sorted with respect to that.  Therefore the
+predicate at least has to be stable. To leave elements meaningfully
+sorted, the predicate has to be <em>transitive</em>: if it is <code>true</code> for
+elements (<em>i</em>, <em>j</em>), it must also be true for elements (<em>i</em>, <em>j</em>+1).
+A strict weak ordering has both of these properties, among others.</p>
+<p>Note that the performance of this method is documented.  Time and
+space complexity have to be part of the contract if you want your
+clients to be able to reason locally about the performance of their
+own code.  In fact, we can view the performance contract of the
+function as part of its postconditions, which brings all the
+function’s guarantees under one name: its postconditions.</p>
+<p>The strict weak ordering requirement is a great example of a
+precondition that can’t be efficiently checked.  To do so would
+require at least <em>N</em>² comparisons, where <em>N</em> is the number of
+elements, which would violate the complexity bound of the algorithm.</p>
+<p>The summary gives the postcondition that no two adjacent elements are
+out-of-order according to the predicate.  The contract is perfectly
+correct, but it’s awkward and complex.  To deal with the case where
+elements are equal, the postcondition has to compare adjacent elements
+in reverse order and negate the predicate. If we had just written:</p>
+<pre><code class="language-swift">  /// Sorts the elements so that `areInIncreasingOrder(self[i],
+  /// self[i+1])` is true for each `i` in `0 ..&lt; length - 2`.
+</code></pre>
+<p>Our example result <code>[2, 7, 7, 9]</code> would fail to satisfy the
+postcondition because of the adjacent <code>7</code>s.</p>
+<p>The term “strict weak ordering,” which is not very well-known or
+understood, is another source of complexity. In fact we should
+probably put a link in the documentation to a definition.</p>
+<pre><code class="language-swift">/// - Precondition: `areInIncreasingOrder` is [a strict weak
+///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
+///   over the elements of `self`.
+</code></pre>
+<p>We don’t normally add examples to our documentation—it makes
+documenting more laborious and can actually distract from the
+essential information—but because the statement of effects is tricky,
+this is a case where an example might really help.</p>
+<pre><code class="language-swift">  /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
+  /// self[i])` is false for each `i` in `0 ..&lt; length - 2`.
+  ///
+  ///     var a = [7, 9, 2, 7]
+  ///     a.sort(areInIncreasingOrder: &lt;)
+  ///     print(a)     // prints [2, 7, 7, 9]
+  ///
+  /// - Precondition: `areInIncreasingOrder` is [a strict weak
+  ///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
+  ///   over the elements of `self`.
+  /// - Complexity: at most N log N comparisons, where N is the number
+  ///   of elements.
+  mutating func sort&lt;T&gt;(areInIncreasingOrder: (T, T)-&gt;Bool) { ... }
+</code></pre>
+<h4 id="letting-simplicity-drive-design"><a class="header" href="#letting-simplicity-drive-design">Letting Simplicity Drive Design</a></h4>
+<p>Let’s take the complexity of the documentation as a hint that the API
+could be improved and see where that leads.  If <code>sort</code> had been
+written to work with <code>&lt;=</code> as an argument, producing the same result,
+the summary could have avoided swapping elements in the comparison and
+negating the result:</p>
+<pre><code class="language-swift">/// Sorts the elements so that `areInOrder(self[i],
+/// self[i+1])` is true for each `i` in `0 ..&lt; length - 2`.
+</code></pre>
+<p>If we view a strict weak ordering as a generalization of what <code>&lt;</code> does, the
+corresponding generalization of <code>&lt;=</code> is called a <em>total preorder</em>. <sup class="footnote-reference" id="fr-equivalence-classes-1"><a href="#footnote-equivalence-classes">5</a></sup> In fact,
+we can convert any total preorder to a corresponding strict weak order
+(and vice-versa), with this function.</p>
+<pre><code class="language-swift">/// Returns the converse of `f`'s complement, `g(x, y) := !f(y, x)`.
+func converseOfComplement&lt;T&gt;(_ f: @escaping (T, T)-&gt;Bool)
+  -&gt; (T, T)-&gt;Bool
+{
+  { x, y in !f(y, x) }
+}
+</code></pre>
+<p>Therefore, if we have a sorting implementation that works with any
+strict weak order, we can easily convert it to work with any total
+preorder by passing the predicate through <code>converseOfComplement</code>.</p>
+<p>Note that the name of the predicate became simpler: it no longer tests
+that its arguments represent an <em>increase</em>.  Instead, it tells us
+whether the order is correct.  Because the summary is no longer
+tricky, we can drop the example, and we’re left with this:</p>
+<pre><code class="language-swift">/// Sorts the elements so that `areInOrder(self[i],
+/// self[i+1])` is true for each `i` in `0 ..&lt; length - 2`.
+///
+/// - Precondition: `areInOrder` is a [total
+///   preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+///   over the elements of `self`.
+/// - Complexity: at most N log N comparisons, where N is the number
+///   of elements.
+mutating func sort&lt;T&gt;(areInOrder: (T, T)-&gt;Bool) { ... }
+</code></pre>
+<p>But we can go further and use a much simpler and more natural summary:</p>
+<pre><code class="language-swift">/// Sorts the elements so that all adjacent pairs satisfy
+/// `areInOrder`.
+</code></pre>
+<p>Usually, the less our documentation looks like code (without
+sacrificing precision), the greater its power as a tool for
+understanding programs, writing tests, and verifying
+correctness. <sup class="footnote-reference" id="fr-argument-order-1"><a href="#footnote-argument-order">6</a></sup>.</p>
+<p>There are two further simplifications we can make to the
+precondition. First, everything in documentation of a method happens
+in the context of <code>self</code>, so we can drop “of <code>self</code>.”  This
+improvement was available to us all along, and may seem trivial, but
+the value of <a href="https://thewritinghabit.blog/2016/04/04/omit-needless-words/">omitting needless
+words</a>
+adds up over lots of function definitions. It lowers the burden of
+writing documentation, and makes it much easier to read. Remember,
+every word a reader has to process has a cognitive cost in addition to
+whatever benefits it may provide, so each one should more than pay for
+itself.</p>
+<p>Secondly, the summary has become so simple that we can embed the
+precondition there without overly complicating it, making the final
+declaration:</p>
+<pre><code class="language-swift">/// Sorts the elements so that all adjacent pairs satisfy the [total
+/// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+/// `areInOrder`.
+///
+/// - Complexity: at most N log N comparisons, where N is the number
+///   of elements.
+mutating func sort&lt;T&gt;(areInOrder: (T, T)-&gt;Bool) { ... }
+</code></pre>
+<p>There is one factor we haven’t considered in making these changes:
+sorting functions taking strict weak orderings are traditional. One
+has to weigh the risk that a user reflexively writes <code>sort(areInOrder: &lt;)</code> against the value of these simplifications.  The argument label
+helps a bit, because <em>if</em> you happen to consider the equal elements
+case, you will see they clearly “<code>areInOrder</code>” and will realize <code>&lt;</code>
+returns false for equal elements.  But if you don’t happen to consider
+that case, you won’t get the sort you expected… sometimes.  Whether to
+break with precedent in order to get a simpler API with a clearer
+contract is an engineering decision you will have to make. To reduce
+the risk you could add this assertion<sup class="footnote-reference" id="fr-checks-1"><a href="#footnote-checks">7</a></sup>, which will stop the program if
+the ordering is strict-weak:</p>
+<pre><code>precondition(
+  self.isEmpty || areInOrder(first!, first!),
+  "Total preorder required; did you pass a strict-weak ordering?")
+</code></pre>
+<h3 id="the-moral-of-the-story"><a class="header" href="#the-moral-of-the-story">The Moral of the Story</a></h3>
+<p>The dramatic cascade of API improvements we saw with the <code>sort</code>
+example was a direct consequence of writing and evaluating the
+contract. It’s easy—and quite common—to put off writing documentation,
+but the transformations we saw here are only possible if documenting
+contracts is treated not as an afterthought, but as a fundamental part
+of the API design process.</p>
+<h2 id="project-wide-documentation-policies"><a class="header" href="#project-wide-documentation-policies">Project-Wide Documentation Policies</a></h2>
+<p>The reason you haven’t seen complexity documented in examples before
+<code>sort</code> is that we have a policy that operations have constant
+complexity unless specifically documented otherwise.  Making “document
+everything” practical depends on having some well-chosen project-wide
+policies that save you from repeating common patterns.</p>
+<p>Your project’s choice of policy can make the difference between
+documentation being useful and being burdensome or inconsistent (at
+which point people will just stop reading and writing it).  Even more
+than your choice of policies, it’s important above all that you <em>have</em>
+policies written down where maintainers can refer to them.</p>
+<p>For example,</p>
+<blockquote>
+<ul>
+<li>
+<p>Every declaration outside a function body must have a documentation
+comment that describes its contract.</p>
+<ul>
+<li>
+<p>Start with a summary sentence fragment.</p>
+<ul>
+<li>Describe what a function or method does and what it returns.</li>
+<li>Describe what a property or type is.</li>
+<li>Separate the fragment from any additional documentation with a
+blank line and end it with a period.</li>
+</ul>
+</li>
+<li>
+<p>Preconditions, postconditions and invariants obviously implied
+by the summary need not be explicitly documented.</p>
+</li>
+<li>
+<p>Declarations that fulfill protocol requirements are exempted when
+nothing useful can be added to the documentation of the protocol
+requirement itself.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Document the performance of every operation that doesn’t execute in
+constant time and space.</p>
+</li>
+</ul>
+</blockquote>
+<p>It is reasonable to put information in the policies without which the
+project’s other documentation would be incomplete or confusing, but
+you should be aware that it implies policies <em>must be read</em>. We
+recommend embedding these policies in your project’s coding standard
+document, near the top where it is less likely to be treated as an
+afterthought.</p>
+<h2 id="code-and-contract-evolution"><a class="header" href="#code-and-contract-evolution">Code and Contract Evolution</a></h2>
+<p>One of the most powerful features of contracts is that they allow us
+to replace the <em>implementation</em> of a function without breaking its
+correct clients.  As long as the new implementation fulfills the
+postconditions, and relies on nothing more than the preconditions,
+those clients will continue to function as before. Again, this is
+local reasoning in action: we can reason about changes to a given
+function without going on a journey to inspect all of its callers.</p>
+<p>But suppose you want to change a function’s contract? The
+correctness-preserving changes are those that weaken the function’s
+preconditions and/or strengthen its postconditions.  For example, this
+method returns the number of steps from the start of a collection to
+an occurrence of some value.</p>
+<pre><code class="language-swift">extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and an occurrence
+  /// of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -&gt; Int {...}
+}
+</code></pre>
+<p>Suppose we weaken the postcondition?</p>
+<pre><code class="language-swift">extension Collection where Element: Equatable {
+  /// Returns a value less than or equal to the number elements
+  /// between the start and an occurrence of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -&gt; Int {...}
+}
+</code></pre>
+<p>Before the change, clients had a right to expect this assertion to
+pass:</p>
+<pre><code class="language-swift">assert(
+  c[c.index(c.startIndex, offsetBy: c.offsetFromStart(x))] == 'x`)
+</code></pre>
+<p>but with the new contract a correct implementation of the method could
+be <code>{ return 0 }</code>, and that assertion would surely fail for many valid
+inputs to the function, e.g. <code>[1, 2, 3].offsetFromStart(3)</code></p>
+<p>Strengthening the precondition has a similar effect:</p>
+<pre><code class="language-swift">extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and an occurrence
+  /// of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x` and `x` != `first`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -&gt; Int {...}
+}
+</code></pre>
+<p>After that change, the following line of code has developed a new bug!</p>
+<pre><code class="language-swift">let i = [1, 2, 3].offsetFromStart(1) // 1 == [1, 2, 3].first
+</code></pre>
+<p>The ability to (non-locally!) break all the clients of a function
+means we must be extraordinarily careful to follow the rules when
+evolving a contract.  Now let’s see how that plays out.</p>
+<p>Strengthening the postcondition might look like this:</p>
+<pre><code class="language-swift">extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and the first
+  /// occurrence of the value `x`.
+  ///
+  /// - Precondition: `self` contains `x`.
+  /// - Complexity: at most N comparisons, where N is the number
+  ///   of elements.
+  func offsetFromStart(_ x: Element) -&gt; Int {...}
+}
+</code></pre>
+<p>We now guarantee we’ll find the first occurrence of <code>x</code>, rather than
+just any occurrence. Since clients had no right to expect anything
+<em>other</em> than the first occurrence, no clients can be broken by this
+change.</p>
+<p>From there, let’s weaken the precondition by simply removing it:</p>
+<pre><code class="language-swift">extension Collection where Element: Equatable {
+  /// Returns the number elements between the start and the first
+  /// occurrence of the value `x`, or `count` if `x` is not found.
+  func offsetFromStart(_ x: Element) -&gt; Int {...}
+}
+</code></pre>
+<p>If you read carefully, this might appear to also be a weakening of the
+postcondition.  After all, before the change, clients had a right to
+expect never to get <code>count</code> as a result.  However, that new
+possibility only occurs in cases that were disallowed before the
+change.  Clients that were correct before the change had to ensure
+that <code>x</code> was contained in the collection, and those clients cannot
+observe a result of <code>count</code> unless they adjust their code to take
+advantage of the weakened precondition.</p>
+<p>Remember that performance guarantees are part of a function’s
+postconditions: without breaking client code, they can be strengthened
+to promise more efficiency, but never weakened.</p>
+<h2 id="polymorphism-and-higher-order-functions"><a class="header" href="#polymorphism-and-higher-order-functions">Polymorphism and Higher-Order Functions</a></h2>
+<p>Similar rules apply to the contracts for protocol conformances: a
+method satisfying a protocol requirement can have weaker preconditions
+and/or stronger postconditions than required by the protocol:</p>
+<p>Here, the conformance strengthens the performance guarantee given by
+the protocol requirement:</p>
+<pre><code class="language-swift">protocol Searchable: Collection {
+  /// Returns the first position where `x` occurs.
+  ///
+  /// - Complexity: at most `count` comparisons and index adjustment
+  ///   calls.
+  func index(of x: Element) -&gt; Index
+}
+
+extension SortedArray: Searchable {
+  /// Returns the first position where `x` occurs.
+  ///
+  /// - Complexity: at most log2(`count`) comparisons and index
+  ///   adjustment calls.
+  func index(of x: Element) -&gt; Index
+}
+</code></pre>
+<p>Function parameters of function type act similarly: a function or
+closure passed as an argument can have weaker preconditions and/or
+stronger guarantees than those specified by the callee.  Take this
+function for instance:</p>
+<pre><code class="language-swift">extension Collection {
+  /// Returns a mapping from `bucket(x)` for all elements `x`, to the
+  /// set of elements `y` such that `bucket(y) == bucket(x)`.
+  ///
+  /// - Precondition: `bucket(x)` is non-negative for all elements `x`.
+  func bucketed(per bucket: (Element)-&gt;Int) -&gt; [Int: Set&lt;Element&gt;]
+  { ... }
+}
+</code></pre>
+<p>There’s a requirement<sup class="footnote-reference" id="fr-stated-as-1"><a href="#footnote-stated-as">8</a></sup> on the postcondition of <code>bucket</code>: it
+must return only numbers greater than -1.  This call passes a function
+that returns only 0 or 1; a strictly stronger postcondition:</p>
+<pre><code class="language-swift">(0..&lt;10).bucketed { $0 % 2 }
+</code></pre>
+<p>That call is clearly fine.  This one, however, passes a function whose
+postcondition is neither identical nor strictly stronger.  That
+violates the requirements of <code>bucketed</code>:</p>
+<pre><code class="language-swift">(0..&lt;10).bucketed { $0 - 2 }
+</code></pre>
+<h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
+<p>Programming by contract establishes a framework for understanding
+correctness, for knowing what to test, for reasoning locally about
+program semantics, for distributing work across programmers, for
+evolving existing code, and even for evaluating API quality.  It is a
+practical discipline built on the kind of informal reasoning every
+programmer applies daily.</p>
+<p>By treating contract documentation as essential infrastructure—the
+connective tissue of our software—and making it part of the design
+process, we can write Better Code the first time around, and build
+programs efficiently, at scale.</p>
+<p>As you apply these ideas in your own work, remember that like any
+powerful tool, contracts require practice to master. Start small:
+document all new declarations, think explicitly about preconditions
+and postconditions, and design your types to maintain clear
+invariants. Existing components with insufficient contract
+documentation create a cycle of repeated reverse-engineering.  When
+you discover how these components work, instead of throwing that work
+away, capture it in new documentation.  As these practices become
+natural, you’ll find yourself writing not just better code, but
+thinking more clearly about the problems you’re solving.</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-no-promises">
+<p>In fact, a function <em>shouldn’t</em> make any promises in
+case of precondition violation, because then the caller has a right
+to call the function and expect the promised result: it’s no longer
+a precondition violation.  There is one exception, especially in a
+safe-by-default language like Swift: all functions not explicitly
+labeled unsafe implicitly promise not to have arbitrary “undefined
+behavior” when their preconditions are violated.  But that’s a
+blanket guarantee that you don’t spell out in contracts. <a href="#fr-no-promises-1">↩</a></p>
+</li>
+<li id="footnote-array-pairs">
+<p>You might want to use a type like this one to store
+<code>(Bool, Int64)</code> pairs without wasting storage for padding, or to
+leverage SIMD operations. <a href="#fr-array-pairs-1">↩</a></p>
+</li>
+<li id="footnote-weaken">
+<p>If we removed the precondition on this initializer, without
+changing its implementation, the invariant would become empty, or
+<code>true</code>, which is the weakest possible invariant: it allows the
+lengths of <code>xs</code> and <code>ys</code> to be completely unrelated. <a href="#fr-weaken-1">↩</a></p>
+</li>
+<li id="footnote-compile_time_checks">
+<p>Languages exist that check contracts at
+compile time, such as Dafny and Lean 4, but we do not think they are
+practical tools for programming at scale. <a href="#fr-compile_time_checks-1">↩</a></p>
+</li>
+<li id="footnote-equivalence-classes">
+<p>The generalization allows unequal elements to
+be given the same ”rank“ in the ordering.  For example, if you sort
+integers by their absolute values, 2 and -2 will be ranked the same. <a href="#fr-equivalence-classes-1">↩</a></p>
+</li>
+<li id="footnote-argument-order">
+<p>One could argue that to not lose precision, the
+documentation needs to say in which order the adjacent elements
+are passed to <code>areInOrder</code>. Judgement calls are part of
+engineering, and in our judgement the order of arguments is
+implied. <a href="#fr-argument-order-1">↩</a></p>
+</li>
+<li id="footnote-checks">
+<p>See the next chapter for more on checking contracts at
+runtime. <a href="#fr-checks-1">↩</a></p>
+</li>
+<li id="footnote-stated-as">
+<p>The requirement is, as usual for function requirements,
+stated as a precondition. We avoid using the word “precondition”
+here to make it clearer that we’re discussing the contract
+required of the function’s <em>parameter</em>, <code>bucket</code>. <a href="#fr-stated-as-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+
+    </div>
+    </body>
+</html>

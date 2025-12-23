@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PR Previews - Better Code</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: 50px auto; padding: 20px; }
+    h1 { color: #333; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Pull Request Previews</h1>
+  <p><a href="../">← Back to main documentation</a></p>
+  <p>Preview deployments for pull requests:</p>
+  <ul id="previews"></ul>
+  <script>
+    // List all PR preview directories
+    fetch('.')
+      .then(r => r.text())
+      .then(text => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const links = Array.from(doc.querySelectorAll('a'))
+          .map(a => a.getAttribute('href'))
+          .filter(href => href && /^\d+\/$/.test(href))
+          .sort((a, b) => parseInt(b) - parseInt(a));
+        
+        const list = document.getElementById('previews');
+        if (links.length === 0) {
+          list.innerHTML = '<li>No active PR previews</li>';
+        } else {
+          links.forEach(link => {
+            const pr = link.replace('/', '');
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${link}">PR #${pr} Preview</a>`;
+            list.appendChild(li);
+          });
+        }
+      });
+  </script>
+</body>
+</html>
