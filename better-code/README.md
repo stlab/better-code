@@ -19,9 +19,22 @@ Download the installer from [here](https://win.rustup.rs/).
 ### Install mdBook
 
 ```bash
-cargo install mdbook@0.4.48
-cargo install mdbook-katex
+cargo install mdbook
 ```
+
+**Install mdbook-katex (for LaTeX math rendering):**
+
+Linux and macOS:
+```bash
+cargo install mdbook-katex --version 0.10.0-alpha
+```
+
+Windows:
+```bash
+cargo install mdbook-katex --version 0.10.0-alpha --no-default-features --features duktape
+```
+
+Note: On Windows, we use the `duktape` feature instead of the default `quick-js` backend because quick-js doesn't compile on Windows.
 
 ### Building and Serving the Book
 

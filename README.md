@@ -25,11 +25,22 @@ On Windows, you can download the installer from
 Once you have Rust and Cargo installed, you can install or upgrade mdBook by running:
 
 ```bash
-cargo install mdbook@0.4.48
-cargo install mdbook-katex
+cargo install mdbook
 ```
 
-The version is currentlypinned to 0.4.48 because that is the version supported by katex
+**Install mdbook-katex (for LaTeX math rendering):**
+
+Linux and macOS:
+```bash
+cargo install mdbook-katex --version 0.10.0-alpha
+```
+
+Windows:
+```bash
+cargo install mdbook-katex --version 0.10.0-alpha --no-default-features --features duktape
+```
+
+Note: On Windows, we use the `duktape` feature instead of the default `quick-js` backend because quick-js doesn't compile on Windows.
 
 ## Building the book
 

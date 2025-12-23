@@ -1,7 +1,6 @@
 [book]
 authors = ["Sean Parent"]
 language = "en"
-multilingual = false
 src = "src"
 title = "Better Code"
 description = "A principled and rigorous approach to software development"
@@ -22,4 +21,4 @@ enable = true
 enable = true
 
 [preprocessor.katex]
-after = ["links"]
+
