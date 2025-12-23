@@ -29,21 +29,10 @@ get_version() {
 echo "Reading versions from ${VERSIONS_FILE}..."
 
 # Install mdBook
-# Note: cargo install doesn't provide separate exit codes for "already installed" vs other errors
-# See: https://github.com/rust-lang/cargo/issues/11513
-# We check the error message as a workaround until cargo provides a better solution.
 MDBOOK_VERSION=$(get_version "mdbook")
 if [ -n "$MDBOOK_VERSION" ]; then
     echo "Installing mdBook ${MDBOOK_VERSION}..."
-    if ! output=$(cargo install mdbook --version "${MDBOOK_VERSION}" 2>&1); then
-        # Check for "already installed" error - cargo uses different messages
-        if echo "$output" | grep -qiE "(already exists in destination|is already installed)"; then
-            echo "  (already installed)"
-        else
-            echo "$output" >&2
-            exit 1
-        fi
-    fi
+    cargo install mdbook --version "${MDBOOK_VERSION}"
 else
     echo "Error: Could not find mdbook version in versions.toml"
     exit 1
@@ -59,15 +48,7 @@ while IFS= read -r line; do
         plugin="${BASH_REMATCH[1]}"
         version="${BASH_REMATCH[2]}"
         echo "Installing ${plugin} ${version}..."
-        if ! output=$(cargo install "${plugin}" --version "${version}" 2>&1); then
-            # Check for "already installed" error - cargo uses different messages
-            if echo "$output" | grep -qiE "(already exists in destination|is already installed)"; then
-                echo "  (already installed)"
-            else
-                echo "$output" >&2
-                exit 1
-            fi
-        fi
+        cargo install "${plugin}" --version "${version}"
     fi
 done < <(
     awk '

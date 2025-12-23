@@ -36,6 +36,8 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
           key: ${{ runner.os }}-cargo-${{ hashFiles('versions.toml') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
