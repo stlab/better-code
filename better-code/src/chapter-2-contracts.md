@@ -1,5 +1,7 @@
 # Contracts
 
+> No informal agreements—get it in writing.
+
 Software development at scale is fundamentally about managing
 complexity and establishing trust between components. When you call a
 function, use a library, or interact with an API, you're entering into
@@ -271,9 +273,10 @@ function's author—the function's **contract**:
 - The precondition describes which calls to a function should be
   considered valid.
 - The postcondition specifies only the function's _intended_ behaviors
-  _when correctly invoked_. Details such as the precise order of equivalent
-  elements after an unstable sort, or what happens when preconditions
-  are violated, are omitted.
+  _when correctly invoked_ and _successful_. Details such as the precise
+  order of equivalent elements after an unstable sort, what happens when
+  preconditions are violated, or which errors are reported (more on this
+  in the next chapter) are omitted.
 - It is general—describing the result for all inputs the author
   intends to support—so it can be applied in reasoning about any call
   to the function.
@@ -685,7 +688,7 @@ Everything you see in a function signature is implicitly part of the
 function's contract. A function with a parameter of type
 `EmployeeDatabase` has a precondition that the database upholds the
 manager invariant, but it doesn't need to be stated explicitly; it's
-enforced automatically by the compiler and the implementor of
+enforced automatically by the compiler and the implementer of
 `EmployeeDatabase`.  So static typing gives you a leg up on the
 “document everything” project. If you were programming in a totally
 dynamic language, like Javascript, or Python without type hints, you
