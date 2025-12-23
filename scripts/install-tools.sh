@@ -36,8 +36,8 @@ MDBOOK_VERSION=$(get_version "mdbook")
 if [ -n "$MDBOOK_VERSION" ]; then
     echo "Installing mdBook ${MDBOOK_VERSION}..."
     if ! output=$(cargo install mdbook --version "${MDBOOK_VERSION}" 2>&1); then
-        # Check for "already installed" error (package name may vary)
-        if echo "$output" | grep -qi "is already installed"; then
+        # Check for "already installed" error - cargo uses different messages
+        if echo "$output" | grep -qiE "(already exists in destination|is already installed)"; then
             echo "  (already installed)"
         else
             echo "$output" >&2
@@ -60,8 +60,8 @@ while IFS= read -r line; do
         version="${BASH_REMATCH[2]}"
         echo "Installing ${plugin} ${version}..."
         if ! output=$(cargo install "${plugin}" --version "${version}" 2>&1); then
-            # Check for "already installed" error (package name may vary)
-            if echo "$output" | grep -qi "is already installed"; then
+            # Check for "already installed" error - cargo uses different messages
+            if echo "$output" | grep -qiE "(already exists in destination|is already installed)"; then
                 echo "  (already installed)"
             else
                 echo "$output" >&2

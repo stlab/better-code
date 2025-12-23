@@ -61,8 +61,8 @@ if ($MdbookVersion) {
     Write-Host "`nInstalling mdBook $MdbookVersion..." -ForegroundColor Cyan
     $output = cargo install mdbook --version $MdbookVersion 2>&1
     if ($LASTEXITCODE -ne 0) {
-        # Check for "already installed" error (case-insensitive, package name may vary)
-        if ($output -match "(?i)is already installed") {
+        # Check for "already installed" error - cargo uses different messages
+        if ($output -match "(?i)(already exists in destination|is already installed)") {
             Write-Host "  (already installed)" -ForegroundColor Gray
         } else {
             Write-Host $output -ForegroundColor Red
@@ -82,8 +82,8 @@ foreach ($plugin in $plugins.GetEnumerator()) {
     Write-Host "Installing $($plugin.Key) $($plugin.Value)..." -ForegroundColor Cyan
     $output = cargo install $plugin.Key --version $plugin.Value 2>&1
     if ($LASTEXITCODE -ne 0) {
-        # Check for "already installed" error (case-insensitive, package name may vary)
-        if ($output -match "(?i)is already installed") {
+        # Check for "already installed" error - cargo uses different messages
+        if ($output -match "(?i)(already exists in destination|is already installed)") {
             Write-Host "  (already installed)" -ForegroundColor Gray
         } else {
             Write-Host $output -ForegroundColor Red
