@@ -86,7 +86,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git commit -m "Initialize gh-pages branch for PR previews"
-            git push origin gh-pages
+            git push --set-upstream origin gh-pages
           fi
           
       - name: Download build artifact
