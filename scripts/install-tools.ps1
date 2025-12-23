@@ -53,10 +53,22 @@ function Get-MdbookPlugins {
 Write-Host "Reading versions from $VersionsFile..." -ForegroundColor Cyan
 
 # Install mdBook
+# Note: cargo install doesn't provide separate exit codes for "already installed" vs other errors
+# See: https://github.com/rust-lang/cargo/issues/11513
+# We check the error message as a workaround until cargo provides a better solution.
 $MdbookVersion = Get-ToolVersion -Tool "mdbook"
 if ($MdbookVersion) {
     Write-Host "`nInstalling mdBook $MdbookVersion..." -ForegroundColor Cyan
-    cargo install mdbook --version $MdbookVersion
+    $output = cargo install mdbook --version $MdbookVersion 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        # Check for "already installed" error (case-insensitive, package name may vary)
+        if ($output -match "(?i)is already installed") {
+            Write-Host "  (already installed)" -ForegroundColor Gray
+        } else {
+            Write-Host $output -ForegroundColor Red
+            exit 1
+        }
+    }
 } else {
     Write-Host "Error: Could not find mdbook version in versions.toml" -ForegroundColor Red
     exit 1
@@ -68,7 +80,16 @@ Write-Host "`nInstalling mdBook plugins..." -ForegroundColor Cyan
 $plugins = Get-MdbookPlugins
 foreach ($plugin in $plugins.GetEnumerator()) {
     Write-Host "Installing $($plugin.Key) $($plugin.Value)..." -ForegroundColor Cyan
-    cargo install $plugin.Key --version $plugin.Value
+    $output = cargo install $plugin.Key --version $plugin.Value 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        # Check for "already installed" error (case-insensitive, package name may vary)
+        if ($output -match "(?i)is already installed") {
+            Write-Host "  (already installed)" -ForegroundColor Gray
+        } else {
+            Write-Host $output -ForegroundColor Red
+            exit 1
+        }
+    }
 }
 
 Write-Host "`n✓ Installation complete!" -ForegroundColor Green
