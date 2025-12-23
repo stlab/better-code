@@ -17,7 +17,12 @@ get_version() {
         grep -A 1 "^\[$tool\]" "$VERSIONS_FILE" | grep "version" | sed 's/.*"\(.*\)".*/\1/'
     else
         # Plugin in a section like [mdbook-plugins]
-        awk "/^\[$section\]/,/^\[/ {if (\$0 ~ /^$tool = /) print}" "$VERSIONS_FILE" | sed 's/.*"\(.*\)".*/\1/'
+        awk -v section="$section" -v tool="$tool" '
+            BEGIN { in_section = 0 }
+            $0 ~ ("^\\[" section "\\]$") { in_section = 1; next }
+            in_section && $0 ~ "^\\[" { exit }
+            in_section && $1 == tool && $2 == "=" { print; exit }
+        ' "$VERSIONS_FILE" | sed 's/.*"\(.*\)".*/\1/'
     fi
 }
 
@@ -45,7 +50,14 @@ while IFS= read -r line; do
         echo "Installing ${plugin} ${version}..."
         cargo install "${plugin}" --version "${version}"
     fi
-done < <(awk '/^\[mdbook-plugins\]/,/^\[/ {if ($0 ~ /^[a-zA-Z]/) print}' "$VERSIONS_FILE")
+done < <(
+    awk '
+        BEGIN { in_section = 0 }
+        /^\[mdbook-plugins\]$/ { in_section = 1; next }
+        in_section && /^\[/ { exit }
+        in_section && $0 ~ /^[a-zA-Z0-9_-]+[[:space:]]*=/ { print }
+    ' "$VERSIONS_FILE"
+)
 
 echo ""
 echo "✓ Installation complete!"

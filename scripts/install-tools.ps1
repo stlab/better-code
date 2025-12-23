@@ -34,7 +34,9 @@ function Get-MdbookPlugins {
     $content = Get-Content $VersionsFile -Raw
     $plugins = @{}
     
-    if ($content -match '(?ms)\[mdbook-plugins\](.*?)(\[|$)') {
+    # Capture everything *after* the header line up to (but not including) the next section header.
+    # Use \z (end-of-string) instead of $ (end-of-line in multiline mode).
+    if ($content -match '(?ms)^\[mdbook-plugins\]\s*\r?\n(.*?)(?=^\[|\z)') {
         $section = $Matches[1]
         $lines = $section -split "`n"
         
