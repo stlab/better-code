@@ -1,4 +1,4 @@
-name: Deploy mdBook to GitHub Pages
+name: Build and Deploy mdBook
 # Tool versions are managed in versions.toml at the repository root.
 # To update mdbook or plugin versions, edit versions.toml and the CI will automatically use them.
 
@@ -6,24 +6,28 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+  
+  # Runs on pull requests for validation and preview deployment
+  pull_request:
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write  # Needed for PR preview deployments
   pages: write
   id-token: write
+  pull-requests: write  # Needed to comment on PRs
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment per PR or main
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.number || 'main' }}
+  cancel-in-progress: true
 
 jobs:
-  # Build job
+  # Build job - runs on both PRs and main branch
   build:
     runs-on: ubuntu-latest
     steps:
@@ -34,27 +38,177 @@ jobs:
         run: |
           chmod +x scripts/install-tools.sh
           ./scripts/install-tools.sh
-        
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-        
-      - name: Build with mdBook
+      
+      # For PRs: Build with base path for preview subdirectory
+      - name: Build with mdBook (PR Preview)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Update book.toml to use PR-specific path
+          sed -i 's|site-url = "/better-code/"|site-url = "/better-code/pr-preview/${{ github.event.number }}/"|' better-code/book.toml
+          mdbook build ./better-code
+      
+      # For main: Build with production path
+      - name: Build with mdBook (Production)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: mdbook build ./better-code
-          
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+      
+      # Upload build artifact for inspection/debugging
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: book-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || 'production' }}
           path: ./better-code/book
+          retention-days: ${{ github.event_name == 'pull_request' && 7 || 30 }}
 
-  # Deployment job
-  deploy:
+  # PR Preview Deployment - deploys to gh-pages branch under pr-preview/NUMBER/
+  deploy-preview:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: book-pr-${{ github.event.number }}
+          path: ./pr-preview/${{ github.event.number }}
+      
+      - name: Create preview index
+        run: |
+          # Create an index of all PR previews if it doesn't exist
+          if [ ! -f pr-preview/index.html ]; then
+            cat > pr-preview/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>PR Previews - Better Code</title>
+            <style>
+              body { font-family: system-ui; max-width: 800px; margin: 50px auto; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style: none; padding: 0; }
+              li { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+              a { color: #0066cc; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>Pull Request Previews</h1>
+            <p><a href="../">← Back to main documentation</a></p>
+            <p>Preview deployments for pull requests:</p>
+            <ul id="previews"></ul>
+            <script>
+              // List all PR preview directories
+              fetch('.')
+                .then(r => r.text())
+                .then(text => {
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(text, 'text/html');
+                  const links = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.getAttribute('href'))
+                    .filter(href => href && /^\d+\/$/.test(href))
+                    .sort((a, b) => parseInt(b) - parseInt(a));
+                  
+                  const list = document.getElementById('previews');
+                  if (links.length === 0) {
+                    list.innerHTML = '<li>No active PR previews</li>';
+                  } else {
+                    links.forEach(link => {
+                      const pr = link.replace('/', '');
+                      const li = document.createElement('li');
+                      li.innerHTML = `<a href="${link}">PR #${pr} Preview</a>`;
+                      list.appendChild(li);
+                    });
+                  }
+                });
+            </script>
+          </body>
+          </html>
+          EOF
+          fi
+      
+      - name: Commit and push preview
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pr-preview/${{ github.event.number }}
+          git add pr-preview/index.html
+          git commit -m "Deploy preview for PR #${{ github.event.number }}" || echo "No changes to commit"
+          git push
+      
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const previewUrl = `https://stlab.github.io/better-code/pr-preview/${prNumber}/`;
+            const comment = `## 📚 Documentation Preview
+            
+            Your changes have been deployed to a preview environment:
+            
+            🔗 **Preview URL:** ${previewUrl}
+            
+            This preview will be automatically updated with new commits and removed when the PR is closed.
+            
+            <sub>Built with commit ${context.sha.substring(0, 7)}</sub>`;
+            
+            // Find existing preview comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Documentation Preview')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }
+
+  # Production Deployment - deploys to root of GitHub Pages
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: book-production
+          path: ./book
+      
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./book
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
