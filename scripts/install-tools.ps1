@@ -10,8 +10,6 @@
 #   - Rust and Cargo are installed and in PATH
 #   - versions.toml exists in the repository root
 #   - versions.toml contains [mdbook] section with version key
-#
-# Complexity: O(N) where N is the number of plugins to install
 
 $ErrorActionPreference = "Stop"
 
