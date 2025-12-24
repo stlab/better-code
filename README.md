@@ -39,8 +39,7 @@ scripts to automatically install the correct versions:
 ```
 
 These scripts automatically install mdBook and all required plugins using the
-versions specified in `versions.toml`. This is the same file used by CI, ensuring
-perfect consistency.
+versions specified in `versions.toml`.
 
 **Manual Installation:**
 If you prefer to install manually, check `versions.toml` for the current version
