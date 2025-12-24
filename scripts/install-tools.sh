@@ -51,8 +51,11 @@ get_version() {
             $0 ~ ("^\\[" tool "\\]$") { in_section = 1; next }
             in_section && /^\[/ { exit }
             in_section && /^version[[:space:]]*=/ {
-                match($0, /"([^"]+)"/, arr)
-                print arr[1]
+                # Extract version string between quotes using sub (POSIX-compliant)
+                line = $0
+                sub(/^[^"]*"/, "", line)
+                sub(/".*$/, "", line)
+                print line
                 exit
             }
         ' "$VERSIONS_FILE"
