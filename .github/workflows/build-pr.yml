@@ -1,0 +1,13 @@
+name: Validate PR Build
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    uses: ./.github/workflows/build.yml
+

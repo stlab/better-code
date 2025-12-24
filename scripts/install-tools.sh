@@ -1,13 +1,44 @@
 #!/bin/bash
-# Install mdBook and plugins using versions from ../versions.toml
-# This ensures consistency between local development and CI
+# Installs mdBook and plugins using versions from versions.toml.
+#
+# Reads tool versions from the repository root's versions.toml file and
+# installs them via cargo. This ensures consistency between local development
+# and CI environments.
+#
+# Usage: ./install-tools.sh
+#
+# Preconditions:
+#   - Rust and Cargo are installed and in PATH
+#   - versions.toml exists in the repository root
+#   - versions.toml contains [mdbook] section with version key
+#
+# Complexity: O(N) where N is the number of plugins to install
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VERSIONS_FILE="${SCRIPT_DIR}/../versions.toml"
 
-# Function to extract version from TOML file
+# Extracts a version string from versions.toml.
+#
+# Parameters:
+#   $1 (tool) - Tool name matching a TOML section header (e.g., "mdbook")
+#   $2 (section) - Optional. Parent section name for nested keys (e.g., "mdbook-plugins")
+#
+# Returns: The version string on stdout, or empty if not found
+#
+# When section is empty:
+#   - Searches for [tool] section header
+#   - Returns value of version key within that section
+#   - Handles comments and blank lines between section header and version key
+#
+# When section is provided:
+#   - Searches for [section] header
+#   - Returns value of "tool = version" within that section
+#
+# Example:
+#   get_version "mdbook"              # Returns version from [mdbook]
+#   get_version "mdbook-katex" "mdbook-plugins"  # Returns version from [mdbook-plugins]
 get_version() {
     local tool=$1
     local section=$2

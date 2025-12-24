@@ -1,12 +1,43 @@
-# Install mdBook and plugins using versions from ../versions.toml
-# This ensures consistency between local development and CI
+# Installs mdBook and plugins using versions from versions.toml.
+#
+# Reads tool versions from the repository root's versions.toml file and
+# installs them via cargo. This ensures consistency between local development
+# and CI environments.
+#
+# Usage: .\install-tools.ps1
+#
+# Preconditions:
+#   - Rust and Cargo are installed and in PATH
+#   - versions.toml exists in the repository root
+#   - versions.toml contains [mdbook] section with version key
+#
+# Complexity: O(N) where N is the number of plugins to install
 
 $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $VersionsFile = Join-Path (Split-Path -Parent $ScriptDir) "versions.toml"
 
-# Function to parse TOML and extract version
+# Extracts a version string from versions.toml.
+#
+# Parameters:
+#   Tool - Tool name matching a TOML section header (e.g., "mdbook")
+#   Section - Optional. Parent section name for nested keys (e.g., "mdbook-plugins")
+#
+# Returns: The version string, or $null if not found
+#
+# When Section is empty:
+#   - Searches for [Tool] section header
+#   - Returns value of version key within that section
+#   - Handles comments and blank lines between section header and version key
+#
+# When Section is provided:
+#   - Searches for [Section] header
+#   - Returns value of "Tool = version" within that section
+#
+# Example:
+#   Get-ToolVersion -Tool "mdbook"
+#   Get-ToolVersion -Tool "mdbook-katex" -Section "mdbook-plugins"
 function Get-ToolVersion {
     param (
         [string]$Tool,
@@ -29,7 +60,19 @@ function Get-ToolVersion {
     return $null
 }
 
-# Function to get all plugins from [mdbook-plugins] section
+# Extracts all plugin name-version pairs from [mdbook-plugins] section.
+#
+# Returns: A hashtable mapping plugin names to version strings
+#
+# The hashtable keys are plugin names (e.g., "mdbook-katex") and values
+# are version strings (e.g., "0.10.0-alpha"). Returns an empty hashtable
+# if the [mdbook-plugins] section is not found or contains no plugins.
+#
+# Example:
+#   $plugins = Get-MdbookPlugins
+#   foreach ($plugin in $plugins.GetEnumerator()) {
+#       Write-Host "$($plugin.Key) version $($plugin.Value)"
+#   }
 function Get-MdbookPlugins {
     $content = Get-Content $VersionsFile -Raw
     $plugins = @{}

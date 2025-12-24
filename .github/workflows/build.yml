@@ -1,0 +1,59 @@
+name: Build mdBook
+
+on:
+  workflow_call:
+    outputs:
+      artifact-path:
+        description: "Path to the built book artifact"
+        value: ${{ jobs.build.outputs.artifact-path }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    outputs:
+      artifact-path: ./better-code/book
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      # Cache Rust toolchain and cargo registry
+      - name: Cache Rust
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+          key: ${{ runner.os }}-cargo-${{ hashFiles('versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+          
+      - name: Install mdBook and plugins (Linux)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x scripts/install-tools.sh
+          ./scripts/install-tools.sh
+      
+      - name: Install mdBook and plugins (Windows)
+        if: runner.os == 'Windows'
+        run: .\scripts\install-tools.ps1
+      
+      - name: Build with mdBook
+        run: mdbook build ./better-code
+      
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdbook-build-${{ matrix.os }}
+          path: ./better-code/book
+          retention-days: 1
+
