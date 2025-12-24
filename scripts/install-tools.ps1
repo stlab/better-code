@@ -113,10 +113,27 @@ Write-Host "`nInstalling mdBook plugins..." -ForegroundColor Cyan
 
 $plugins = Get-MdbookPlugins
 foreach ($plugin in $plugins.GetEnumerator()) {
-    Write-Host "Installing $($plugin.Key) $($plugin.Value)..." -ForegroundColor Cyan
-    cargo install $plugin.Key --version $plugin.Value
-    if ($LASTEXITCODE -ne 0) {
-        exit 1
+    $pluginName = $plugin.Key
+    $pluginVersion = $plugin.Value
+    
+    # mdbook-katex requires special handling on Windows
+    # See: https://github.com/lzanini/mdbook-katex#windows-users
+    if ($pluginName -eq "mdbook-katex") {
+        Write-Host "Installing $pluginName $pluginVersion with duktape backend (Windows)..." -ForegroundColor Cyan
+        Write-Host "  Note: Using duktape backend. Some features like matrices may not work." -ForegroundColor Yellow
+        Write-Host "  For full functionality, download pre-built binary from:" -ForegroundColor Yellow
+        Write-Host "  https://github.com/lzanini/mdbook-katex/releases" -ForegroundColor Yellow
+        cargo install $pluginName --version $pluginVersion --no-default-features --features duktape
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install $pluginName. Continuing without it..." -ForegroundColor Yellow
+            continue
+        }
+    } else {
+        Write-Host "Installing $pluginName $pluginVersion..." -ForegroundColor Cyan
+        cargo install $pluginName --version $pluginVersion
+        if ($LASTEXITCODE -ne 0) {
+            exit 1
+        }
     }
 }
 

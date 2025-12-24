@@ -18,6 +18,8 @@
 version = "0.5.2"
 
 [mdbook-plugins]
+# Note: On Windows, mdbook-katex installs with the duktape backend (limited functionality).
+# For full features, download pre-built binaries: https://github.com/lzanini/mdbook-katex/releases
 mdbook-katex = "0.10.0-alpha"
 # mdbook-mermaid = "x.y.z"  # Uncomment when diagram support is needed
 # Add more mdbook plugins here as needed
