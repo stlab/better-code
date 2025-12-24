@@ -23,7 +23,7 @@ Install [Rust and Cargo](https://doc.rust-lang.org/cargo/getting-started/install
 .\scripts\install-tools.ps1
 ```
 
-These scripts install mdBook and all required plugins using versions from `versions.toml`.
+These scripts install mdBook and all required plugins using versions from `versions.txt`.
 
 ### 3. Build and Serve
 
@@ -58,15 +58,15 @@ Open http://localhost:3000 in your browser.
 - No deployment; PR check shows build status
 
 **Main Branch:**
-- Builds book using mdBook with versions from `versions.toml`
+- Builds book using mdBook with versions from `versions.txt`
 - Deploys to GitHub Pages
 - Available at https://stlab.github.io/better-code/
 
 ### Managing Dependencies
 
-All tool versions are centrally managed in `versions.toml`. To update:
+All tool versions are centrally managed in `versions.txt`. To update:
 
-1. Edit version number in `versions.toml`
+1. Edit version number in `versions.txt`
 2. Run the appropriate install script locally
 3. Test with `mdbook serve ./better-code`
 4. Commit - CI automatically uses the new version
@@ -83,7 +83,7 @@ scripts/             # Installation scripts
 ├── install-tools.sh    # Linux/macOS
 └── install-tools.ps1   # Windows
 
-versions.toml        # Single source of truth for tool versions
+versions.txt         # Single source of truth for tool versions
 archive/             # Legacy Jekyll site (for reference only)
 ```
 

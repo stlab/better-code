@@ -1,6 +1,9 @@
 # Tool versions - single source of truth for all build dependencies
 # Used by CI and local development scripts
 #
+# Format: tool=version (one per line, no quotes needed)
+# Lines starting with # are comments
+#
 # Usage:
 #   Linux/macOS:   ./scripts/install-tools.sh
 #   Windows:       .\scripts\install-tools.ps1
@@ -11,28 +14,23 @@
 # 3. Test locally: mdbook serve ./better-code
 # 4. Commit the change - CI will automatically use the new version
 #
-# Note: After adding mdbook plugins here, you may also need to configure
-# them in better-code/book.toml. See mdbook documentation for plugin setup.
+# Note: After adding mdbook plugins, you may also need to configure
+# them in better-code/book.toml. See mdbook documentation for details.
 
-[mdbook]
-version = "0.5.2"
+# Core mdBook
+mdbook=0.5.2
 
-[mdbook-plugins]
+# mdBook plugins
 # Note: On Windows, mdbook-katex installs with the duktape backend (limited functionality).
 # For full features, download pre-built binaries: https://github.com/lzanini/mdbook-katex/releases
-mdbook-katex = "0.10.0-alpha"
-# mdbook-mermaid = "x.y.z"  # Uncomment when diagram support is needed
-# Add more mdbook plugins here as needed
+mdbook-katex=0.10.0-alpha
 
-# [swift]
-# Uncomment and configure when Swift tooling is added
-# version = "5.9"
+# Uncomment to add more plugins:
+# mdbook-mermaid=x.y.z
 
 # Add other tool dependencies here as the project grows
 # Examples:
-# [python]
-# version = "3.11"
-#
-# [node]
-# version = "20.10.0"
+# swift=5.9
+# python=3.11
+# node=20.10.0
 

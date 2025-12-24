@@ -1,6 +1,6 @@
 name: Deploy to GitHub Pages
-# Tool versions are managed in versions.toml at the repository root.
-# To update mdbook or plugin versions, edit versions.toml and the CI will automatically use them.
+# Tool versions are managed in versions.txt at the repository root.
+# To update mdbook or plugin versions, edit versions.txt and the CI will automatically use them.
 
 on:
   push:

@@ -33,7 +33,7 @@ jobs:
             ~/.cargo/git/db/
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
-          key: ${{ runner.os }}-cargo-${{ hashFiles('versions.toml') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('versions.txt') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
           

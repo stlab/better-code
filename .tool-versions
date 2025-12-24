@@ -1,7 +1,7 @@
 # Tool versions for asdf version manager
 # See: https://asdf-vm.com/
 #
-# Note: For mdbook and plugin versions, see versions.toml
-# Use the install scripts in better-code/ to install the correct versions
+# Note: For mdbook and plugin versions, see versions.txt
+# Use the install scripts to install the correct versions: ./scripts/install-tools.sh
 rust stable
 
