@@ -14,7 +14,17 @@ get_version() {
     
     if [ -z "$section" ]; then
         # Top-level tool like [mdbook]
-        grep -A 1 "^\[$tool\]" "$VERSIONS_FILE" | grep "version" | sed 's/.*"\(.*\)".*/\1/'
+        # Use awk to handle comments/blank lines between section header and version key
+        awk -v tool="$tool" '
+            BEGIN { in_section = 0 }
+            $0 ~ ("^\\[" tool "\\]$") { in_section = 1; next }
+            in_section && /^\[/ { exit }
+            in_section && /^version[[:space:]]*=/ {
+                match($0, /"([^"]+)"/, arr)
+                print arr[1]
+                exit
+            }
+        ' "$VERSIONS_FILE"
     else
         # Plugin in a section like [mdbook-plugins]
         awk -v section="$section" -v tool="$tool" '
