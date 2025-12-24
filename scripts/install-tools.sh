@@ -33,10 +33,10 @@ echo ""
 echo "Installing mdBook plugins..."
 
 # Process all lines starting with "mdbook-" (plugins)
-grep "^mdbook-" "$VERSIONS_FILE" | while IFS='=' read -r plugin version; do
+while IFS='=' read -r plugin version; do
     echo "Installing ${plugin} ${version}..."
     cargo install "${plugin}" --version "${version}"
-done
+done < <(grep "^mdbook-" "$VERSIONS_FILE")
 
 echo ""
 echo "✓ Installation complete!"
