@@ -101,27 +101,27 @@ though 'such an inconvenient event' never had occurred in the first
 place.”
 
 Being “unscathed” means two things: first, that the program state is
-intact—its invariants are upheld so its code is not relying on any
+intact—its invariants are upheld so code is not relying on any
 newly-incorrect assumptions.  Second, that the state makes sense
 given the correct inputs received so far. “Making sense” is
-necessarily a subjective judgement, so examples are called for.
+a subjective judgement. For example:
 
-- The initial state of a compiler, before it has seen any input,
-  certainly meets the compiler's invariants. But when an error is
-  encountered, resuming with that state would ignore the context seen
-  so far that can help inform further diagnostics.  If the following
-  text did not match what is expected at the beginning of a source
-  file, it would be flagged as an error.  The error might, for example
-  have been detected in some otherwise-correct deeply nested
-  construct. If the compiler's state is reset to its initial
-  conditions, each closing delimiter of that construct would be
-  flagged as a new error.
+- The initial state of a compiler, before it has seen any input, meets
+  the compiler's invariants. But when an error is encountered,
+  resuming with that state would discard the context seen so
+  far. Unless the code following the error would have been legal at
+  the beginning a source file, the compiler will issue many unhelpful
+  diagnostics for that following code. Recovery means accounting
+  somehow for the non-erroneous code seen so far and re-synchronizing
+  the compiler with what follows.
 
 - In a desktop graphics application, it's not enough that upon error
   (say, file creation fails), the user has a well-formed document; an
   empty document is not an acceptable result.  Leaving them with a
   well-formed document that is subtly changed from its state before
-  the error would be especially bad.
+  the error would be especially bad. Recovery means to preserving the
+  effects of actions issued before the last one, so the document
+  appears unchanged.
 
 ### What About Recovery From Bugs?
 
@@ -482,8 +482,7 @@ to `throw` or weaken the postcondition is a judgement call
 When a precondition is not viable, the choice whether to weaken the
 postcondition or throw an `Error` is a judgement call.
 
-
-### Failures Are Not Postconditions
+### Failures Are Not A Part of Postconditions
 
 The fact that failures report an inability to satisfy postconditions
 means that their details—and the possibilty that they occur—means that
@@ -494,8 +493,6 @@ consider our rationale
 The fact that the vast majority of errors are not handled in the
 immediate caller, but instead propagated up the call chain, is
 consequential.
-
-
 
 and in many cases
 may not be described at all except at a module level, e.g.
