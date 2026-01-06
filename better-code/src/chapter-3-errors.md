@@ -125,18 +125,19 @@ a subjective judgement. For example:
 
 ### What About Recovery From Bugs?
 
-We've just seen an examples of recovery from an input error and a failure.
-What would it mean to recover from a bug?
+We've just seen examples of recovery from an input error and of a
+failure.  What would it mean to recover from a bug? It's not entirely
+clear.
 
 First, the bug needs to be detected, and that is not assured. As we
 saw in the previous chapter, not all precondition violations are
 detectable. Also, it's important to admit that when a runtime bug
 check fails, we're not detecting the bug per-se: since bugs are flaws
-in *code*, actually detecting bugs involves analyzing the program.
-We're really detecting a *downstream effect* that the bug has had on
-*data*. When we observe that a precondition has been violated, we know
-something invalid occurred, but we don't necessarily know exactly
-where, how, or the full extent of the damaged data.
+in *code*, truly detecting bugs involves analyzing the program.
+Instead, a runtime check detects a *downstream effect* that the bug
+has had on *data*. When we observe that a precondition has been
+violated, we know something invalid occurred, but we don't necessarily
+know exactly where, how, or the full extent of the damaged data.
 
 So can we “sally forth unscathed?”  The problem is that we can't
 know. Since we don't know where the bug is, the downstream effects of
@@ -175,10 +176,10 @@ root cause could have been addressed once.
 
 ## How to Handle Bugs
 
-The best strategy is to stop the program before any more damage is
-done and generate a crash report or debuggable image that captures as
-much information as is available about the state of the program, so
-there's a chance of fixing the bug.
+When a bug is detected, the best strategy is to stop the program
+before more damage is done to data and generate a crash report or
+debuggable image that captures as much information as is available
+about the state of the program so there's a chance of fixing it.
 
 Many people have a hard time accepting the idea of voluntarily
 terminating, but let's face it: bug detection isn't the only reason
@@ -186,16 +187,17 @@ the program might suddenly stop.  The program can crash from an
 *un*detected bug in unsafe code… or a person can trip over the power
 cord, or the operating system itself could detect an internal bug,
 causing a “kernel panic” that restarts the hardware.  Software should
-be designed so that sudden termination is not catastrophic.
+be designed so that sudden termination is not catastrophic for its
+users.
 
 In fact, it's often possible to make restarting the app a completely
 seamless experience. On an iPhone or iPad, for example, to save
-battery and keep foreground apps responsive, the OS may kill your
-process any time it's in the background, but will make it look to the
-user like it's still running.  When the user switches back, every app
-is supposed to complete the illusion by coming back up in the same
-state it was killed in.  Non-catastrophic early termination is
-something you can and should design into your system. [^techniques]
+battery and keep foreground apps responsive, the operating system may
+kill your process any time it's in the background, but the user can
+still “switch back” to the app.  When the user switches back, every
+app is supposed to complete the illusion by coming back up in the same
+state it was killed in.  So non-catastrophic early termination is
+something you *can and should* design into your system. [^techniques]
 When you accept that sudden termination is part of *every* program's
 reality, it is easier to accept it as a response to bug detection, and
 to mitigate the effects.
@@ -204,14 +206,12 @@ to mitigate the effects.
 such as saving incremental backup files, are well-known, but outside
 the scope of this book.
 
-
 ### Checking For Bugs
 
-While, as we've seen, not all bugs are detectable, checking for the
-others at runtime is a powerful way to make code better, by detecting
-coding errors close to their source and creating an incentive to
-prioritize fixing them.
-
+While, as we've seen, not all bugs are detectable, detecting as many
+as possible at runtime is still a powerful way to improve code, by
+finding detecting the presence of coding errors close to their source
+and creating an incentive to prioritize fixing them.
 
 #### Precondition Checks
 
@@ -297,7 +297,7 @@ measure. Similarly, a precondition that can only be checked with a
 significant cost to preformance could be checked with
 `assert`. However, in both cases we suggest using a forwarding
 function whose name describes its meaning, so that `assert` is
-directly used only for internal soundness checks:
+used directly only for internal soundness checks:
 
 ```swift
 public func preconditionUncheckedInRelease(
@@ -306,7 +306,7 @@ public func preconditionUncheckedInRelease(
   file: StaticString = #file, line: UInt = #line
 ) {
   assert(
-    condition, "Precondition violated:" + message,
+    condition, "Precondition violated: \(message())",
     file: file, line: line)
 }
 
@@ -316,7 +316,7 @@ public func postconditionUncheckedInRelease(
   file: StaticString = #file, line: UInt = #line
 ) {
   assert(
-    condition, "Postcondition violated:" + message,
+    condition, "Postcondition violated: \(message())",
     file: file, line: line)
 }
 ```
