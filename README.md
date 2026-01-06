@@ -1,97 +1,117 @@
-# Welcome to Better Code
+# Better Code
 
-This is the development home of the STLab Better Code course.
+Development repository for the STLab Better Code course.
 
-## Working with the Book
+**Read the book:** https://stlab.github.io/better-code/
 
-We're migrating from using Jekyll to using
-[mdBook](https://github.com/rust-lang/mdBook). The mdBook version is located in
-the `./better-code` directory and includes automated CI/CD deployment to GitHub Pages.
+## Quick Start
 
-## Installing and updating mdBook
+### 1. Install Prerequisites
 
-Install [Rust and
-Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html):
+Install [Rust and Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html).
 
-Linux and macOS:
 
-```
-curl https://sh.rustup.rs -sSf | sh
-```
+### 2. Install mdBook and Plugins
 
-On Windows, you can download the installer from
-[here](https://win.rustup.rs/).
-
-Once you have Rust and Cargo installed, you can install or upgrade mdBook by running:
-
-```
-cargo install mdbook
+**Linux/macOS:**
+```bash
+./scripts/install-tools.sh
 ```
 
-## Building the book
-
-To build the book, run:
-
+**Windows (PowerShell):**
+```powershell
+.\scripts\install-tools.ps1
 ```
+
+These scripts install mdBook and all required plugins using versions from `versions.txt`.
+
+### 3. Build and Serve
+
+```bash
 mdbook serve ./better-code
 ```
 
-Open the browser to http://localhost:3000 to see the book. You can use the
-Simple Browser in VSCode/Cursor to view the book while editing.
+Open http://localhost:3000 in your browser.
 
-## Automated Deployment
+## Contributing
 
-The mdBook is automatically built and deployed to GitHub Pages using GitHub Actions.
-When you push changes to the main branch:
+### Editing Content
 
-1. GitHub Actions will build the book using mdBook
-2. The built book will be deployed to GitHub Pages
-3. The book will be available at https://stlab.github.io/better-code/
+1. Edit markdown files in `better-code/src/`
+2. Add new chapters by creating `.md` files and updating `better-code/src/SUMMARY.md`
+3. Changes automatically rebuild when you push to the main branch
 
-No manual deployment steps are required!
+### Content Conventions
 
-### Conventions and Guidelines
+* Use Markdown formatting; avoid unnecessary HTML
+* Wrap lines at 80 columns for diff-friendly change tracking
+* Start each chapter with a level-2 heading (`## Chapter Name`)
+* Use level-3+ headings within chapters
+* Keep file names and heading titles stable for linkability
 
-* Avoid unnecessary HTML tags; use Markdown formatting to the degree possible.
-* Wrap lines at 80 columns to support diff-friendly change tracking.
-* Chapters are represented as individual Markdown files in the chapters/
-  subdirectory.
-* Each chapter begins with a 2nd-level heading, e.g. `## Chapter Name`.  All
-  other headings in a chapter are 3rd-level and below.
-* Each file's name starts with a 4-digit number that determines its order in the
-  overall document.  Initial numbering is spaced by 100s.
-* Maintain stable file names and heading titles for linkability until another
-  solution is in place.
+## Deployment
 
-### Older draft
+### CI/CD Pipeline
 
-Please see the [latest published draft](https://stlab.github.io/better-code/)
-for information about the motivation for this project.
+**Pull Requests:**
+- Validates build on Ubuntu and Windows
+- No deployment; PR check shows build status
 
-### Infrastructure
+**Main Branch:**
+- Builds book using mdBook with versions from `versions.txt`
+- Deploys to GitHub Pages
+- Available at https://stlab.github.io/better-code/
 
-The book is being migrated from [Jekyll](https://jekyllrb.com) to [mdBook](https://github.com/rust-lang/mdBook).
-The new mdBook version is automatically built and deployed to [GitHub Pages](https://pages.github.com) using GitHub Actions.
+### Managing Dependencies
 
-The legacy Jekyll files remain in the root directory for reference during the transition.
+All tool versions are centrally managed in `versions.txt`. To update:
 
-### Running a local server
+1. Edit version number in `versions.txt`
+2. Run the appropriate install script locally
+3. Test with `mdbook serve ./better-code`
+4. Commit - CI automatically uses the new version
 
-If you are able to install the necessary parts for jekyll,
-
-```
-bundle exec jekyll serve -l
-```
-
-will start a server for the site at http://localhost:4000.
-
-Creating a complete installation of jekyll and all the parts needed for github
-pages development can be fraught.  If you install
-[docker-compose](https://docs.docker.com/compose/), you can start the server
-by invoking
+## Project Structure
 
 ```
+better-code/          # mdBook source and configuration
+├── src/             # Markdown chapter files
+├── book.toml        # mdBook configuration
+└── book/            # Generated HTML (gitignored)
+
+scripts/             # Installation scripts
+├── install-tools.sh    # Linux/macOS
+└── install-tools.ps1   # Windows
+
+versions.txt         # Single source of truth for tool versions
+archive/             # Legacy Jekyll site (for reference only)
+```
+
+## Advanced Usage
+
+
+### Building Without Serving
+
+```bash
+mdbook build ./better-code
+```
+
+Output will be in `./better-code/book/`.
+
+
+## Legacy Content
+
+The `archive/` directory contains the legacy Jekyll site for reference during migration.
+You can safely ignore it unless working on migration tasks.
+
+To run the Jekyll version (not recommended for regular development):
+
+```bash
+bundle exec jekyll serve -l  # Starts server at http://localhost:4000
+```
+
+Or with Docker:
+
+```bash
 docker-compose up
 ```
-
-in the root directory of your working copy.
