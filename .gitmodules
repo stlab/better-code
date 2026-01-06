@@ -1,12 +1,12 @@
 [submodule "rajgoel-reveal.js-plugins"]
-	path = submodule/rajgoel-reveal.js-plugins
+	path = archive/submodule/rajgoel-reveal.js-plugins
 	url = https://github.com/rajgoel/reveal.js-plugins.git
 [submodule "adobe-reveal-theme"]
-	path = submodule/adobe-reveal-theme
+	path = archive/submodule/adobe-reveal-theme
 	url = https://github.com/stlab/adobe-reveal-theme.git
 [submodule "reveal-mark-plugin"]
-	path = submodule/reveal-mark-plugin
+	path = archive/submodule/reveal-mark-plugin
 	url = https://github.com/stlab/reveal-mark-plugin.git
 [submodule "submodule/reveal.js"]
-	path = submodule/reveal.js
+	path = archive/submodule/reveal.js
 	url = https://github.com/hakimel/reveal.js.git

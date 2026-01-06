@@ -1,5 +1,7 @@
 # Contracts
 
+> No informal agreements—get it in writing.
+
 Software development at scale is fundamentally about managing
 complexity and establishing trust between components. When you call a
 function, use a library, or interact with an API, you're entering into
@@ -221,7 +223,7 @@ When a valid triple has identical precondition and postcondition,
 Hoare calls that condition an **invariant** of the operation, a
 condition that the operation preserves.  The preceding example is
 distilled from the *binary search* algorithm, where *l*≤*h* is an
-invariant of the sequence.  Knowing that *l*≤*h* at each step is
+invariant of the algorithm.  Knowing that *l*≤*h* at each step is
 crucial to understanding the algorithm's correctness.
 
 The sequencing rule is good for code that runs in a straight line, but
@@ -268,9 +270,10 @@ function's author—the function's **contract**:
 - The precondition describes which calls to a function should be
   considered valid.
 - The postcondition specifies only the function's _intended_ behaviors
-  _when correctly invoked_. Details such as the precise order of equivalent
-  elements after an unstable sort, or what happens when preconditions
-  are violated, are omitted.
+  _when correctly invoked_ and _successful_. Details such as the precise
+  order of equivalent elements after an unstable sort, what happens when
+  preconditions are violated, or which errors are reported (more on this
+  in the next chapter) are omitted.
 - It is general—describing the result for all inputs the author
   intends to support—so it can be applied in reasoning about any call
   to the function.
@@ -293,10 +296,10 @@ When something goes wrong in software, focusing on which *person* to
 blame is counterproductive, but deciding which *code* is to blame is
 the first step.  Contracts tell us which code needs fixing:
 
-- If preconditions aren't satisifed, that's a bug in the caller.  The
+- If preconditions aren't satisfied, that's a bug in the caller.  The
   function is not required to make any promises[^no-promises] in that case.
 
-- If preconditions are statisfied but postconditions are not
+- If preconditions are satisfied but postconditions are not
   fulfilled, that's a bug in the callee, or in something it calls.
 
 [^no-promises]: In fact, a function *shouldn't* make any promises in
@@ -364,7 +367,7 @@ struct PairArray<X, Y> {
 The invariant for this type is that the private arrays have the same
 length.  It's important to remember that invariants only hold at a
 type's public interface boundary and are routinely violated,
-temporarily, durign a mutation.  For example, in `append`, we have to
+temporarily, during a mutation.  For example, in `append`, we have to
 grow one of the arrays first, which breaks the invariant until we've
 done the second `append`.  That's not a problem because the arrays are
 private—that “bad” state is *encapsulated* by the type, and
@@ -389,12 +392,9 @@ invariant.
 #### How To Choose a Type Invariant
 
 Often, you have a choice about how strong to make your type's
-invariant.  For example, in `PairArray`, we could have chosen the
-invariant `x.count <= y.s.count`.  We call that a *weaker* invariant
-because it allows many more internal states.
-
-Let's assume that there's some method that can create a condition
-where `x.count < y.count`:
+invariant.  For example, because of the way `PairArray` was written,
+it has an invariant that `xs.count == ys.count`, but if we add this
+initializer, we'd have to weaken that invariant:
 
 ```swift
   /// An instance with the value of `zip(xs, ys)`.
@@ -406,9 +406,18 @@ where `x.count < y.count`:
 [Note: when sequences of unequal length are `zip`ped, the result
 has the length of the shorter sequence.]
 
-Now let's see what happens to the rest of the implementation.  Most of
-it is unchanged, but in the `append` method, we now need to account
-for these new internal states.  Here's one way we could do it:
+Now the invariant becomes `xs.count <= ys.count`.  We call that a
+*weaker* invariant because it allows many more internal states. [^weaken]
+
+[^weaken]: If we removed the precondition on this initializer, without
+    changing its implementation, the invariant would become empty, or
+    `true`, which is the weakest possible invariant: it allows the
+    lengths of `xs` and `ys` to be completely unrelated.
+
+Let's see what effect the new invariant would have on the rest of the
+implementation.  Most of it is unchanged, but to maintain the same
+meaning, the `append` method must account for these new internal
+states.  Here's one way we could do it:
 
 ```swift
   /// Adds `e` to the end.
@@ -419,15 +428,20 @@ for these new internal states.  Here's one way we could do it:
   }
 ```
 
-Also, the `count` property now reports the wrong length; it needs to
-return `xs.count` instead of `ys.count`.
+Also, the `count` property needs to be changed to  return `xs.count`
+instead of `ys.count`.
 
 As is often the case, a weaker invariant complicated the implementation
 and made it more fragile. Here, only two adjustments were needed, but in
-principle it could be many more. Maintaining a stronger invariant
-is better.  There are two simple approaches:
+principle there could be many more.
 
-- We can strengthen the precondition of the new `init` method:
+Instead of allowing the invariant to be weakened, we can adjust the
+new initializer to maintain the original invariant, thus avoiding
+downstream consequences for the rest of the implementations.  There are two simple
+approaches:
+
+- We can strengthen the precondition of the new `init` method,
+  requiring the `xs` and `ys` arguments to have the same length:
 
   ```swift
     /// An instance with the value of `zip(xs, ys)`.
@@ -436,7 +450,7 @@ is better.  There are two simple approaches:
     init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
   ```
 
-- Or we can remove the precondition entirely and normalize the internal
+- Or, we can remove the precondition entirely and normalize the internal
   representation upon construction:
 
   ```swift
@@ -449,8 +463,14 @@ is better.  There are two simple approaches:
     }
   ```
 
-The latter approach is better, as it results in a simpler and
-less-fragile public API.
+Either approach is acceptable, and ordinarily one should favor the
+stronger precondition, which restricts the valid inputs to ones that
+are obviously meaningful, and which doesn't add potentially-costly
+normalization steps.  In this case, however, there is an existing
+operation, `zip`—which does not impose a precondition—whose semantics
+we can match and use to describe the results of our new API.  The
+normalization approach yields a more coherent system with a simpler
+contract for the new API.
 
 ### It's Documentation
 
@@ -665,7 +685,7 @@ Everything you see in a function signature is implicitly part of the
 function's contract. A function with a parameter of type
 `EmployeeDatabase` has a precondition that the database upholds the
 manager invariant, but it doesn't need to be stated explicitly; it's
-enforced automatically by the compiler and the implementor of
+enforced automatically by the compiler and the implementer of
 `EmployeeDatabase`.  So static typing gives you a leg up on the
 “document everything” project. If you were programming in a totally
 dynamic language, like Javascript, or Python without type hints, you
@@ -682,7 +702,7 @@ implementation, and should be encoded in ordinary comments addressed
 privately to the maintainer of the code.  Note that you
 can have both: `PairArray` *also* has a public invariant that its
 `count` is non-negative.  We'll get to why this particular invariant
-is not explicitlty documented in a moment…
+is not explicitly documented in a moment…
 
 ### Making It Tractable
 
@@ -1160,7 +1180,7 @@ But suppose you want to change a function's contract? The
 correctness-preserving changes are those that weaken the function's
 preconditions and/or strengthen its postconditions.  For example, this
 method returns the number of steps from the start of a collection to
-an occurence of some value.
+an occurrence of some value.
 
 ```swift
 extension Collection where Element: Equatable {

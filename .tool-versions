@@ -1,0 +1,7 @@
+# Tool versions for asdf version manager
+# See: https://asdf-vm.com/
+#
+# Note: For mdbook and plugin versions, see versions.txt
+# Use the install scripts to install the correct versions: ./scripts/install-tools.sh
+rust stable
+
