@@ -310,7 +310,7 @@ public func preconditionUncheckedInRelease(
       file: file, line: line)).0)
 }
 
-public func preconditionUncheckedInRelease(
+public func postconditionUncheckedInRelease(
   _ condition: @autoclosure () -> Bool,
   _ message: @autoclosure () -> String = "",
   file: StaticString = #file, line: UInt = #line
