@@ -293,49 +293,23 @@ recommend leaving postcondition checks out of function bodies.
 However, if you can't be confident that unit tests cover enough cases,
 since postconditions are often expensive to check, it might make sense
 to use assertions to check them as a confidence-building
-measure. Similarly, a precondition that can only be checked with a
-significant cost to preformance could be checked with
-`assert`. However, in both cases we suggest using a forwarding
-function whose name describes its meaning, so that `assert` is
-used directly only for internal soundness checks:
+measure.
+
+Similarly, a precondition that can only be checked with a significant
+cost to preformance could be checked with `assert`, but because—unlike
+most uses of `assert`—a failure indicates a bug in the caller, it's
+important to distinguish these uses in the assertion message:
 
 ```
-public func preconditionUncheckedInRelease(
-  _ condition: @autoclosure () -> Bool,
-  _ message: @autoclosure () -> String = "",
-  file: StaticString = #file, line: UInt = #line
-) {
-  assert(
-    condition() || (
-      false, fatalError("Precondition violated: \(message())",
-      file: file, line: line)).0)
-}
-
-public func postconditionUncheckedInRelease(
-  _ condition: @autoclosure () -> Bool,
-  _ message: @autoclosure () -> String = "",
-  file: StaticString = #file, line: UInt = #line
-) {
-  assert(
-    condition() || (
-      false, fatalError("Postcondition violated: \(message())",
-      file: file, line: line)).0)
-}
+assert(x.isSorted(), "Precondition failed: x is not sorted.")
 ```
 
-The distinction between these checks and a use of `assert` is important:
-on failure, these indicate a bug in the caller, while a failed
-`assert` normally indicates a bug in the callee. [^tricky]
-
-[^tricky]:
-
-All that said, resist the temptation to turn off a precondition check
-in release builds before measuring its effect on performance.  The
-value of stopping the program before things go too far wrong is
-usually higher than the cost of any particular check.  Certainly, any
-precondition check in a safe function that ultimately prevents an
-unsafe component from being misused can never be turned off in release
-builds.
+All that said, resist the temptation to skip a precondition check in
+release builds before measuring its effect on performance.  The value
+of stopping the program before things go too far wrong is usually
+higher than the cost of any particular check.  Certainly, any
+precondition check that prevents a safe function from misusing unsafe
+operations must never be turned off in release builds.
 
 ```swift
 extension Array {
@@ -352,8 +326,10 @@ extension Array {
 }
 ```
 
-In this example, the precondition check prevents an out-of-bounds
-access to a non-existent first element.
+The precondition check above prevents an out-of-bounds access to a
+non-existent first element, and cannot be skipped without also making
+the function unsafe (in which case “unsafe” should appear in the
+function name).
 
 ## Failures
 
