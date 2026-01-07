@@ -299,31 +299,34 @@ significant cost to preformance could be checked with
 function whose name describes its meaning, so that `assert` is
 used directly only for internal soundness checks:
 
-```swift
 public func preconditionUncheckedInRelease(
   _ condition: @autoclosure () -> Bool,
   _ message: @autoclosure () -> String = "",
   file: StaticString = #file, line: UInt = #line
 ) {
   assert(
-    condition, "Precondition violated: \(message())",
-    file: file, line: line)
+    condition() || (
+      false, fatalError("Precondition violated: \(message())",
+      file: file, line: line)).0)
 }
 
-public func postconditionUncheckedInRelease(
+public func preconditionUncheckedInRelease(
   _ condition: @autoclosure () -> Bool,
   _ message: @autoclosure () -> String = "",
   file: StaticString = #file, line: UInt = #line
 ) {
   assert(
-    condition, "Postcondition violated: \(message())",
-    file: file, line: line)
+    condition() || (
+      false, fatalError("Postcondition violated: \(message())",
+      file: file, line: line)).0)
 }
 ```
 
 The distinction between these checks and a use of `assert` is important:
 on failure, these indicate a bug in the caller, while a failed
-`assert` normally indicates a bug in the callee.
+`assert` normally indicates a bug in the callee. [^tricky]
+
+[^tricky]:
 
 All that said, resist the temptation to turn off a precondition check
 in release builds before measuring its effect on performance.  The
@@ -499,6 +502,9 @@ may not be described at all except at a module level, e.g.
 
 > Any `ThisModule` function that `throws` may report a
 > `ThisModule.Error`.
+
+
+## It's just API design to tell people about the errors you think they can handle.
 
 Since a type satisfying a protocol with functions marked `throws` may
 throw arbitrary errors, a module with generic components would often
