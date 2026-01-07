@@ -372,16 +372,16 @@ of two ways:
 In general, when a condition *C* is necessary for fulfilling your
 postcondition, there are three possible choices: you can make *C* a
 precondition of your function, you can have your function throw an
-`Error`, or you can weaken the postcondition, usually by making the
-function return an `Result<T, Error>` instead of a
-`T`.[^failable-initializer]
+`Error`, or you can weaken the postcondition, usually by returning a
+broader range of values such as those of `Result<T, Error>` instead of
+`T`. [^failable-initializer]
 
 [^failable-initializer]: Most functions that return `Optional<T>`, and
     what Swift calls a “failable initializer” (declared as `init?(…)`)
     can be thought of as taking a “weakened postcondition” approach.
     Despite the name “failable initializer,” by our definition a `nil`
     result represents not a failure, but a successful fulfillment of
-    the weak postcondition. Producing an `Optional<T>` rather than a
+    the weakened postcondition. Producing an `Optional<T>` rather than a
     `Result<T, E>` is appropriate when  there will never be a
     distinction, useful to the client, among reasons that the function
     can't produce a `T`. Subscripting a `Dictionary` with its key type
@@ -443,30 +443,56 @@ precondition, because, in general:
   by `throws` annotations or by more complex types such as `Result`.
 
 Array indexing is a perfect example where a precondition is better
-than a failure: a client can very cheaply ensure that the index is in
-range, and in most cases the client's other logic means that no
-separate check is needed.
+than a failure or weakened postcondition: a client can very cheaply
+ensure that the index is in range, and in most cases the client's
+other logic means that no separate check is needed, and the simple
+return type means there's no added cost (e.g. `!` or `try!`) imposed
+on client code.
 
 ### The Non-Precondition Approaches
 
-Throwing is a syntactic optimization for the case where the immediate
-caller will propagate the error to *its* caller, which can be done
-with a simple `try` label on the expression containing the call.
-Doing anything else with the error in the caller requires a much
-heavier `do { ... } catch ... { ... }` construct.  Because errors are
-propagated much more often than they are handled Swift has a
-first-class language feature—`throw`—to express that pattern.
+The decision about whether to `throw` or weaken the postcondition is
+an API design judgement call, but it is dominated by one consequential
+fact:
 
+> *In most cases*, when a callee can't fulfill its primary purpose,
+> neither can the caller—that inability instead propagates up the call
+> chain to some general handler that usually reports the condition
+> somehow and, if continuing is possible, restores the program to its
+> state before the failing operation.
 
-###
-- therefore Dynamic type
+Because this pattern is so common, most languages provide first-class
+features to accomodate it.  Swift's error handling fills that role,
+propagating errors upward with a simple `try` label on an expression
+containing the call.  Doing anything else with the error in the caller
+requires a much heavier `do { ... } catch ... { ... }` construct.
 
-Whether
-to `throw` or weaken the postcondition is a judgement call
+The commonality of propagation also explains why most throwing
+functions specify in their signatures *that*, but not *what*, they can
+throw: the correctness of most of the call chain above the doesn't
+depend on that information, and encoding it in the type system would
+needlessly limit the evolution of function implementations or cause
+meaningless churn in function signatures as implementations change,
+essentially exposing what should be implementation
+details. [^typed-throws] In fact, since reporting the error is
+typically the only useful response, handling the error doesn't depend
+on any specifics of its type: `any Error` already provides
+[`localizedDescription`](https://developer.apple.com/documentation/swift/error/localizeddescription).
 
+[^typed-throws]: Swift does have a [“typed throws”
+    feature](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/errorhandling#Specifying-the-Error-Type)
+    that lets you specify possible error types, but we suggest you
+    avoid it for the same reasons outlined above.
 
-When a precondition is not viable, the choice whether to weaken the
-postcondition or throw an `Error` is a judgement call.
+So in the vast majority of cases, you will want to make the condition
+a failure rather than weakening the postcondition.  The most obvious
+exceptions are those cases where it's very likely that an immediate
+caller will be able to take some action that allows it to succeed.
+For example, a low-level function that makes a single attempt to send
+a network packet is very likely to be called by a higher-level
+function that retries several times before failing.  The low-level
+function might return a `Result`, while the higher-level function can
+throw.
 
 ### Failures Are Not A Part of Postconditions
 
