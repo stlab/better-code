@@ -14,9 +14,10 @@ discussion.  Welcome to the *Errors* chapter!
 Before we get into it, we want you to know that what we present here
 is not the only logically consistent approach to errors, and our
 approach may clash with your instincts.  It is the result of
-optimizing for local reasoning and scalable software development, and
-the justifications for our choices are interdependent.  We hope you'll
-bear with us as we tie them all together.
+optimizing for local reasoning and the ergonomics of scalable software
+development, and the justifications for our choices are
+interdependent.  We hope you'll bear with us as we tie them all
+together.
 
 ## Definitions
 
@@ -53,6 +54,10 @@ We'll divide errors into three categories:[^common-definition]
 
 [^avoidable]: While bugs in general are inevitable, every *specific*
     bug is avoidable.
+
+<!-- I'm growing increasingly uncomfortable with these terms as a I
+write, partly because I find myself blurring/misusing them, which
+suggests they are not natural names for their distinctions -->
 
 [^common-definition]: While some folks like to use the word “error” to
 refer only to what we call *failures*—as the authors have done in the
@@ -109,10 +114,10 @@ a subjective judgement. For example:
 - The initial state of a compiler, before it has seen any input, meets
   the compiler's invariants. But when an error is encountered,
   resuming with that state would discard the context seen so
-  far. Unless the code following the error would have been legal at
+  far. Unless the input following the error would have been legal at
   the beginning a source file, the compiler will issue many unhelpful
-  diagnostics for that following code. Recovery means accounting
-  somehow for the non-erroneous code seen so far and re-synchronizing
+  diagnostics for that following input. Recovery means accounting
+  somehow for the non-erroneous input seen so far and re-synchronizing
   the compiler with what follows.
 
 - In a desktop graphics application, it's not enough that upon error
@@ -161,15 +166,15 @@ As terrible as that outcome may be, it's better than the
 alternative. Recovery code is almost never exercised or tested and
 thus is likely wrong, and the consequences of a botched recovery
 attempt can be worse than termination. To no advantage, most recovery
-code obscures the rest of the code and adds bloat, which hurts
-performance.  Continuing to run after a bug is detected also hurts our
-ability to fix the bug.  When a bug is detected, before any further
-state changes, you want to immediately capture as much information as
-possible that could assist in diagnosis.  In development that
-typically means dropping into a debugger, and in deployed code that
-might mean producing a crash log or core dump.  If deployed code
-continues to run, the bug is obscured and—even if automatically
-reported—will likely be de-prioritized until it is less
+code obscures the rest of the code and adds needless tests, which
+hurts performance.  Continuing to run after a bug is detected also
+hurts our ability to fix the bug.  When a bug is detected, before any
+further state changes, we want to immediately capture as much
+information as possible that could assist in diagnosis.  In
+development that typically means dropping into a debugger, and in
+deployed code that might mean producing a crash log or core dump.  If
+deployed code continues to run, the bug is obscured and—even if
+automatically reported—will likely be de-prioritized until it is less
 fresh and thus harder to address.  Worse, it can result in *multiple*
 symptoms that will be reported as separate higher-priority bugs whose
 root cause could have been addressed once.
@@ -334,7 +339,7 @@ function name).
 ## Failures
 
 As much as we all love bugs, it's time to leave them behind and talk
-about failures.  Let's say you identify a condition where your
+about failures.  Suppose you identify a condition where your
 function is unable to fulfill its primary purpose.  That can occur one
 of two ways:
 
@@ -376,6 +381,14 @@ precondition of your function, you can have your function throw an
 broader range of values such as those of `Result<T, Error>` instead of
 `T`. [^failable-initializer]
 
+<!--
+
+I'm growing uncomfortable with making a logical distinction
+between `() -> Result<T,any Error>` and `() throws -> T`.
+
+-->
+
+
 [^failable-initializer]: Most functions that return `Optional<T>`, and
     what Swift calls a “failable initializer” (declared as `init?(…)`)
     can be thought of as taking a “weakened postcondition” approach.
@@ -390,12 +403,12 @@ broader range of values such as those of `Result<T, Error>` instead of
 
 A precondition is appropriate when:
 
-- It is **possible for the caller to ensure** *C* is fulfilled.  In the
-  second example above, the call to `write` can fail because the
+- It is **possible for the caller to ensure** *C* is fulfilled.  In
+  the second example above, the call to `write` can fail because the
   storage is full. Even if the caller were to measure free space
   before the call and find it sufficient, other processes could fill
-  that space before the call to `write`. We must report a failure in
-  this case:
+  that space before the call to `write`. We *cannot* make sufficient
+  disk space a precondition in this case:
 
    ```swift
    extension Array {
@@ -410,16 +423,16 @@ A precondition is appropriate when:
    }
    ```
 
-- The work required for the caller to ensure the precondition is
-  insignificant.  For example, when deserializing a document you might
-  discover that the input is corrupted. The work required by a caller
-  to check for corruption before the call is usually nearly as high as
-  the cost of deserialization, so well-formedness would be an
-  inappropriate precondition for deserialization.  That said, remember
-  that ensuring a precondition can often be done *by construction*,
-  which makes it free. If this input is always known to be
-  machine-generated by the same program that parses it, a precondition
-  is an appropriate choice.
+- It is **affordable for the caller to ensure** the precondition.  For
+  example, when deserializing a document you might discover that the
+  input is corrupted. The work required by a caller to check for
+  corruption before the call is usually nearly as high as the cost of
+  deserialization, so well-formedness would be an inappropriate
+  precondition for deserialization.  That said, remember that ensuring
+  a precondition can often be done *by construction*, which makes it
+  free. If this input is always known to be machine-generated by the
+  same program that parses it, a precondition is an appropriate
+  choice.
 
 When both of these conditions are satisfied, you should prefer the
 precondition, because, in general:
@@ -431,14 +444,15 @@ precondition, because, in general:
 - Even if you had chosen one of the other options, most clients will
   have satisfied *C* by construction at the point of the call.
 - Making a client deal with the possibility of a reported error or
-  return values that will never occur forces them to think about the
-  case and write code to deal with it.
+  with return values that will never occur (because success can be
+  ensured by construction) forces them to think about the case and
+  write code to deal with it.
 - Adding error reporting or expanded return values to a function
-  inevitably generates code and some performance. Most often these
-  results can't be handled in the immediate caller, so are propagated
-  upwards, meaning these costs tend to spread to callers, and their
-  callers, and so forth.  This applies even in Swift where the control
-  flow implied by `try` is implicit.
+  inevitably generates code and costs some performance. Most often
+  these results can't be handled in the immediate caller, so are
+  propagated upwards, meaning these costs tend to spread to callers,
+  and their callers, and so forth.  This applies even in Swift where
+  the control flow implied by `try` is implicit.
 - The viral nature adds complexity to function signatures, either
   by `throws` annotations or by more complex types such as `Result`.
 
@@ -457,50 +471,90 @@ fact:
 
 > *In most cases*, when a callee can't fulfill its primary purpose,
 > neither can the caller—that inability instead propagates up the call
-> chain to some general handler that usually reports the condition
-> somehow and, if continuing is possible, restores the program to its
-> state before the failing operation.
+> chain to some general handler that reports the condition somehow
+> and restores the program to a state appropriate for continuing.
 
 Because this pattern is so common, most languages provide first-class
 features to accomodate it.  Swift's error handling fills that role,
 propagating errors upward with a simple `try` label on an expression
 containing the call.  Doing anything else with the error in the caller
 requires a much heavier `do { ... } catch ... { ... }` construct.
+Handling a thrown error is slighly heavier-weight than the `if let` or
+`if case let` required to decode an expanded return value, so
+ergonomically speaking, throwing makes sense unless it's very
+likely that most immediate callers will ultimately fulfill their primary
+purpose even when the callee has failed to.
 
-The commonality of propagation also explains why most throwing
-functions specify in their signatures *that*, but not *what*, they can
-throw: the correctness of most of the call chain above the doesn't
-depend on that information, and encoding it in the type system would
-needlessly limit the evolution of function implementations or cause
-meaningless churn in function signatures as implementations change,
-essentially exposing what should be implementation
-details. [^typed-throws] In fact, since reporting the error is
-typically the only useful response, handling the error doesn't depend
-on any specifics of its type: `any Error` already provides
-[`localizedDescription`](https://developer.apple.com/documentation/swift/error/localizeddescription).
-
-[^typed-throws]: Swift does have a [“typed throws”
-    feature](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/errorhandling#Specifying-the-Error-Type)
-    that lets you specify possible error types, but we suggest you
-    avoid it for the same reasons outlined above.
-
-So in the vast majority of cases, you will want to make the condition
-a failure rather than weakening the postcondition.  The most obvious
-exceptions are those cases where it's very likely that an immediate
-caller will be able to take some action that allows it to succeed.
 For example, a low-level function that makes a single attempt to send
 a network packet is very likely to be called by a higher-level
 function that retries several times before failing.  The low-level
 function might return a `Result`, while the higher-level function can
-throw.
+throw. These cases, however, are *extremely* rare, and if you have no
+special insight into this aspect of callers, choosing to throw is a
+pretty good bet.  The use cases for `Result` are rare enough, in fact,
+that it *can* be a reasonable choice to simplify your coding standard
+and always throw when a function's primary purpose can't be fulfilled.
+
+The commonality of propagation means that the correctness of functions
+in the call chain leading to the callee seldom depends on detailed
+information about thrown errors.  The usual untyped `throws`
+specification in a function signature tells most callers everything
+they need to use the function correctly.  In fact, since reporting the
+error is typically the only useful response when error propagation
+stops, handling an error usually doesn't depend on any specifics of
+its type: `any Error` provides
+[`localizedDescription`](https://developer.apple.com/documentation/swift/error/localizeddescription)
+for that purpose.
+
+#### Dynamic Typing of Errors
+
+Swift does have a [“typed throws”
+feature](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/errorhandling#Specifying-the-Error-Type)
+that lets you encode possible error types in the types of functions,
+but we suggest you avoid it, because it doesn't scale well and tends
+to “leak” what should be an implementation detail into a function's
+interface.  Because failing in a new way can be a breaking change for
+clients that use the same feature, it adds development friction and—if
+the friction is overcome—causes ripples of change throughout a
+codebase.  In practice, programmers routinely circumvent similar
+features in other languages because they are a poor match for common
+usage and have too high a cost to the development process.
+
+You can think of a thrown error the same way you'd think of a returned
+`any P` (where `P` is a protocol—`Error` in this case): we normally
+don't feel obliged to specify all the possible concrete types that can
+inhabit a given protocol instance, because the protocol itself
+provides the interface clients are expected to use.  Just as an `is`
+test or `as?` cast is *able* to interrogate the concrete type of a
+protocol instance, so can a `catch` clause, but that ability does not
+oblige a function to expose the details of those types.  Of course, an
+alternative to the “open” polymorphism of `any P` is the “closed”
+polymorphism of an `enum`.  Each has its place, but for all the
+reasons outlined above, open polymorphism is generally a better fit
+for the use case of error reporting.
+
+### How to Document Thrown Errors
+
+Because throwing indicates a failure to fulfill postconditions,
+details about errors thrown does not belong in a function's summary
+sentence fragment.  In fact, for reasons just detailed, it's very
+common that nothing needs to be documented at all: `throws` in the
+function signature indicates that arbitrary errors can be thrown and
+nothing more is needed to use the function correctly, so its contract
+is complete with no further documentation.
+
+This does not mean that possible error types and conditions never need
+to be documented.  If you can anticipate that clients of a function
+can use the details of some failure programmatically, it may make
+sense to put details in the function's documentation, especially when
+some reasons.
 
 ### Failures Are Not A Part of Postconditions
 
 The fact that failures report an inability to satisfy postconditions
 means that their details—and the possibilty that they occur—means that
 unlike return values, they **are not documented in the description of
-the postcondition**. If you find this difference counterintuitive,
-consider our rationale
+the postcondition**. and may not be explicitly documented at all.
 
 The fact that the vast majority of errors are not handled in the
 immediate caller, but instead propagated up the call chain, is
