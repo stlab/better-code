@@ -377,12 +377,7 @@ postcondition, there are three possible choices:
     can be thought of as taking a “weakened postcondition” approach.
     Despite the name “failable initializer,” by our definition a `nil`
     result represents not a runtime error, but a successful fulfillment of
-    the weakened postcondition. Producing an `Optional<T>` rather than a
-    `Result<T, E>` is appropriate when  there will never be a
-    distinction, useful to the client, among reasons that the function
-    can't produce a `T`. Subscripting a `Dictionary` with its key type
-    is a good example.  The only reason it would not produce a value
-    is if the key were not present.
+    the weakened postcondition.
 
 ### Adding a Precondition
 
@@ -481,6 +476,7 @@ to `throw` is a pretty good bet.[^uniform-choice]
     fact, that it's a reasonable choice to always `throw` for runtime
     error reporting.
 
+
 #### Dynamic Typing of Errors
 
 The overwhelming commonality of propagation means that functions in
@@ -536,7 +532,7 @@ whose primary home is the summary sentence fragment.[^result-doc]
     functions that return a `Result<T,E>`, which should be documented
     as though they just return a `T`:
 
-    swift```
+    ```swift
     extension Array {
       /// Writes a textual representation of `self` to a temporary file
       /// whose location is returned.
@@ -547,10 +543,9 @@ whose primary home is the summary sentence fragment.[^result-doc]
     ```
 
 In fact, for reasons just detailed, it's very common that nothing
-about errors needs to be documented at all: `throws` (or `Result`) in
-the function signature indicates that arbitrary errors can be thrown
-and no further information about errors is required to use the
-function correctly.
+about errors needs to be documented at all: `throws` in the function
+signature indicates that arbitrary errors can be thrown and no further
+information about errors is required to use the function correctly.
 
 That does not mean that possible error types and conditions should
 *never* be documented.  If you anticipate that clients of a function
@@ -572,39 +567,107 @@ calls attention to the error type introduced by `ThisModule`.
 
 ### Weakening The Postcondition
 
-- sort example
-- array indexing example (see below)
-- sum of unsigned numbers returns -1 example
-- dictionary indexing -> optional
+There are several ways to weaken a postcondition. The first is to make
+it conditional on some property of the function's inputs.  For
+example, take the `sort` method from the previous chapter. Instead of
+making it a precondition that the comparison is a total preorder, we
+could weaken the postcondition as follows:
 
-When both of these conditions are satisfied, you should prefer the
-precondition, because, in general:
+```swift
+/// Sorts the elements so that all adjacent pairs satisfy
+/// `areInOrder`, or permutes the elements in an unspecified way if
+/// `areInOrder` is not a [total
+/// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+/// `areInOrder`.
+///
+/// - Complexity: at most N log N comparisons, where N is the number
+///   of elements.
+mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
+```
 
-- Making *C* a precondition classifies ¬*C* as a bug in the caller,
-  which aids reasoning about the source of misbehaviors. When all
-  inputs are allowed, an opportunity to easily identify the incorrect
-  code is lost.
-- Even if you had chosen one of the other options, most clients will
-  have satisfied *C* by construction at the point of the call.
+As you can see, this change makes the API more complicated to no
+advantage: an unspecified permutation is not a result any client wants
+from `sort`.[^random-sort]
+
+[^random-sort]: We've seen attempts to randomly shuffle elements using
+    `x.sort { Bool.random() }`, but that has worse performance than a
+    proper `x.randomShuffle()` would, and is not guaranteed to
+    preserve the same randomness properties.  Perhaps more
+    importantly, the code lies by claiming to sort when it in fact
+    does not.
+
+Another approach is to intentionally expand the range of values
+returned.  For example, `Array`'s existing `subscript` could be
+declared as:
+
+```
+/// The `i`th element.
+subscript(i: Int) -> Element
+```
+
+but could have instead been designed this way:
+
+```
+/// The `i`th element, or `nil` if there is no such element.
+subscript(i: Int) -> Element?
+```
+
+The change adds only a small amount of complexity to the contract, but
+consider the impact on callers: every existing use of array indexing
+now needs to be force-unwrapped.  Aside from the runtime cost of all
+those tests and branches, seeing `!` in the code adds cognitive
+overhead for human readers.  In the vast majority of callers, the
+precondition of the original API is established by construction with
+no special checks, but should a client need to check that an index is
+in bounds, doing so is extremely cheap.
+
+Occasionally, though, a weakened postcondition is appropriate.
+Dictionary's `subscript` taking a key is one example:
+
+```
+/// The value associated with `k`, or `nil` if there is no such value.
+subscript(k: Key) -> Value?
+```
+
+In this case, it's common that callers have not somehow ensured the
+dictionary has a key `k`, and checking for the presence of the key in
+the caller would have a substantial cost similar to that of the
+subscript itself, so it's much more efficient to pay that cost once in
+the `subscript` implementation.
+
+### How to Choose?
+
+Clearly weakening a postcondition seldom pays off and should be used
+rarely.  Whenever it is appropriate, you should prefer to add a
+precondition, because:
+
+- A failure to satisfy the condition becomes a bug in the caller,
+  which aids in reasoning about the source of misbehaviors. When all
+  inputs are allowed, an opportunity to easily identify incorrect code
+  is lost. Furthermore, if the precondition is checkable at runtime,
+  you can catch misuse in testing, *before* it becomes misbehavior.
+
 - Making a client deal with the possibility of a reported error or
   with return values that will never occur (because success can be
   ensured by construction) forces them to think about the case and
   write code to deal with it.
+
 - Adding error reporting or expanded return values to a function
   inevitably generates code and costs some performance. Most often
   these results can't be handled in the immediate caller, so are
   propagated upwards, meaning these costs tend to spread to callers,
-  and their callers, and so forth.  This applies even in Swift where
-  the control flow implied by `try` is implicit.
-- The viral nature adds complexity to function signatures, either
-  by `throws` annotations or by more complex types such as `Result`.
+  and their callers, and so forth.  (The control flow implied by `try`
+  has a cost similar to the cost for checking and propagating a
+  returned `Result<T, any Error>`).
 
-Array indexing is a perfect example where a precondition is better
-than a runtime error or weakened postcondition: a client can very cheaply
-ensure that the index is in range, and in most cases the client's
-other logic means that no separate check is needed, and the simple
-return type means there's no added cost (e.g. `!` or `try!`) imposed
-on client code.
+- The alternatives complicate APIs.
+
+Producing an `Optional<T>` rather than a
+    `Result<T, E>` is appropriate when  there will never be a
+    distinction, useful to the client, among reasons that the function
+    can't produce a `T`. Subscripting a `Dictionary` with its key type
+    is a good example.  The only reason it would not produce a value
+    is if the key were not present.
 
 ### Onward
 
