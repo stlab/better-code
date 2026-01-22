@@ -728,7 +728,7 @@ only slightly modified.
 
 ```swift
 /// A resizable random-access `Collection` of `T`s.
-struct DynamicArray<T> {
+struct MyArray<T> {
 
   /// Removes and returns the last element.
   public mutating func popLast() -> T { ... }
@@ -758,7 +758,7 @@ The first one
 
 ```swift
 /// A resizable random-access `Collection` of `T`s.
-struct DynamicArray<T>
+struct MyArray<T>
 ```
 
 gives us the context we need to understand the methods: we're looking
@@ -903,7 +903,8 @@ it need not take more than a few seconds:
 
 ### A More Complicated Example
 
-Let's take a look at a traditional sorting algorithm.
+Let's take a look at a traditional sorting algorithm on a fictitous
+collection type:
 
 ```swift
 extension DynamicArray {
@@ -914,7 +915,7 @@ extension DynamicArray {
   ///   over the elements of `self`.
   /// - Complexity: at most N log N calls to `areInIncreasingOrder`, where N is
   ///   the number of elements.
-  mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
+  mutating func sort(areInIncreasingOrder: (Element, Element)->Bool) { ... }
 }
 
 var a = [7, 9, 2, 7]
@@ -993,7 +994,7 @@ this is a case where an example might really help.
   ///   over the elements of `self`.
   /// - Complexity: at most N log N comparisons, where N is the number
   ///   of elements.
-  mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
+  mutating func sort(areInIncreasingOrder: (Element, Element)->Bool) { ... }
 ```
 
 #### Letting Simplicity Drive Design
@@ -1046,7 +1047,7 @@ tricky, we can drop the example, and we're left with this:
 ///   over the elements of `self`.
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
-mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
 ```
 
 But we can go further and use a much simpler and more natural summary:
@@ -1090,7 +1091,7 @@ declaration:
 ///
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
-mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
 ```
 
 There is one factor we haven't considered in making these changes:
