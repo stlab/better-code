@@ -521,39 +521,43 @@ are very unlikely to directly propagate the error, in which case you
 are likely to use `Result<T, E>` rather than throwing, and using a
 more specific error type than `any Error` might make sense.
 
-#### How to Document Thrown Errors
+#### How to Document Runtime Errors
 
 Because a runtime error report indicates a failure to fulfill
 postconditions, information about errors—including that they are
 possible—does not belong in a function's postcondition documentation,
 whose primary home is the summary sentence fragment.[^result-doc]
 
-[^result-doc]: This creates a slightly awkward special case for
+[^result-doc]: This rule creates a slightly awkward special case for
     functions that return a `Result<T,E>`, which should be documented
     as though they just return a `T`:
 
     ```swift
     extension Array {
-      /// Writes a textual representation of `self` to a temporary file
-      /// whose location is returned.
+      /// Writes a textual representation of `self` to a temporary file,
+      /// returning its location.
       func writeToTempFile(withChunksOfSize n: Int)
         -> Result<URL,IOError>
       { ... }
     }
     ```
 
-In fact, for reasons just detailed, it's very common that nothing
-about errors needs to be documented at all: `throws` in the function
-signature indicates that arbitrary errors can be thrown and no further
-information about errors is required to use the function correctly.
+In fact, because most callers propagate errors, it's very common that
+nothing about errors needs to be documented at all: `throws` in the
+function signature indicates that arbitrary errors can be thrown and
+no further information about errors is required to use the function
+correctly.
 
 That does not mean that possible error types and conditions should
 *never* be documented.  If you anticipate that clients of a function
 will use the details of some runtime error programmatically, it may
-make sense to put details in the function's documentation, but resist
-the urge to document these details just because they “might be
+make sense to put details in the function's documentation. That said,
+resist the urge to document these details just because they “might be
 needed.” As with any other detail of an API, documenting errors that
-(almost) noone cares creates a usability tax that is paid by everyone.
+are irrelevant to most code creates a usability tax that is paid by
+everyone.  In any case, keeping runtime error information out of
+postconditions (and thus summary documentation) works to simplify
+contracts and make functions easier to use.
 
 A useful middle ground is to describe reported errors at the module
 level, e.g.
@@ -564,6 +568,81 @@ level, e.g.
 A description like the one above does not preclude reporting other
 errors, such as those thrown by a dependency like `Foundation`, but
 calls attention to the error type introduced by `ThisModule`.
+
+##### Documenting Mutating Functions
+
+When a runtime error occurs partway through a mutating operation, a a
+partially mutated state may be left behind. Trying to describe these
+states in detail is usually a bad idea.  Apart from the fact that
+such descriptions can be unmanageably complex—try to document the
+state of an array from partway through an aborted sorting operation—it
+is normally information no client can use.
+
+Partially documenting these states *can* be useful, however.  For
+example, [Swift's
+`sort(by:)`](https://developer.apple.com/documentation/swift/array/sort(by:))
+method guarantees that no elements are lost if an error occurs, which
+can be useful in code that manages allocated resources, or that
+depends for its safety on invariants being upheld (usually the
+implementations of safe types with unsafe implementation details).
+The following code uses that guarantee to ensure that all the
+allocated buffers are eventually freed.
+
+```swift
+/// Processes each element of `xs` in an order determined by the
+/// [total
+/// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
+/// `areInOrder` using a distinct 1Kb buffer for each one.
+func f(_ xs: [X], orderedBy areInOrder: (X, X) throws -> Bool) rethrows
+{
+  var buffers = xs.map { x in
+    (p, UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)) }
+  defer { for _, b in buffers { b.deallocate() } }
+
+  buffers.sort { !areInOrder($1.0, $0.0) }
+    ...
+}
+```
+
+The **strong guarantee** that *no mutation occurs at all* in case
+of an error is the easiest to document and most useful special case:
+
+```swift
+/// If `shouldSwap(x, y)`, swaps `x` and `y`.
+///
+/// If an error is thrown there are no effects.
+func swap<T>(
+  _ x: inout T, _ y: inout T, if shouldSwap: (T, T) throws->Bool
+) rethrows {
+  if try shouldSwap(x, y) {
+    swap(&x, &y)
+  }
+}
+```
+
+A few caveats about mutation guarantees when errors occur:
+
+1. Known use cases are few and rare: most allacated resources are
+   ultimately managed by the `deinit` of some class, and uses of
+   unsafe operations are usually encapsulated. Weigh the marginal
+   utility of making guarantees against the complexity it adds to
+   documentation.
+2. Like any guarantee, they can limit your ability to change a
+   function's implementation without breaking clients.
+3. Avoid making guarantees if it has a performance cost.  For example,
+   one way to get the strong guarantee is to order operations so the
+   first mutation occurs only after all throwing operations are
+   complete.  Some mutating operations can be arranged that way at
+   little or no cost, but you can do it to *any* operation by copying
+   the data, mutating the copy (which might fail), and finally
+   replacing the data with the mutated copy.  The problem is that the
+   copy can be expensive and you can't be sure all clients need it.
+   Even when a client needs to give the same guarantee itself, your
+   work may be wasted: when operations A and B give the strong
+   guarantee, the operation C composed of A and then B does not (if B
+   fails, the modifications of A remain). If you need a strong
+   guarantee for C, another copy is required and the lower-level
+   copies haven't helped at all.
 
 ### Weakening The Postcondition
 
@@ -641,288 +720,104 @@ Clearly weakening a postcondition seldom pays off and should be used
 rarely.  Whenever it is appropriate, you should prefer to add a
 precondition, because:
 
-- A failure to satisfy the condition becomes a bug in the caller,
-  which aids in reasoning about the source of misbehaviors. When all
-  inputs are allowed, an opportunity to easily identify incorrect code
-  is lost. Furthermore, if the precondition is checkable at runtime,
-  you can catch misuse in testing, *before* it becomes misbehavior.
+- It makes it easy to identify incorrect code. A failure to satisfy
+  the condition becomes a bug in the caller, which aids in reasoning
+  about the source of misbehaviors. If the precondition is checkable
+  at runtime, you can even catch misuse in testing, *before* it
+  becomes misbehavior.
 
-- Making a client deal with the possibility of a reported error or
-  with return values that will never occur (because success can be
-  ensured by construction) forces them to think about the case and
-  write code to deal with it.
+- Making a client deal with the possibility of return values or
+  runtime errors that will never occur in practice forces authors and
+  readers of client code to think about the case and the code to
+  handle it (or about why that code isn't needed).
 
 - Adding error reporting or expanded return values to a function
   inevitably generates code and costs some performance. Most often
   these results can't be handled in the immediate caller, so are
-  propagated upwards, meaning these costs tend to spread to callers,
-  and their callers, and so forth.  (The control flow implied by `try`
-  has a cost similar to the cost for checking and propagating a
-  returned `Result<T, any Error>`).
+  propagated upwards, spreading the cost to callers, their callers,
+  and so forth.  (The control flow implied by `try` has a cost similar
+  to the cost for checking and propagating a returned `Result<T, any
+  Error>`).
 
 - The alternatives complicate APIs.
 
-Producing an `Optional<T>` rather than a
-    `Result<T, E>` is appropriate when  there will never be a
-    distinction, useful to the client, among reasons that the function
-    can't produce a `T`. Subscripting a `Dictionary` with its key type
-    is a good example.  The only reason it would not produce a value
-    is if the key were not present.
-
-### Onward
-
-So why am I tying this definition to postconditions other than to bind our understanding of error handling to our understanding of correctness?
-
-First of all, it simplifies and improves understandability of contracts.  This is easiest to see if you have a dedicated language mechanism for error handling:
-
-** Note: fictional programming language **
-
-// Returns `x` sorted in `order`, or throws an exception
-// in case order fails.
-fn sorted(x: [Int], order: Ordering<Int>) throws -> [Int]
-
-// Returns `x` sorted in `order`.
-fn sorted(x: [Int], order: Ordering<Int>) throws -> [Int]
-
-Even if you feel you need to say something about possible failures, that becomes a secondary note that's not essential to the contract.
-
-// Returns `x` sorted in `order`.
-//
-// Propagates any exceptions thrown by `order`.
-fn sorted(x: [Int], order: Ordering<Int>) throws -> [Int]
-
-A programmer can know everything essential from the summary fragment and the signature.  Another way this separation plays nicely with exceptions is that you can say the postcondition of a function describes what you get when it returns, and a throwing function never returns.
-
-If you don't use exceptions, you still simplified contracts as long as you have dedicated types to represent the possibility of failure.
-
-// Returns `x` sorted in `order`.
-fn sorted(x: [Int], order: Ordering<Int>) -> ResultOrFailure<[Int]>
-
-Separating the function's primary intention from the reasons for failure makes sense, because the reasons for failure matter less.  If that's not obvious yet, some justification is coming.
-
-Another reason to exclude the failure case from the postcondition is that you want postconditions to be solid and fully described, but a mutating operation that fails often leaves behind a state that's very difficult to nail down, and as I said in the contracts talk, that you usually don't want to nail down, because it's detail nobody cares about.  But if it's part of the postcondition, you need to say something about it, and that further complicates the contract.
-
-// Sorts `x` according to `order` or throws an exception
-// if `order` fails, leaving `x` modified in unspecified
-// ways.
-fn sort(mutating x: [Int], order: Ordering<Int>) throws
-
-// Sorts `x` according to `order`.
-fn sort(mutating x: [Int], order: Ordering<Int>) throws
-
-### Two kinds of failures
-
-If you've spent some time writing code that carefully handles failures, especially in a language like C where all the error propagation is explicit, failures start to fall into two main categories: local and non-local, based on where the recovery is likely to happen.
-
-Local recovery occurs very close to the source of failure, usually in the immediate caller, in a way that often depends heavily on the reasons for the failure.  In many cases, the recovery path is performance-critical.
-
-**Example**: you have an ultrafast memory allocator that draws from a local pool much smaller than your system memory.  You build a general-purpose allocator that first tries your fast allocator, and only if that allocation fails, recovers by trying the system allocator.
-
-**Example**: the lowest level function that tries to send a network packet can fail for a whole slew of reasons (https://www.ibm.com/docs/en/zos/2.3.0?topic=codes-sockets-return-errnos), some of which may indicate a temporary condition like packet collision.  99% of the time, the immediate caller is a higher-level function that checks for these conditions and if found, initiates a retry protocol with exponential backoff, only itself failing after N failed retries.  That lowest-level failure is local.  The failure after N retries is very likely to be non-local.
-
-Non-local recovery, which is far more common, occurs far from the source, usually in a way that can be described without reference to the reasons for failure.  For example,  when you're serializing a complex document,  serializing any part means serializing all of its sub-parts, and parts are ultimately nested many layers deep. Because you can run out of space in the serialization medium, every step of the process can fail.  If you write out the error propagation explicitly, it usually looks like this:
-
-// Writes `s` into the archive.
-fn serialize_section(s: Section) -> MaybeFailure<ArchiveFull,IOError,Unknown>
-{
-  var failure: Optional<FailureCode> = none;
-
-  failure = serialize_part1(s.part1);
-  if failure != none { return failure; }
-
-  failure = serialize_part2(s.part2);
-  if failure != none { return failure; }
-
-  ...
-
-  return serialize_partN(s.partN);
-}
-
-After every operation that can fail, you're adding “and if there was a failure, return it.”
-
-There are many layers of this propagation.  None of it depends on the details of the reasons for failure: whether the disk is full or the OS detects directory corruption, or serialization is going to an in-memory archive and you run out of memory, you're going to do the same thing.  Finally, where propagation stops and the failure is handled—let's say this is a desktop app— again, the recovery is usually the same no matter the reasons for the failure: you report the problem to the user and wait for the next command.
-
-#### Interlude: Exceptions?
-
-Way back in 1996 I embarked on a mission to dispel the widespread fear, loathing, and misunderstanding around exceptions.  Yes I'm old.  While I've seen some real progress on that over the years, I know some of you out there are still not all that comfortable with the idea. If you'll let me, I think I can help.
-
-##### Just control flow
-
-Cases like this are where the motivation for exceptions becomes really obvious. They eliminate the boilerplate and let you see the code's primary intent:
-
-// Writes `s` into the archive.
-fn serialize_section(s: Section) throws {
-  serialize_part1(s.part1);
-  serialize_part2(s.part2);
-  ...
-  serialize_partN(s.partN);
-}
-
-There's no magic.  Exceptions are just control flow.  Like a switch statement, they capture a commonly needed pattern control flow pattern and eliminate unneeded syntax.
-
-To grok the meaning of this code in its full detail, you mentally add “and if there was a failure, return it” everywhere.  But if you push failures out of your mind for a moment you can see that how the function fulfills its primary purpose leaps out at you in a way that was obscured by all the failure handling.  The effect is even stronger when there's some control flow that isn't related to error handling.
-
-##### Also, type erasure
-
-OK, I lied a little when I said exceptions are just control flow.  There's one other big difference between the exception version and the explicit version: the exception version erases the types of the failure data, and catch blocks are just big type switches with dynamic downcasts.
-
-Lots of us are “static typing partisans,” so at first this might sound like a bad thing, but remember, as I said, none of the code propagating this failure (or even recovering from it usually) cares about its details.  What do you gain by threading all this failure information through your code?  When the reasons for failure change you end up creating a lot of churn in your codebase updating those types.
-
-In fact, if you look carefully at the explicit signature, you'll see something that typically shows up when failure type information is included: people find a way to bypass that development friction.
-
-fn serialize_section(s: Section) -> MaybeFailure<ArchiveFull,IOError,Unknown>
-
-Here an “unknown” case was added that is basically a box for any failure type.  This is also a reason that systems with statically checked exception types are a bad idea.  Java's “checked exceptions” are a famously failed design because of this dynamic.
-
-Swift recently added statically-typed error handling in spite of this lesson that should be well-understood to language designers, for reasons I don't understand.  There was great fanfare from the community, because, I suppose, everybody thinks they want more static type safety. I'm not optimistic that this time it's going to work out any better.
-
-The moral of the story: sometimes dynamic polymorphism is the right answer.  Non-local error handling is a key example, and the design of most exception systems optimize for that.
-
-#### When (and when not) to use exceptions
-
-There's a lot of nice sounding advice out there about this that is either meaningless or vague, like “use exceptions for exceptional conditions,” or “don't use exceptions for control flow.”  I know that one is really popular around Adobe, but c'mon: if you're using exceptions, you're using them for control flow.  I hope to improve on that advice a little bit.
-
-First of all, you can use exceptions for things that aren't obviously failures, like when the user cancels a command.  An exception is appropriate because the control flow pattern is identical to the one where the command runs out of disk space: the condition is propagated up to the top level.  In this case recovery is slightly different: there's nothing to report to the user when they cancel, but all the intermediate levels are the same.  It would be silly to explicitly propagate cancellation in parallel with the implicit propagation of failures.
-
-But if you make this choice, I strongly urge you to classify this not-obviously-a-failure thing as a failure!  Otherwise you'll undo all the benefits of separating failures from postconditions, and you'll have to include “unless the user cancels, in which case…” in the summary of all your functions.  So in the end, my broad advice is, “only use exceptions for failures (but be open minded about what you call a failure).”  Actually, even if you're not using exceptions, any condition whose control flow follows the same path as non-local failures should probably be classified as a failure.
-
-Another prime example is the discovery of a syntax error in some input.  In the general case, you are parsing this input out of a file. I/O failures can occur, and will follow the same control flow path.  Classifying your syntax error as a failure and using the same reporting mechanism is a win in that case.
-
-Next, don't use exceptions for bugs. As we've said, when a bug is detected the program cannot proceed reliably, and throwing is likely to destroy valuable debugging information you need to find the bug, leave a corrupt state, open a security hole, and hide the bug from developers.  Even though the “default behavior” of exceptions is to stop the program, throwing defers the choice about whether to actually stop to every function above you in the call stack.  This is not a service, it's a burden. You've made your function harder to use by giving your clients more decisions to make.  Just don't.
-
-That also means if you use components that misguidedly throw logic_errors, domain_error, invalid_argument, length_error or out_of_range at you, you should almost always stop them and turn them into assertion failures.  All that said, there are some systems, like Python, where using exceptions for bugs (to say nothing of exiting loops!) is so deeply ingrained that it's unavoidable. In python you have to ignore this rule.
-
-Don't use exceptions for local failures.  As we've seen, exceptions are optimized for the patterns of non-local failures.  Using them for local failures means more catch blocks, which increase code complexity.  It's usually easy to tell what kind of failure you've got, but if you're writing a function and you really can't guess whether its failure is going to be handled locally, maybe you should write two functions.
-
-Next, consider performance implications.  Most languages aren't like this, but most C++ implementations are usually biased so heavily toward optimizing the non-failure cases that handling a failure runs one or two orders of magnitude slower.  Usually that's a great trade-off because it allows them to skip checking for the error case on the hot path, and non-local failures are rare and don't happen repeatedly inside tight loops. But if you're writing a real-time system for example, you might want to think twice.
-
-Here's an example that might open your mind a bit: when we were discussing the design of the Boost C++ Graph Library, we realized that occasionally a particular use of a graph algorithm might want to stop early.  For example, Dijkstra's algorithm finds all the paths from A to B in order, from shortest to longest.  What if you want to find the ten shortest paths and stop?  The way this library's algorithms work, you pass them a “visitor” object that gets notified about results as they are discovered.  And in fact there are lots of notification points for intermediate conditions, not just “complete path found,” so if we were going to handle this early stop explicitly, we'd generate a test after each one of these points in the algorithm's inner loop.  Instead, we decided to take advantage of the C++ bias toward non-failures.  We said a visitor that wants to stop early can just throw.  Now in fairness, I don't think we ever benchmarked the effects of this choice, so it might have been wrong in the end.  But it was at least plausibly right.
-
-Finally, you might need to consider your team's development culture and use of tooling.  If people typically have their debuggers set up to stop when an exception occurs, you might need to take extra care not to throw when there's an alternate path to success.  Some developers tend to get upset when code stops in a case that will eventually succeed.
-
-### How to Handle Failure
-
-OK, enough about exceptions.  Finally we come to the good part!  Seriously, this was originally going to be the focus of the entire talk.
-
-Let's talk about the obligations of a failing function and of its caller.  What goes in the contract and what does each side need to do to ensure correctness?
-
-#### Callee
-
-Documentation:
-Document local failures and what they mean.
-Document non-local failures at their source, but not where they are simply propagated. That information can be nice to have, but it also complicates contracts and is a burden to propagate and keep up-to-date.
-
-Code:
-Release any unmanaged resources you've allocated (e.g. close temporary file).
-
-##### Optional
-
-If mutating, consider giving the strong/transactional guarantee that if there is a failure, the function has no effects.
-
-Only do this if it has no performance cost. Sometimes it just falls out of the implementation.  Sometimes you can get it by reordering the operations.  For example, if you do all the things that can fail before you mutate anything visible to clients, you've got it.
-
-Don't pay a performance penalty to get it because not all clients need it and when composing parts all the needless overheads add up massively.
-
-#### Caller
-
-- Discard any partially-completed mutations to program state or propagate the error and that responsibility to your caller.  This partially mutated state is meaningless.
-
-What counts as state?  Data that can have an observable effect on the future behavior of your code.  Your log file doesn't count.
-
-##### Implications as data structures scale up
-
-The only strategy that really scales in practice, when mutation can fail, is to propagate responsibility for discarding partial mutations all the way to the top of the application.  That in turn implies mutating a copy of existing data and replacing the old copy only when mutation succeeds.  Either way, you probably end up with a persistent data structure (which is a confusing name—it has nothing to do with persistence in the usual sense).
-
-A persistent data structure is one where a partial mutation of a copy shares a lot of storage with the original.  For example, in Photoshop, we store a separate document for each state in the undo history, but these copies share storage for any parts that weren't mutated between revisions.  This sharing behavior falls out naturally when you compose your data structure from copy-on-write parts.
-
-#### What (not) to do when an assertion fires.
-
-- Don't remove the assertion because “without that the program works!”
-- Don't complain to the owner of the assertion that they are crashing the program.
-- Understand what kind of check is being performed
- - If it's a precondition check, fix your bug
- - If it's a self-check or postcondition check, talk to the code owner about why their assumptions might have been violated
-
-#### Probably different functions for unit testing.
-
-
-
-
-
-
-
-
-Notes:
-  - read from network, how much was read
-    - no-error case exists
-    - podcast
-    - likely a local handling case.
-    - don't go to vegas with something you're not prepared to lose.
-
-Quickdraw GX: 15% performance penalty for making silent null checks.
-
-David Sankel   50:11
-Folks can go ahead and put your hands up if you would like to.
-Uh.
-Ask a question.
-Build a queue.
-
-Dave Abrahams   50:22
-I have the feeling that I didn't.
-I didn't quite adequately deal with everybody's.
-I questions that came up during the talk, so I'm happy to revisit those.
-Got one hand?
-
-David Sankel   50:36
-At Philip, go ahead.
-
-Philip Levy   50:38
-And like to go back to a comment you made about.
-The Boost graph library and raising exceptions to terminate that and you were pondering whether that was actually a good thing to have done based on performance, and it was wondering, is the notion that the fact that a visitor could raise an exception affecting performance of the execution you know of of non exceptional cases or just the cost of terminating the the algorithm by just raising that one exception?
-
-Dave Abrahams   51:21
-OK, I'm I'm going to try to try to answer your question as I understand, but I'm OK.
-
-Philip Levy   51:28
-Well, let me just clarify a little bit.
-My expectations would be that raising an exception to terminate the algorithm wouldn't affect the performance of the execution of the algorithm.
-The termination is a one time thing versus you know many thousands of nodes.
-You may be looking at and so I was wondering why you were pondering that.
-
-Dave Abrahams   51:47
-Right.
-That's the trade off we thought would love me.
-So.
-So Philip, yes, that that's the tradeoff that we thought we were making we because because C++ biases in favor of the straight line code, we thought this would be, this would be a good optimization.
-My my reason for questioning it is I don't think we ever actually did any measurements.
-That's all.
-
-Philip Levy   52:16
-OK, alright.
-So it's it's an unknown, but there's no reason to believe it would be a problem.
-
-Dave Abrahams   52:22
-Right, that's correct.
-
-Philip Levy   52:24
-OK. Thank.
-Thank you.
-
-Dave Abrahams   52:27
-I suppose if these graph algorithms were themselves used in tight loops on small problems where where the amount of straight line execution was low and you were throwing exceptions to terminate, that would be that would be bad, right?
-If the algorithm was used repeatedly, umm, go ahead.
-
-Sean Parent   52:48
-So I think the others, I, David, there is there was an assumption that the checks at each node to see if there was a termination requested would be expensive and under modern hardware it probably costs you something, but it's a little hard to say.
-
-Dave Abrahams   53:13
-Yeah, I mean, you know, it's really hard to say without measuring.
-
-Sean Parent   53:14
-She tested.
-
-Dave Abrahams   53:17
-That's pretty much always the case for for performance.
-You know, there's a there's a solid argument that, you know, the the functions on visitors are usually inlined.
-When all of those intermediate visit points are are, you know are no OPS, the compiler can see it, and then it could skip the checks.
-So like you know, the lesson is always measured before you make conclusions about performance.
+Most of the time, when a precondition isn't added, it makes sense to
+report a runtime error, because it preserves the idea of the
+function's simple primary purpose, implying that all the other cases
+are some kind of failure to achieve that purpose.  Weakening the
+postcondition means considering more cases successful, which makes a
+function into a multipurpose tool, which is usually harder to
+document, use, and understand.
+
+If you must weaken the postcondition, returning an `Optional<T>`
+instead of a `T` adds the least possible amount of information to the
+success case, and thus does the least harm to API simplicity. It can
+be appropriate when there will never be a useful distinction among
+reasons that the function can't produce a `T`. Subscripting a
+`Dictionary` with its key type is a good example.  The only reason it
+would not produce a value is if the key were not present.
+
+Lastly, remember that the choice is in your hands, and what you choose
+has a profound effect on clients of your code. There is no criterion
+that tells us a condition must or must not be a runtime error other
+than the effect it has on client code.
+
+## Handling Runtime Errors Correctly
+
+The previous section was about how to design APIs; this one covers how
+to account for errors in function bodies.
+
+### When Propagation Stops
+
+Code that stops upward propagation of an error and continues to run
+has one fundamental obligation: to discard any partially-mutated state
+that can affect on the future behavior of your code (that excludes log
+files, for example).  In general, this state is completely unspecified
+and there's no other valid thing you can do with it.
+
+For the same reasons that the strong guarantee does not compose,
+neither does the discarding of partial mutations: if the second of two
+composed operations fails, modifications made by the first
+remain. So ultimately, that means responsibility for discarding partial
+mutations tends to propagate all the way to the top of an application.
+
+In most cases, the only acceptable behavior at that point is to
+present an error report to the user and leave their data unchanged,
+i.e. the program must provide the strong guarantee. That in turn
+means—unless the data is all in a transactional database—a program
+must usually follow the formula already given for the strong
+guarantee: mutate a copy of the user's data and replace the data only
+when mutation succeeds.[^persistent]
+
+[^persistent]: This pattern is only reasonably efficient when the data
+  is small or in a [persistent data
+  structure](https://en.wikipedia.org/wiki/Persistent_data_structure).
+  Because of Swift's use of
+  [copy-on-write](https://en.wikipedia.org/wiki/Copy-on-write) for
+  variable-sized data, any data structure built out of standard
+  collections can be viewed as persistent provided none are allowed to
+  grow too large, but easier and more rigorous implementations of
+  persistence can be found in
+  [swift-collections](https://github.com/apple/swift-collections),
+  e.g. [`TreeSet` and
+  `TreeDictionary`](https://swiftpackageindex.com/apple/swift-collections/1.3.0/documentation/hashtreecollections)
+
+### Mutating Functions
+
+The fact that all partially-mutated state must be discarded has one
+profound implication for invariants: in general, when an error occurs,
+a mutating method need not restore any invariants it has broken.  It
+can instead propagate the error to its caller with no further
+ceremony!
+
+The exception is the invariants of types whose safe operations are
+implemented in terms of unsafe ones. Any invariants depended on to
+satisfy preconditions of those unsafe operations must of course be
+upheld to preserve the safety guarantees.
+
+### Functions that Allocate Unmanaged Resources
+
+Any resources such as open files or raw memory allocations that are
+not otherwise managed must be released.  It's best to limit that
+concern by making resource release the responsibility of some class'
+`deinit` method.
