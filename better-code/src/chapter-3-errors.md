@@ -20,11 +20,13 @@ together.
 
 ## Definitions
 
-To understand any topic, it's important to define it crisply, and
-unfortunately “error” and associated words have been used rather
-loosely, and previous attempts to define these words have relied on
-other words, like “expected,” which themselves lack clear definitions,
-at least when it comes to programming.
+To understand any topic, it's important to have crisp definitions of
+the terms you're using,  and ideally, to take those definitions from
+the most common existing practice.  Unfortunately “error” and
+associated words have been used rather loosely, and previous attempts
+to define these words have relied on other words, like “expected,”
+which themselves lack clear definitions, at least when it comes to
+programming.
 
 Unless we want to invent new terms, we will have to impose a little of
 our own structure on the usual terminology. We hope these definitions
