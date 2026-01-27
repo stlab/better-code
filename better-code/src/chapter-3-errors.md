@@ -769,13 +769,47 @@ than the effect it has on client code.
 The previous section was about how to design APIs; this one covers how
 to account for errors in function bodies.
 
+### Reporting or propagating an Error From a Function
+
+When a function exits with an error, either locally initiated or
+propagated, any resources such as open files or raw memory allocations
+that are not otherwise managed must be released.  The best way to
+manage that is with a `defer` block releasing the resources
+immediately after they are allocated:
+
+```swift
+let f = try FileHandle(forReadingFrom: p)
+defer { f.close() }
+// use f
+```
+
+If the resources must be released somewhere other than the end of the
+scope where they were allocated, you can tie them to the `deinit` of
+some type:
+
+```swift
+struct OpenFileHandle: ~Copyable {
+  /// The underlying type with unmanaged close functionality
+  private let raw: FileHandle
+
+  /// An instance for reading from p.
+  init(forReadingFrom p: URL) { raw = .init(forReadingFrom: p) }
+
+  deinit {
+    raw.close()
+  }
+}
+```
+
 ### When Propagation Stops
 
 Code that stops upward propagation of an error and continues to run
 has one fundamental obligation: to discard any partially-mutated state
 that can affect on the future behavior of your code (that excludes log
 files, for example).  In general, this state is completely unspecified
-and there's no other valid thing you can do with it.
+and there's no other valid thing you can do with it. Any use of
+a partially mutated instance, other than to deinitialize it, is
+erroneous.
 
 For the same reasons that the strong guarantee does not compose,
 neither does the discarding of partial mutations: if the second of two
@@ -807,19 +841,51 @@ when mutation succeeds.[^persistent]
 ### Mutating Functions
 
 The fact that all partially-mutated state must be discarded has one
-profound implication for invariants: in general, when an error occurs,
-a mutating method need not restore any invariants it has broken.  It
-can instead propagate the error to its caller with no further
-ceremony!
+profound implication for invariants: when an error occurs, with two
+rare exceptions, a mutating method need not restore invariants it has
+broken, and can simply propagate the error to its caller.
 
-The exception is the invariants of types whose safe operations are
+The first exception is for invariants depended on by a `deinit`
+method. However, `deinit` methods are rare, and `deinit` methods with
+dependencies on invariants that might be left broken in case of an
+error are rarer still. You _might_ encounter one in a `ManagedBuffer`
+subclass—see the Data Structures chapter for more details.
+
+The second exception for invariants of types whose safe operations are
 implemented in terms of unsafe ones. Any invariants depended on to
 satisfy preconditions of those unsafe operations must of course be
-upheld to preserve the safety guarantees.
+upheld to maintain the safety guarantees.  So, for example, if a
+supposedly-safe operation deallocates an `UnsafePointer`, it depends
+on the precondition that the pointer was returned by an earlier
+allocation and hasn't been deallocated. Any invariant that ensures the
+precondition would be satisfied (e.g. “`p: UnsafePointer<T>?` is
+either `nil` or valid for deallocation”) must be upheld by all
+mutating methods.
 
-### Functions that Allocate Unmanaged Resources
+The key to controlling any invariant is to factor the properties
+involved into a `struct` whose only job is to manage the values of
+those properties, and keep write access to those properties `private`.
+Establish the invariant in this struct's `init` methods, and—for these
+exceptional cases—take care that it is restored before propagating any
+errors from its `mutating` methods.
 
-Any resources such as open files or raw memory allocations that are
-not otherwise managed must be released.  It's best to limit that
-concern by making resource release the responsibility of some class'
-`deinit` method.
+## Conclusion
+
+This chapter completes the Better Code picture of how to program by
+contract.  As mentioned in the introduction, it's not the only
+possible approach to errors. One could, for example, view error
+information as part of a function's postconditions, but that
+complicates contracts, obscures a function's primary purpose, and
+elevates information that most clients don't care about to the same
+level as the postcondition, which they do care about.  One could take
+the position that all invariants must be upheld even in the case of
+errors during mutation, but that adds an unnecessary burden for
+programmers, and in some cases, forces type authors to weaken
+invariants to account for states that can only be reached when an
+error occurs, when operations that could observe the broken invariant
+can only arise through a failure discard the partially mutated
+instance.  One could try to statically constrain the types of all
+errors, but that makes designs hard to evolve and elevates
+implementation details to the API level.  Our approach minimizes
+complexity and provides the tools to reason about code without overly
+constraining development.
