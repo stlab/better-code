@@ -815,9 +815,9 @@ the array has an element.  OK, so what about postconditions?
 
 The postconditions are the effects of the method plus any returned
 result.  If the preconditions are met, but the postconditions are not,
-and the function does not report an error, we'd say the method has a
-bug.  The bug could be in the documentation of course, *which is a
-part of the method*.
+and the function does not report a runtime error, we'd say the method
+has a bug.  The bug could be in the documentation of course, *which is
+a part of the method*.
 
 ```swift
   /// Removes and returns the last element.

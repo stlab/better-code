@@ -4,8 +4,8 @@ In the *Contracts* chapter you may have noticed we made this reference
 to the concept of *errors*:
 
 > If the preconditions are met, but the postconditions are not, and
-> the function does not report an error, we'd say the method has a
-> bug.
+> the function does not report a runtime error, we'd say the method
+> has a bug.
 
 In the interest of progressive disclosure, we didn't look closely at
 the idea, because behind that simple word lies a chapter's worth of
