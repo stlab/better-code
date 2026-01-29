@@ -140,7 +140,7 @@ know. Since we don't know where the bug is, the downstream effects of
 the problem could have affected many things we didn't test for.
 Because of the bug, your program state could be very, very scathed
 indeed, violating assumptions made when coding and potentially
-compromising security, If user data is quietly corrupted and
+compromising security. If user data is quietly corrupted and
 subsequently saved, the damage becomes permanent.
 
 In any case, unless the program has no mutable state and no external
