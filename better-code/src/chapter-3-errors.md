@@ -11,13 +11,6 @@ In the interest of progressive disclosure, we didn't look closely at
 the idea, because behind that simple word lies a chapter's worth of
 discussion.  Welcome to the *Errors* chapter!
 
-What we present here is not the only logically consistent approach to
-errors, and our approach may clash with your instincts.  It is the
-result of optimizing for local reasoning and the ergonomics of
-scalable software development, and the justifications for our choices
-are interdependent.  We hope you'll bear with us as we tie them all
-together.
-
 ## Definitions
 
 To understand any topic, it's important to have crisp definitions of
@@ -41,16 +34,14 @@ spell in code font.
 
 Errors come in two flavors:[^common-definition]
 
-> - **Programming Error**, or **bug**: code contains an
->    avoidable[^avoidable] mistake. For example, an `if` statement
->    tests the logical inverse of the correct condition.
+> - **Programming Error**, or **bug**: code contains a mistake. For
+>    example, an `if` statement tests the logical inverse of the
+>    correct condition.
 >
 > - **Runtime error**: a function could not fulfill its postconditions
 >   even though its preconditions were satisfied.  For example,
 >   writing a file might fail because the filesystem is full.
 
-[^avoidable]: While bugs in general are inevitable, every *specific*
-    bug is avoidable.
 
 [^common-definition]: While some folks like to use the word “error” to
 refer only to what we call *runtime errors*—as the authors have done
@@ -872,20 +863,23 @@ errors from its `mutating` methods.
 ## Conclusion
 
 This chapter completes the Better Code picture of how to program by
-contract.  As mentioned in the introduction, it's not the only
-possible approach to errors. One could, for example, view error
-information as part of a function's postconditions, but that
-complicates contracts, obscures a function's primary purpose, and
-elevates information that most clients don't care about to the same
-level as the postcondition, which they do care about.  One could take
-the position that all invariants must be upheld even in the case of
-errors during mutation, but that adds an unnecessary burden for
-programmers, and in some cases, forces type authors to weaken
-invariants to account for states that can only be reached when an
-error occurs, when operations that could observe the broken invariant
-can only arise through a failure discard the partially mutated
-instance.  One could try to statically constrain the types of all
-errors, but that makes designs hard to evolve and elevates
-implementation details to the API level.  Our approach minimizes
-complexity and provides the tools to reason about code without overly
-constraining development.
+contract.  Your key takeaways:
+
+- Programming errors (bugs) are mistakes in the program code.  The
+  most effective response to bug detection is to terminate the
+  program.
+- Runtime errors signal dynamic conditions that prevent fulfilling
+  postconditions, even when all code is correct.
+- Most runtime errors are propagated to callers.
+- To keep contracts simple and a function's primary purpose clear, and
+  to emphasize the information most clients need, keep documentation
+  about errors out of summaries and postconditions. Consider omitting
+  detailed error information altogether, or documenting it only at the
+  module level.
+- To keep invariants strong and simple and to reduce the mental tax of
+  handling errors that propagate, do not try to maintain invariants
+  (except those depended on for `deinit` methods or safety) when
+  mutating operations fail.
+- To make designs easy to evolve with low friction, resist the
+  temptation to represent the static types of errors in function
+  signatures.
