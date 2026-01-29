@@ -616,7 +616,7 @@ func swap<T>(
 A few caveats about mutation guarantees when errors occur:
 
 1. Known use cases are few and rare: most allacated resources are
-   ultimately managed by the `deinit` of some class, and uses of
+   ultimately managed by a `deinit` method, and uses of
    unsafe operations are usually encapsulated. Weigh the marginal
    utility of making guarantees against the complexity it adds to
    documentation.
@@ -798,15 +798,14 @@ Code that stops upward propagation of an error and continues to run
 has one fundamental obligation: to discard any partially-mutated state
 that can affect on the future behavior of your code (that excludes log
 files, for example).  In general, this state is completely unspecified
-and there's no other valid thing you can do with it. Any use of
-a partially mutated instance, other than to deinitialize it, is
-erroneous.
+and there's no other valid thing you can do with it. Use of a
+partially mutated instance other than for deinitialization is a bug.
 
 For the same reasons that the strong guarantee does not compose,
 neither does the discarding of partial mutations: if the second of two
-composed operations fails, modifications made by the first
-remain. So ultimately, that means responsibility for discarding partial
-mutations tends to propagate all the way to the top of an application.
+composed operations fails, modifications made by the first remain. So
+ultimately, that means responsibility for discarding partial mutations
+tends to propagate all the way to the top of an application.
 
 In most cases, the only acceptable behavior at that point is to
 present an error report to the user and leave their data unchanged,
@@ -829,18 +828,65 @@ when mutation succeeds.[^persistent]
   e.g. [`TreeSet` and
   `TreeDictionary`](https://swiftpackageindex.com/apple/swift-collections/1.3.0/documentation/hashtreecollections)
 
-### Mutating Functions
+### Let It Flow
 
 The fact that all partially-mutated state must be discarded has one
 profound implication for invariants: when an error occurs, with two
-rare exceptions, a mutating method need not restore invariants it has
-broken, and can simply propagate the error to its caller.
+rare exceptions detailed below, a mutating method need not restore
+invariants it has broken, and can simply propagate the error to its
+caller.  Allowing type invariants to remain broken when a runtime
+error occurs may seem to conflict with the very idea of an invariant,
+but remember, the obligation to discard partially mutated state
+implies that only incorrect code can ever observe this broken state.
 
-The first exception is for invariants depended on by a `deinit`
-method. However, `deinit` methods are rare, and `deinit` methods with
-dependencies on invariants that might be left broken in case of an
-error are rarer still. You _might_ encounter one in a `ManagedBuffer`
-subclass—see the Data Structures chapter for more details.
+#### Why Not Maintain Invariants Always?
+
+The most obvious advantage of the “let it flow” approach over trying
+to keep invariants intact is that it simplifies writing and reasoning
+about error handling. For most types, discardability is trivial to
+maintain, but invariants often have more complex relationships.  A
+less obvious advantage is that in some cases, it allows stronger
+invariants.  For example, imagine a disk-backed version of `PairArray`
+from the last chapter, where I/O operations can throw:
+
+```swift
+/// A disk-backed series of `(X, Y)` pairs, where the `X`s and `Y`s
+/// are stored in separate files.
+struct DiskBackedPairArray<X, Y> {
+  // Invariant: `xs.count == ys.count`
+
+  /// The first part of each element.
+  private var xs = DiskBackedArray()
+
+  /// The second part of each element.
+  private var ys = DiskBackedArray()
+
+  // ...
+
+  /// Adds `e` to the end.
+  public mutating func append(_ e: (X, Y)) throws {
+    try xs.append(e.0) // breaks invariant
+    try ys.append(e.1) // restores invariant
+  }
+}
+```
+
+All mutations of a `DiskBackedArray` perform file I/O and thus can
+throw.  In the the `append` method, if if `ys.append(e.1)` throws,
+there may be no way to restore the invariant that `xs` and `ys` have
+the same length. If the rule were that invariants must be maintained
+even in the face of errors, it would force us to weaken the invariant
+of `DiskBackedPairArray`.
+
+#### The Exceptions: Invariants That Must Be Maintained
+
+The first exception to the “let it flow” rule is for invariants
+depended on by a `deinit` method—the ones that maintain
+discardability. However, `deinit` methods are rare, and `deinit`
+methods with dependencies on invariants that might be left broken in
+case of an error are rarer still. You _might_ encounter one in a
+`ManagedBuffer` subclass—see the Data Structures chapter for more
+details.
 
 The second exception for invariants of types whose safe operations are
 implemented in terms of unsafe ones. Any invariants depended on to
