@@ -447,7 +447,7 @@ a simple `try` label on an expression containing the call.
 
 Doing anything with the error *other* than propagating it requires a
 much heavier `do { ... } catch ... { ... }` construct, which is
-slighly heavier-weight than the boilerplate pattern, making throwing a
+slighly heavier-weight than the pattern-matching boilerplate, making throwing a
 worse choice when clients do not directly propagate errors.
 
 The great ergonomic advantage of throwing in the common case means
