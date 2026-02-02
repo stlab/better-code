@@ -564,7 +564,7 @@ calls attention to the error type introduced by `ThisModule`.
 
 ##### Documenting Mutating Functions
 
-When a runtime error occurs partway through a mutating operation, a a
+When a runtime error occurs partway through a mutating operation, a
 partially mutated state may be left behind. Trying to describe these
 states in detail is usually a bad idea.  Apart from the fact that
 such descriptions can be unmanageably complex—try to document the
