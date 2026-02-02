@@ -6,7 +6,9 @@
         "Gitter",
         "inout",
         "irreflexivity",
-        "preorder"
+        "preorder",
+        "subranges",
+        "unencapsulated"
     ],
     "cmake.ignoreCMakeListsMissing": true
 }

@@ -21,7 +21,7 @@ For each component of the design, we will have a statement of what the component
 is or does. Components that _do_ something are operations, and the statement of
 what they do form the basis for the operations contract.
 
-Consider a simple example. Suppose we are building a small drawing tool and want
+Consider a simple example. Suppose we are building a drawing tool and want
 to remove a selected shape from an array. The naive implementation is a loop
 that scans for the shape and erases it.
 
@@ -37,7 +37,9 @@ func removeSelected(shapes: inout [Shape]) {
 }
 ```
 
-Extend the requirement: the user can now select multiple shapes. The loop becomes more complicated. Removing one element shifts the indices of the remaining ones, so the loop must compensate.
+Extend the requirement: the user can now select multiple shapes. The loop
+becomes more complicated. Removing one element shifts the indices of the
+remaining ones, so the code must compensate.
 
 ```swift
 /// Remove all selected shapes. (BAD)
@@ -87,9 +89,10 @@ perhaps another to repair the structure afterward.
 
 There is an algorithm known as half-stable partition which can be used to remove
 the elements in linear time. The trick is to walk two indices forward so the
-first index finds the next element to remove, and the second one points to
-subsequent element to keep. Then we swap the elements and proceed end. Then we
-can remove all the elements at the end.
+first index finds the next element to remove (`writeIndex`), and the second one points to
+subsequent element to keep (`readIndex`). Then we swap the elements and proceed
+to the end. Then we can remove all the elements at the elements from
+`writeIndex` to the end.
 
 ```swift
 /// Remove all selected shapes.
