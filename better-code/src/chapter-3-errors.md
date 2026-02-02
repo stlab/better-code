@@ -669,7 +669,7 @@ from `sort`.[^random-sort]
     does not.
 
 Another approach is to intentionally expand the range of values
-returned.  For example, `Array`'s existing `subscript` could be
+returned.  For example, `Array`'s existing `subscript` is
 declared as:
 
 ```
