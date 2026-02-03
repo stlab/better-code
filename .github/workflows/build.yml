@@ -46,7 +46,11 @@ jobs:
       - name: Install mdBook and plugins (Windows)
         if: runner.os == 'Windows'
         run: .\scripts\install-tools.ps1
-      
+
+      # Install Swift for testing Swift code examples in the book
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v2
+
       - name: Build with mdBook
         run: mdbook build ./better-code
       
