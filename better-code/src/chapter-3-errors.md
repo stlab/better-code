@@ -357,11 +357,12 @@ code in an unfinished state):
    ```
 
 In general, when a condition *C* is necessary for fulfilling your
-postcondition, there are three possible choices:
+postcondition, there are four possible choices:
 
-1. You can make *C* a precondition of your function
-2. You can make the function report a runtime error to its caller
-3. You can weaken the postcondition (e.g. by returning
+1. You can strengthen the function's signature to ensure *C* will be upheld.
+2. You can make *C* a precondition of your function
+3. You can make the function report a runtime error to its caller
+4. You can weaken the postcondition (e.g. by returning
    `Optional<T>` instead of `T`). [^failable-initializer]
 
 
@@ -371,6 +372,15 @@ postcondition, there are three possible choices:
     Despite the name “failable initializer,” by our definition a `nil`
     result represents not a runtime error, but a successful fulfillment of
     the weakened postcondition.
+
+### Strengthening the Function Signature
+
+When *C* is expressible solely in terms of the function's parameters,
+you may be able to encapsulate it in a type invariant—as we did with
+`EmployeeDatabase` in the Contracts chapter—and pass that instead. Of
+course, this approach is only a win when *C* is required in more than
+one place; otherwise it simply moves to the initializer of the new
+type.
 
 ### Adding a Precondition
 
@@ -709,8 +719,11 @@ the `subscript` implementation.
 
 ### How to Choose?
 
-Clearly weakening a postcondition seldom pays off and should be used
-rarely.  Whenever it is appropriate, you should prefer to add a
+If you can solve your problem by strengthening your function
+signature, that's the best choice. It makes the function more
+self-documenting and leaves nothing to check (or handle) at runtime.
+
+Failing that, whenever appropriate, you should prefer to add a
 precondition, because:
 
 - It makes it easy to identify incorrect code. A failure to satisfy
@@ -742,7 +755,8 @@ postcondition means considering more cases successful, which makes a
 function into a multipurpose tool, which is usually harder to
 document, use, and understand.
 
-If you must weaken the postcondition, returning an `Optional<T>`
+Clearly weakening a postcondition seldom pays off and should be used
+rarely. If you must weaken the postcondition, returning an `Optional<T>`
 instead of a `T` adds the least possible amount of information to the
 success case, and thus does the least harm to API simplicity. It can
 be appropriate when there will never be a useful distinction among
