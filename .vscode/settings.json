@@ -2,10 +2,14 @@
     "rewrap.autoWrap.enabled": true,
     "rewrap.wrappingColumn": 80,
     "cSpell.words": [
+        "deinit",
+        "deinitialization",
+        "discardability",
         "footgun",
         "Gitter",
         "inout",
         "irreflexivity",
+        "postconditions",
         "preorder",
         "subranges",
         "unencapsulated"
