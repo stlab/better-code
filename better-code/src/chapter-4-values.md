@@ -1,5 +1,20 @@
 # Values
 
+## Misc
+
+- non-salient properties
+- points, vectors, pairs
+- strong type information and engineering tradeoffs
+- documenting types
+- types and naming
+- when to expose properties (computed or stored).
+- subscripts
+
+- law of exclusivity
+- basis operations
+  - completeness - implement equality
+  - efficiency
+
 ## Copy, Equality, Hash, etc.
 
 And their relationships
@@ -10,7 +25,9 @@ And their relationships
 - Comparison
 - Assignment
 - Serialization
-  - Differentiation
+- Differentiation
+
+* Regular
 
 ## Problems With References
 
