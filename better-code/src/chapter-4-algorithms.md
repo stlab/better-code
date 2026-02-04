@@ -169,7 +169,6 @@ func halfStablePartition<T>(
 ) -> Int {
     var writeIndex = 0
     
-    // Partition: move all elements that don't satisfy predicate to the front
     for readIndex in 0..<array.count {
         if !belongsInSecondPartition(array[readIndex]) {
             if writeIndex != readIndex {
@@ -181,10 +180,6 @@ func halfStablePartition<T>(
     
     return writeIndex
 }
-
-// Usage example:
-// let pivot = halfStablePartition(&shapes, by: { $0.isSelected })
-// shapes.removeSubrange(pivot...)  // Remove all selected shapes
 ```
 
 Given `halfStablePartition()` we can rewrite `removeAllSelected()`.
