@@ -11,6 +11,7 @@
         "irreflexivity",
         "postconditions",
         "preorder",
+        "Subrange",
         "subranges",
         "unencapsulated"
     ],
