@@ -1,4 +1,4 @@
-# Values
+# Types
 
 ## Misc
 
