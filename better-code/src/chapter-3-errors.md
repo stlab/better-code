@@ -57,7 +57,7 @@ Let's begin by talking about what it means to “recover from an error.”
 recovery” was in the domain of compilers, where the challenge, after
 detecting a flaw in the input, is to continue to process the rest of
 the input meaningfully.  Consider a simple syntax error: the simplest
-possiblities are that the next or previous symbol is extra, missing,
+possibilities are that the next or previous symbol is extra, missing,
 or misspelled.  Guessing correctly affects not only the quality of the
 error message, but also whether further diagnostics will be
 useful. For example, in this code, the `while` keyword is misspelled:
@@ -122,7 +122,7 @@ First, the bug needs to be detected, and that is not assured. As we
 saw in the previous chapter, not all precondition violations are
 detectable. Also, it's important to admit that when a precondition
 check fails, we're not detecting the bug per-se: since bugs are flaws
-in *code*, truly detecting bugs involves analyzing the program.
+in *code*, truly detecting bugs involves program analysis.
 Instead, a runtime check detects a *downstream effect* that the bug
 has had on *data*. When we observe that a precondition has been
 violated, we know there is invalid code, but we don't know exactly
@@ -136,9 +136,9 @@ indeed, violating assumptions made when coding and potentially
 compromising security. If user data is quietly corrupted and
 subsequently saved, the damage becomes permanent.
 
-In any case, unless the program has no mutable state and no external
-effects, the only principled response to bug detection is to terminate
-the process. [^fault-tolerant]
+Unless the program has no mutable state and no external
+effects, the only principled response to bug detection is process
+termination. [^fault-tolerant]
 
 [^fault-tolerant]: There do exist systems that recover from bugs in a
 principled way by using redundancy: for example, functionality could
@@ -150,8 +150,8 @@ As terrible as sudden termination may be, it's better than the
 alternative. Attempting to recover means adding code, and recovery
 code is almost never exercised or tested and thus is likely wrong, and
 the consequences of a botched recovery attempt can be worse than
-termination. To no advantage, most recovery code obscures the rest of
-the code and adds needless tests, which hurts performance.  Continuing
+termination. To no advantage, recovery code tends to obscure the
+surrounding logic and adds needless tests, which hurts performance.  Continuing
 to run after a bug is detected also hurts our ability to fix the bug.
 When a bug is detected, before any further state changes, we want to
 immediately capture as much information as possible that could assist
@@ -199,8 +199,8 @@ the scope of this book.
 
 While, as we've seen, not all bugs are detectable, detecting as many
 as possible at runtime is still a powerful way to improve code, by
-finding detecting the presence of coding errors close to their source
-and creating an incentive to prioritize fixing them.
+detecting the presence of coding errors close to their source
+and incentivizing fixes.
 
 #### Precondition Checks
 
@@ -284,7 +284,7 @@ postcondition checks in function bodies ensures there is no cost in
 release builds.
 
 Similarly, a precondition that can only be checked with a significant
-cost to preformance could be checked with `assert`. Because—unlike
+cost to performance could be checked with `assert`. Because—unlike
 most uses of `assert`—a precondition failure indicates a bug in the
 caller, it's important to distinguish these uses in the assertion
 message:
@@ -431,7 +431,7 @@ consequential fact:
 > reporting.
 
 Because this pattern is so common, most languages provide first-class
-features to accomodate it without causing this kind of repeated
+features to accommodate it without causing this kind of repeated
 boilerplate:
 
     ```swift
@@ -457,7 +457,7 @@ a simple `try` label on an expression containing the call.
 
 Doing anything with the error *other* than propagating it requires a
 much heavier `do { ... } catch ... { ... }` construct, which is
-slighly heavier-weight than the pattern-matching boilerplate, making throwing a
+slightly heavier-weight than the pattern-matching boilerplate, making throwing a
 worse choice when clients do not directly propagate errors.
 
 The great ergonomic advantage of throwing in the common case means
@@ -558,7 +558,7 @@ make sense to put details in the function's documentation. That said,
 resist the urge to document these details just because they “might be
 needed.” As with any other detail of an API, documenting errors that
 are irrelevant to most code creates a usability tax that is paid by
-everyone.  In any case, keeping runtime error information out of
+everyone.  Keeping runtime error information out of
 postconditions (and thus summary documentation) works to simplify
 contracts and make functions easier to use.
 
@@ -625,7 +625,7 @@ func swap<T>(
 
 A few caveats about mutation guarantees when errors occur:
 
-1. Known use cases are few and rare: most allacated resources are
+1. Known use cases are few and rare: most allocated resources are
    ultimately managed by a `deinit` method, and uses of
    unsafe operations are usually encapsulated. Weigh the marginal
    utility of making guarantees against the complexity it adds to
@@ -660,7 +660,7 @@ could weaken the postcondition as follows:
 /// `areInOrder`, or permutes the elements in an unspecified way if
 /// `areInOrder` is not a [total
 /// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
-/// `areInOrder`.
+/// .
 ///
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
@@ -668,7 +668,7 @@ mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
 ```
 
 As you can see, this change makes the API more complicated to no
-advantage: an unspecified permutation is not a result any client wants
+advantage: no client wants an unspecified permutation
 from `sort`.[^random-sort]
 
 [^random-sort]: We've seen attempts to randomly shuffle elements using
@@ -728,7 +728,7 @@ precondition, because:
 
 - It makes it easy to identify incorrect code. A failure to satisfy
   the condition becomes a bug in the caller, which aids in reasoning
-  about the source of misbehaviors. If the precondition is checkable
+  about the source of misbehavior. If the precondition is checkable
   at runtime, you can even catch misuse in testing, *before* it
   becomes misbehavior.
 
@@ -808,9 +808,9 @@ struct OpenFileHandle: ~Copyable {
 
 ### When Propagation Stops
 
-Code that stops upward propagation of an error and continues to run
+Code that stops propagation of an error and continues
 has one fundamental obligation: to discard any partially-mutated state
-that can affect on the future behavior of your code (that excludes log
+that can affect the behavior of your code (which excludes log
 files, for example).  In general, this state is completely unspecified
 and there's no other valid thing you can do with it. Use of a
 partially mutated instance other than for deinitialization is a bug.
@@ -886,7 +886,7 @@ struct DiskBackedPairArray<X, Y> {
 ```
 
 All mutations of a `DiskBackedArray` perform file I/O and thus can
-throw.  In the the `append` method, if if `ys.append(e.1)` throws,
+throw.  In the the `append` method, if `ys.append(e.1)` throws,
 there may be no way to restore the invariant that `xs` and `ys` have
 the same length. If the rule were that invariants must be maintained
 even in the face of errors, it would force us to weaken the invariant
