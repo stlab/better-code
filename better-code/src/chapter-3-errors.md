@@ -34,7 +34,7 @@ spell in code font.
 
 Errors come in two flavors:[^common-definition]
 
-> - **Programming Error**, or **bug**: code contains a mistake. For
+> - **Programming error**, or **bug**: code contains a mistake. For
 >    example, an `if` statement tests the logical inverse of the
 >    correct condition.
 >
