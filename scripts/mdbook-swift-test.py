@@ -123,9 +123,11 @@ def test_block(block: CodeBlock) -> TestResult | None:
         return None
     return compile_swift(source)
 
+
 def line(char: str, count: int = 60) -> str:
     """A line of characters."""
     return char * count
+
 
 def main():
     context = json.load(sys.stdin)
