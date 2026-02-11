@@ -8,11 +8,6 @@ description = "A principled and rigorous approach to software development"
 [build]
 build-dir = "book"
 
-# Preprocessor to hide `# ` lines in Swift code blocks (like mdbook does for Rust)
-# Only strips lines for HTML output; swift-test backend sees the full code
-[preprocessor.swift-hidden]
-command = "python3 scripts/mdbook-swift-hidden.py"
-
 [output.html]
 git-repository-url = "https://github.com/stlab/better-code"
 edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/src/{path}"
@@ -24,6 +19,9 @@ enable = true
 
 [output.html.print]
 enable = true
+
+[output.html.code.hidelines]
+swift = "#"
 
 # Swift code example testing backend
 # Tests all Swift code blocks during `mdbook build`
