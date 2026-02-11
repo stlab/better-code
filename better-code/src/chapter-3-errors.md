@@ -52,7 +52,7 @@ clashing with common understanding.
 ## Error Recovery
 
 Let's begin by talking about what it means to “recover from an error.”
-[Perhaps the earliest use
+[An early use
 ](https://dl.acm.org/doi/10.1145/800028.808489) of the term “error
 recovery” was in the domain of compilers, where the challenge, after
 detecting a flaw in the input, is to continue to process the rest of
