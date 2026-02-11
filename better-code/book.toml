@@ -23,7 +23,6 @@ enable = true
 [output.html.code.hidelines]
 swift = "#"
 
-# Swift code example testing backend
 # Tests all Swift code blocks during `mdbook build`
 # See scripts/mdbook-swift-test.py for implementation
 [output.swift-test]
