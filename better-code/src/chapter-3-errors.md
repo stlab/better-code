@@ -434,26 +434,26 @@ Because this pattern is so common, most languages provide first-class
 features to accommodate it without causing this kind of repeated
 boilerplate:
 
-    ```swift
-    let someValueOrError = thing1ThatCanFail()
-    guard case .success(let someValue) = someValueOrError else {
-      return someValueOrError
-    }
+```swift
+let someValueOrError = thing1ThatCanFail()
+guard case .success(let someValue) = someValueOrError else {
+  return someValueOrError
+}
 
-    let otherValueOrError = thing2ThatCanFail()
-    guard case .success(let otherValue) = otherValueOrError else {
-      return otherValueOrError
-    }
-    ```
+let otherValueOrError = thing2ThatCanFail()
+guard case .success(let otherValue) = otherValueOrError else {
+  return otherValueOrError
+}
+```
 
 
 Swift's thrown errors fill that role by propagating errors upward with
 a simple `try` label on an expression containing the call.
 
-    ```swift
-    let someValue = try thing1ThatCanFail()
-    let otherValue = try thing2ThatCanFail()
-    ```
+```swift
+let someValue = try thing1ThatCanFail()
+let otherValue = try thing2ThatCanFail()
+```
 
 Doing anything with the error *other* than propagating it requires a
 much heavier `do { ... } catch ... { ... }` construct, which is
