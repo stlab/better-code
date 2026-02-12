@@ -546,13 +546,13 @@ practical tools for programming at scale.
 
 ```swift,ignore
 struct MyArray<T> {
-  ...
+  /* ... */
 
   // Returns the `i`th element.
   @requires(i >= 0 && i < self.count)
-  fun getNth(i: Integer): T
+  fun getNth(i: Integer) -> T
 
-  ...
+  /* ... */
 }
 ```
 
@@ -748,7 +748,7 @@ Design
 Guidelines](https://www.swift.org/documentation/api-design-guidelines/),
 only slightly modified.
 
-```swift,ignore
+```swift
 /// A resizable random-access `Collection` of `T`s.
 struct MyArray<T> {
 
@@ -760,9 +760,8 @@ struct MyArray<T> {
 
   /// The length.
   public var length: Int { ... }
-    .
-    .
-    .
+
+  /* ... */
 
   /// The number of elements that can be stored before storage is
   /// reallocated.
