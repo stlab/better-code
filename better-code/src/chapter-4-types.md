@@ -1,3 +1,18 @@
+- Value
+  - Types can be viewed as sets of values
+  - Point
+  - Set
+  - Notional value often not representable.
+    - Bool is an outlier
+    - Finite sets in general
+    - Float
+- Composite Types
+  - Reachability of Parts (Equational Completeness) Set
+- How to Compromise Notional Value (limits of finite representations)
+- Non-salient properties: floating point -0, +0
+- NaN, domain of operations (outside of value set - doesn't obey equality laws)
+- Type invariants mention
+
 # Types
 
 Types are a way of assigning meaning to raw bits.  Consider this type:
@@ -20,19 +35,28 @@ documentation.
 
 ## Value
 
-Every instance of a type has a notional value.  The value of a
-`Point2D` is directly represented by the values of its stored
-properties, so let's examine a more interesting case:
+Every instance has a notional value.  The value of a `Point2D`
+instance is directly represented by the values of its stored `x` and
+`y` properties.
+
+### Fundamental Value Operations
+
+Because instances have values, we can
+
+### Graph
+
+Let's examine a more interesting case:
 
 ```swift
 /// A [directed simple
 /// graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Directed_graph).
 struct DirectedGraph {
-  /// A identity of a vertex.
+  /// A location that may be connected to other locations via a
+  /// directed edge.
   public typealias Vertex = Int
 
   /// For each vertex u, the target vertices of edges originating at u.
-  private var spine: [Vertex: Set<Vertex>] = [:]
+  private var successors_: [Vertex: Set<Vertex>] = [:]
 
   /// The vertex that will be added by the next call to makeVertex().
   private var nextVertex: Vertex = 0
@@ -40,28 +64,33 @@ struct DirectedGraph {
   /// Returns a new vertex.
   public mutating func makeVertex() -> Vertex {
     defer { nextVertex += 1 }
-    spine[nextVertex] = []
+    successors_[nextVertex] = []
     return nextVertex
   }
 
   /// Adds an edge from `source` to `target`.
   public mutating func addEdge(from source: Vertex, to target: Vertex) {
-    precondition(spine.index(forKey: source) != nil)
-    precondition(spine.index(forKey: target) != nil)
-    spine[source]!.insert(target)
+    precondition(successors_.index(forKey: source) != nil)
+    precondition(successors_.index(forKey: target) != nil)
+    successors_[source]!.insert(target)
   }
 
   /// All the vertices.
   public var vertices: some Collection<Vertex> {
-    spine.keys
+    successors_.keys
   }
 
   /// The vertices reachable from `v` in one step.
   public func successors(_ v: Vertex) -> some Collection<Vertex> {
-    spine[v]!
+    successors_[v]!
   }
 }
 ```
+
+The value of a `DirectedGraph` is captured in the identities of its
+vertices and the edges between them.  While all that information is
+present in its `successors_` property, it is not directly represented, which
+is why `successors_` is private.
 
 ## Meaning => Operations
 
