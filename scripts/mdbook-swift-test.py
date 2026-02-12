@@ -4,7 +4,7 @@ mdbook backend that verifies Swift code examples compile with `swiftc -typecheck
 
 Code blocks beginning with ```swift are compiled, unless it is ignored (```swift,ignore).
 In those blocks,
-- lines beginning with # are hidden from readers and become empty lines.
+- lines beginning with # are hidden from readers but are compiled.
 - lines beginning with \\# are shown as is, including the # (e.g. \\#available(...)).
 - placeholder bodies `{ ... }` are replaced with `{ fatalError() }`.
 
