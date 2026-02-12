@@ -1,21 +1,16 @@
 #!/usr/bin/env python3
 """
-mdbook backend that verifies Swift code examples compile.
+mdbook backend that verifies Swift code examples compile with `swiftc -typecheck`.
 
-Configuration (book.toml):
+Code blocks beginning with ```swift are compiled, unless it is ignored (```swift,ignore).
+In those blocks,
+- lines beginning with # are hidden from readers and become empty lines.
+- lines beginning with \\# are shown as is, including the # (e.g. \\#available(...)).
+- placeholder bodies `{ ... }` are replaced with `{ fatalError() }`.
+
+Usage (book.toml):
     [output.swift-test]
-    command = "python3 scripts/mdbook-swift-test.py"
-
-Attributes:
-    ```swift,ignore    - skip compilation
-
-Hidden lines:
-    # import Foundation    - compiled but hidden from readers
-    #                      - becomes empty line
-    \\#available(...)      - shown as #available(...), compiled
-
-Placeholder bodies:
-    { ... }  ->  { fatalError() }
+    command = "python3 path/to/mdbook-swift-test.py"
 """
 
 import json
@@ -30,27 +25,37 @@ from typing import Iterator
 
 
 @dataclass(frozen=True)
+class Attributes:
+    """Attributes of a code block."""
+
+    language: str | None
+    ignore: bool
+
+    @classmethod
+    def parse(cls, info: str) -> "Attributes":
+        """Parses a code block's attributes string (e.g. "swift,ignore")."""
+        parts = [p.strip() for p in info.split(",")] if info else []
+        lang = parts[0].lower() if parts and parts[0] else None
+        ignore = "ignore" in parts[1:]
+        return cls(lang, ignore)
+
+
+@dataclass(frozen=True)
 class CodeBlock:
     """A Swift code block extracted from markdown."""
+
     content: str
     start_line: int  # 1-indexed line number in source file
     path: str
-    ignore: bool = False
+    attributes: Attributes
 
 
 @dataclass(frozen=True)
 class TestResult:
     """Outcome of compiling a code block."""
+
     ok: bool
     error: str
-
-
-def parse_attributes(info: str) -> tuple[str | None, bool]:
-    """The (language, ignore) pair from a code fence info string."""
-    parts = [p.strip() for p in info.split(",")] if info else []
-    lang = parts[0].lower() if parts and parts[0] else None
-    ignore = "ignore" in parts[1:]
-    return lang, ignore
 
 
 def unhide_line(line: str) -> str:
@@ -64,18 +69,20 @@ def unhide_line(line: str) -> str:
     return line
 
 
-# Matches fenced code blocks: ```info\n...content...\n```
-# Groups: (1) info string e.g. "swift,ignore", (2) content between fences
-FENCE = re.compile(r'^[ \t]*```(\S*)\n(.*?)^[ \t]*```[ \t]*$', re.MULTILINE | re.DOTALL)
+# Matches code blocks: ```info\n...content...\n```
+# Groups: (1) info string e.g. "swift,ignore", (2) block content
+CODE_BLOCK = re.compile(
+    r"^[ \t]*```(\S*)\n(.*?)^[ \t]*```[ \t]*$", re.MULTILINE | re.DOTALL
+)
 
 
 def extract_blocks(content: str, path: str) -> Iterator[CodeBlock]:
     """Yields Swift code blocks from markdown content."""
-    for m in FENCE.finditer(content):
-        lang, ignore = parse_attributes(m.group(1))
-        if lang == "swift":
-            start_line = content[:m.start()].count('\n') + 2
-            yield CodeBlock(m.group(2).rstrip('\n'), start_line, path, ignore)
+    for m in CODE_BLOCK.finditer(content):
+        attrs = Attributes.parse(m.group(1))
+        if attrs.language == "swift":
+            start_line = content[: m.start()].count("\n") + 2
+            yield CodeBlock(m.group(2).rstrip("\n"), start_line, path, attrs)
 
 
 def extract_from_chapter(item: dict) -> Iterator[CodeBlock]:
@@ -84,7 +91,9 @@ def extract_from_chapter(item: dict) -> Iterator[CodeBlock]:
         return
     ch = item["Chapter"]
     yield from extract_blocks(ch.get("content", ""), ch.get("path", "unknown.md"))
-    yield from chain.from_iterable(extract_from_chapter(sub) for sub in ch.get("sub_items", []))
+    yield from chain.from_iterable(
+        extract_from_chapter(sub) for sub in ch.get("sub_items", [])
+    )
 
 
 def compile_swift(source: str) -> TestResult:
@@ -93,35 +102,31 @@ def compile_swift(source: str) -> TestResult:
         f.write(source)
         path = f.name
     try:
-        r = subprocess.run(["swiftc", "-typecheck", path], capture_output=True, text=True, timeout=30)
-        if r.returncode == 0:
-            return TestResult(True, "")
-        return TestResult(False, r.stderr or r.stdout or "Unknown error")
+        subprocess.run(
+            ["swiftc", "-typecheck", path],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
     except FileNotFoundError:
         return TestResult(False, "swiftc not found")
     except subprocess.TimeoutExpired:
         return TestResult(False, "Timeout (30s)")
+    except subprocess.CalledProcessError as e:
+        return TestResult(False, e.stderr or e.stdout or "Unknown error")
     finally:
         try:
             os.unlink(path)
         except OSError:
             pass
+    return TestResult(True, "")
 
 
-def prepare_source(content: str) -> str:
-    """The content with hidden lines revealed and placeholder bodies expanded."""
-    processed = "\n".join(unhide_line(line) for line in content.split("\n"))
-    return re.sub(r'\{\s*\.\.\.\s*\}', '{ fatalError() }', processed)
-
-
-def test_block(block: CodeBlock) -> TestResult | None:
-    """Compiles block; returns None if skipped or content is empty."""
-    if block.ignore or not block.content.strip():
-        return None
-    source = prepare_source(block.content)
-    if not source.strip():
-        return None
-    return compile_swift(source)
+def prepare_source(code: str) -> str:
+    """A code block's source code with hidden lines revealed and placeholder bodies expanded."""
+    unhidden = "\n".join(unhide_line(line) for line in code.split("\n"))
+    return re.sub(r"\{\s*\.\.\.\s*\}", "{ fatalError() }", unhidden)
 
 
 def line(char: str, count: int = 60) -> str:
@@ -132,23 +137,35 @@ def line(char: str, count: int = 60) -> str:
 def main():
     context = json.load(sys.stdin)
     book = context.get("book", {})
-    blocks = list(chain.from_iterable(extract_from_chapter(s) for s in book.get("sections", [])))
+    blocks = list(
+        chain.from_iterable(extract_from_chapter(s) for s in book.get("sections", []))
+    )
 
-    results = [(block, test_block(block)) for block in blocks]
-    tested = [(block, result) for block, result in results if result is not None]
+    results = [
+        (block, compile_swift(prepare_source(block.content)))
+        for block in blocks
+        if not block.attributes.ignore
+    ]
+    tested = [(block, result) for block, result in results]
     failed = [(block, result) for block, result in tested if not result.ok]
 
     print(line("="), file=sys.stderr)
     print("Swift Code Example Testing", file=sys.stderr)
     print(line("="), file=sys.stderr)
-    print(f"\nResults: {len(tested) - len(failed)} passed, {len(failed)} failed, {len(tested)} total", file=sys.stderr)
+    print(
+        f"\nResults: {len(tested) - len(failed)} passed, {len(failed)} failed, {len(tested)} total",
+        file=sys.stderr,
+    )
 
     if failed:
         print("\n" + line("-"), file=sys.stderr)
         print("FAILURES:", file=sys.stderr)
         print(line("-"), file=sys.stderr)
         for block, result in failed:
-            print(f"\nFAIL: {block.path}:{block.start_line}\n{result.error}", file=sys.stderr)
+            print(
+                f"\nFAIL: {block.path}:{block.start_line}\n{result.error}",
+                file=sys.stderr,
+            )
 
     print(line("="), file=sys.stderr)
     sys.exit(1 if failed else 0)

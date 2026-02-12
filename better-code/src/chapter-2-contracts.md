@@ -1341,7 +1341,7 @@ protocol Searchable: Collection {
   ///
   /// - Complexity: at most `count` comparisons and index adjustment
   ///   calls.
-  func index(of x: Element) -> Index?
+  func index(of x: Element) -> Index
 }
 
 extension SortedArray: Searchable {
@@ -1349,7 +1349,7 @@ extension SortedArray: Searchable {
   ///
   /// - Complexity: at most log2(`count`) comparisons and index
   ///   adjustment calls.
-  func index(of x: Element) -> Index? { ... }
+  func index(of x: Element) -> Index { ... }
 }
 ```
 
@@ -1364,7 +1364,8 @@ extension Collection where Element: Hashable {
   /// set of elements `y` such that `bucket(y) == bucket(x)`.
   ///
   /// - Precondition: `bucket(x)` is non-negative for all elements `x`.
-  func bucketed(per bucket: (Element)->Int) -> [Int: Set<Element>] { ... }
+  func bucketed(per bucket: (Element)->Int) -> [Int: Set<Element>]
+  { ... }
 }
 ```
 
