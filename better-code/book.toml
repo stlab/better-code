@@ -24,6 +24,5 @@ enable = true
 swift = "#"
 
 # Tests all Swift code blocks during `mdbook build`
-# See scripts/mdbook-swift-test.py for implementation
 [output.swift-test]
 command = "python3 ../../../scripts/mdbook-swift-test.py"
