@@ -52,24 +52,18 @@ when the have the same value.
 
 We call set of (non-negative) mathematical integers the **notional
 range** of `Int64`.  At a high level, we program as though types can
-represent all members of their notional range, but due to the
-finiteness of memory and for performance reasons, a type's actual
-**range**—the set of values it can represent—is often limited.
+represent all members of their notional range, but because memory is
+finite and for performance reasons, a type's **range**—the set of
+values it can represent—is often a subset of its **notional range**.
 
-Types can take different approaches to this discrepancy.  Integer
-arithmetic operations cause a fatal error when the result can't be
-represented—representability is a precondition.  Floating point
-operations give approximate results.  Approximation is very difficult
-to specify and work with, so a representability precondition is almost
-always the preferred approach.
+Types can take different approaches to this discrepancy.  In Swift,
+integer arithmetic operations have the precondition that the result is
+representable, and violating that precondition is a fatal error.
+Floating point operations, on the other hand, give approximate
+results.  Approximation is very difficult to specify and work with, so
+a representability precondition is almost always the preferred
+approach.
 
-The notional value of an `Int` is some
-mathematical integer. You know that
-
-The notional value of `x` `let x = 1` is the
-mathematical integer value 1.  We know that's the case because
-even though you can view
-an `Int` as a
 
 The value of a `Point2D`
 instance is directly represented by the values of its stored `x` and
