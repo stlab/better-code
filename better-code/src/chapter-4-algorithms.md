@@ -86,30 +86,53 @@ something, another to remove it, another to insert it somewhere else, and
 perhaps another to repair the structure afterward
 -->
 
-## From Mechanism to Intent
-We can remove the selected shapes more efficiently. The trick is to walk two
-indices (`writeIndex` and `readIndex`) forward. The `writeIndex` finds the next
-selected item to be removed and the `readIndex` finds the subsequent unselected
-item. The shapes at the indices are swapped and we proceed until `readIndex`
-reaches the end. Finally, we trim the array from `writeIndex` to the end to remove
-all the selected elements.
+## Intent to Mechanism
+
+We can remove the selected shapes more efficiently. The trick is to collect all
+of the unselected shapes at the start of the array, and then remove the
+remaining shapes all at once. We don't care about the shapes to be removed or
+their order.
+
+To design an algorithm to collect the unselected shapes, we use a common
+technique of stating the postcondition and then seeing if there is a way to
+extend the postcondition to additional elements.
+
+The desired postcondition for collecting the unselected shapes is that all the
+unselected shapes are in the range `0..<p` in their original order, where `p` is
+the count of unselected shapes.
+
+Now, consider if this condition holds up to some point, `r`, instead of to the
+end of the array, where `r...` are the remaining shapes that may or may not be
+selected. To advance `r` we examine the shape at `shapes[r]`, if it is not
+selected, we need to add it to `0..<p`.
+
+There are two ways[^two-ways] we could do that. The first is to copy the shape `shapes[p] =
+shapes[r]`, but there are costs to copying <!--Todo, run some benchmarks to
+determine the tradeoffs -->. The other option is to swap the element at
+`shapes[r]` with the element at `shapes[p]`.
+
+[^two-ways]: Depending on your language, there may be additional options. We
+    could relocate (move) the shapes. In Swift, we could do this with unsafe
+    operations, but we would leave uninitialized memory at the end of the array,
+    and there is no operation on the standard array to trim it.
+
+Both approaches will preserve the relative
+order of the unselected shapes. Now we can write the code:
 
 ```swift
 /// Remove all selected shapes.
 func removeAllSelected(shapes: inout [Shape]) {
-    var writeIndex = 0
+    var p = 0
     
-    for readIndex in 0..<shapes.count {
-        if !shapes[readIndex].isSelected {
-            if writeIndex != readIndex {
-                shapes.swapAt(writeIndex, readIndex)
-            }
-            writeIndex += 1
+    for r in 0..<shapes.count {
+        if !shapes[r].isSelected {
+            shapes.swapAt(p, r)
+            p += 1
         }
     }
     
     // Remove all selected shapes from the end
-    shapes.removeSubrange(writeIndex...)
+    shapes.removeSubrange(p...)
 }
 ```
 
@@ -119,30 +142,32 @@ The act of verifying a loop requires us to establish:
 
 - A _loop invariant_ that holds before each iteration (including the first), and
   at loop termination.
-- A _variant function_ that maps to a strictly decreasing value on each to prove
-   termination
-- A _postcondition_ that is a statement of the state of the loop invariant
+- A _variant function_ a notional function that maps to a strictly decreasing
+   value on each iteration to prove termination
+- A _postcondition_ that is a statement of the loop invariant
   at loop termination.
 
-In our above we would have the following:
+Our loop invariant is almost completely covered by the description of our algorithm:
 - Loop invariant:
-    - All unselected elements before `readIndex` have been moved to the front.
-    - The region before `writeIndex` preserves the original relative order of
-      unselected elements.
-    - All elements in the range `writeIndex..<readIndex` are selected.
+    - `0..<p` contains all unselected shapes in `0..<r`.
+    - `p..<r` contains all selected shapes in `0..<r`
+    - for all `i` in `0..<p`, the `i`th unselected element of the original array is in
+      position `i` (i.e., unselected shapes are in their original
+      order).
 - Variant function:
-    - The difference between `shape.count` and `readIndex` is reduced by one at
+    - The difference between `shape.count` and `r` is reduced by one at
       each iteration. The loop exits when the difference is zero.
 - Postcondition:
-    - When the loop exists after `readIndex == shapes.count`, the loop
-    invariant holds so all unselected elements appear in the prefix in their
-    original relative order and all the selected elements are in `writeIndex..`.
+    - When the loop exists, `r == shapes.count`, all unselected elements appear
+      in `0..<p` in their original order and all the selected
+      elements are in `p..`.
 
 <!-- Should we formally state this proof? Maybe show it later in Dafny? -->
 
 <!-- Do we want formal exercises? add the exercise answers in an appendix -->
+
 As an exercise, look back at the two prior implementations of
-`removeAllSelected()` and prove to yourself that the loop is correct.
+`removeAllSelected()` and prove to yourself that the loops are correct.
 
 As with contracts, the processes of proving to ourselves that loops are
 correct is something we do informally (hopefully) every time we write a loop.
@@ -154,31 +179,29 @@ The best way to avoid complexity of loops is to learn to identify and compose
 algorithms. The loop we just implemented is a permutation operation that
 partitions our shapes into unselected and selected subsequences. The relative
 order of the shapes in the unselected sequence is unchanged. This property is
-known as "stability" so this operation is a half-stable partition. The algorithm
+known as _stability_, so this operation is a half-stable partition. The algorithm
 is not specific to shapes so we can lift it out into a generic algorithm.
 
 ```swift
-/// Reorders the elements of the collection such that all the elements that match
-/// the given predicate are after all the elements that don’t match, preserving
-/// the relative order of the unmatched elements.
-///
-/// - Returns: The index of the first element that satisfies the predicate.
-func halfStablePartition<T>(
-    _ array: inout [T],
-    by belongsInSecondPartition: (T) -> Bool
-) -> Int {
-    var writeIndex = 0
-    
-    for readIndex in 0..<array.count {
-        if !belongsInSecondPartition(array[readIndex]) {
-            if writeIndex != readIndex {
-                array.swapAt(writeIndex, readIndex)
+extension MutableCollection {
+    /// Reorders the elements of the collection such that all the elements that match
+    /// the given predicate are after all the elements that don’t match, preserving
+    /// the order of the unmatched elements. Returning the index of the first
+    /// element that satisfies the predicate.
+    mutating func halfStablePartition(
+        by belongsInSecondPartition: (Element) -> Bool
+    ) -> Index {
+        var p = startIndex
+
+        for r in indices {
+            if !belongsInSecondPartition(self[r]) {
+                swapAt(p, r)
+                formIndex(after: &p)
             }
-            writeIndex += 1
         }
+
+        return p
     }
-    
-    return writeIndex
 }
 ```
 
@@ -186,9 +209,54 @@ Given `halfStablePartition()` we can rewrite `removeAllSelected()`.
 
 ```swift
 func removeAllSelected(shapes: inout [Shape]) {
-    shapes.removeSubrange(halfStablePartition(&shapes, by: { $0.isSelected })...)
+    shapes.removeSubrange(shapes.halfStablePartition(by: { $0.isSelected })...)
 }
 ```
+
+Although we can't do better than linear time, our implementation of
+`halfStablePartition()` is doing unnecessary work by calling swap when `p == r`.
+As an exercise, before entering the loop, find the first point where a swap will
+be required, prove the new implementation is correct. Create a benchmark to
+compare the performance of the two implementations.
+
+<!-- provide answer in appendix -->
+
+Often, we view _efficiency_ as the upper-bound (big-_O_) of how an algorithm
+scales in the worst case. Scaling is important, but so are metrics like how much
+wall clock time the operation takes or how much memory the operation consumes.
+In the software industry if a competitors approach takes half the time or runs
+in production at half the energy costs, that could be a significant advantage.
+
+We define _efficiency of an operation_ as the minimization of resource the
+operation uses to calculate a result. The resources include:
+
+- time
+- memory
+- energy
+- computational hardware
+
+Because memory access is slow, energy consumption is largely determined by the
+amount of time an operation takes, and computational hardware is often
+underutilized, we prioritize optimizing time. But as we will see in the
+Concurrency chapter, balancing all of these resources is critical for an
+efficient system design.
+
+When designing algorithms it is important to have a rough sense of the cost of
+primitive operations to guide the design. Some approximate numbers by order of
+magnitude[^operation-costs]:
+
+|  Cycles | Operations |
+|---|---|
+| 10^0 | basic register operation (add, mul, or), memory write, predicted branch, L1 read |
+| 10^1 | L2 and L3 cache read, branch misprediction, division, atomic operations, function call |
+| 10^2 | main memory read |
+| 10^3 | Kernel call, thread context switch (direct costs), exception thrown and caught |
+| 10^4 | Thread context switch (including cache invalidation) |
+
+[^operation costs]: [_Infographics: Operation Costs in CPU Clock
+    Cycles_](http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/)
+
+<!-- This section needs to close with a reference to removeWhere -->
 
 A rotation expresses “move this range here.” A stable partition expresses
 “collect the elements that satisfy this predicate.” A slide is a composition of
