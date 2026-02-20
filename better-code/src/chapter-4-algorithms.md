@@ -462,6 +462,8 @@ clarity, and enable efficient computation.
 {{#include test.swift:2:5}}
 ```
 
+
+<!-- If we use this we need discussion about strict-weak vs total-preorder from contracts chapter. -->
 ```swift
 func partitionPoint<T>(_ array: [T], _ predicate: (T) -> Bool) -> Int {
     var left = 0
@@ -478,7 +480,7 @@ func partitionPoint<T>(_ array: [T], _ predicate: (T) -> Bool) -> Int {
 }
 
 let array = [1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10]
-let index = partitionPoint(array, { $0 <= 5 }) // lower bound?
+let index = partitionPoint(array, { $0 <= 5 })
 ```
 
 ### Algorithm categories
