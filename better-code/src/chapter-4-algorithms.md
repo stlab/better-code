@@ -253,7 +253,7 @@ magnitude[^operation-costs]:
 | 10^3 | Kernel call, thread context switch (direct costs), exception thrown and caught |
 | 10^4 | Thread context switch (including cache invalidation) |
 
-[^operation costs]: [_Infographics: Operation Costs in CPU Clock
+[^operation-costs]: [_Infographics: Operation Costs in CPU Clock
     Cycles_](http://ithare.com/infographics-operation-costs-in-cpu-clock-cycles/)
 
 <!-- This section needs to close with a reference to removeWhere -->
