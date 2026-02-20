@@ -640,6 +640,7 @@ It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
 through the program you have code to ensure that invariant is upheld.
+
 #### Encapsulating invariants
 
 It would be a good idea to identify and document that whole-program
@@ -815,9 +816,9 @@ the array has an element.  OK, so what about postconditions?
 
 The postconditions are the effects of the method plus any returned
 result.  If the preconditions are met, but the postconditions are not,
-and the function does not report an error, we'd say the method has a
-bug.  The bug could be in the documentation of course, *which is a
-part of the method*.
+and the function does not report a runtime error, we'd say the method
+has a bug.  The bug could be in the documentation of course, *which is
+a part of the method*.
 
 ```swift
   /// Removes and returns the last element.
