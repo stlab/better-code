@@ -642,6 +642,7 @@ It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
 through the program you have code to ensure that invariant is upheld.
+
 #### Encapsulating invariants
 
 It would be a good idea to identify and document that whole-program
@@ -730,7 +731,7 @@ only slightly modified.
 
 ```swift
 /// A resizable random-access `Collection` of `T`s.
-struct DynamicArray<T> {
+struct MyArray<T> {
 
   /// Removes and returns the last element.
   public mutating func popLast() -> T { ... }
@@ -760,7 +761,7 @@ The first one
 
 ```swift
 /// A resizable random-access `Collection` of `T`s.
-struct DynamicArray<T>
+struct MyArray<T>
 ```
 
 gives us the context we need to understand the methods: we're looking
@@ -817,9 +818,9 @@ the array has an element.  OK, so what about postconditions?
 
 The postconditions are the effects of the method plus any returned
 result.  If the preconditions are met, but the postconditions are not,
-and the function does not report an error, we'd say the method has a
-bug.  The bug could be in the documentation of course, *which is a
-part of the method*.
+and the function does not report a runtime error, we'd say the method
+has a bug.  The bug could be in the documentation of course, *which is
+a part of the method*.
 
 ```swift
 /// Removes and returns the last element.
@@ -905,7 +906,8 @@ it need not take more than a few seconds:
 
 ### A More Complicated Example
 
-Let's take a look at a traditional sorting algorithm.
+Let's take a look at a traditional sorting algorithm on a fictitous
+collection type:
 
 ```swift
 extension DynamicArray {
@@ -916,7 +918,7 @@ extension DynamicArray {
   ///   over the elements of `self`.
   /// - Complexity: at most N log N calls to `areInIncreasingOrder`, where N is
   ///   the number of elements.
-  mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
+  mutating func sort(areInIncreasingOrder: (Element, Element)->Bool) { ... }
 }
 
 var a = [7, 9, 2, 7]
@@ -1049,7 +1051,7 @@ tricky, we can drop the example, and we're left with this:
 ///   over the elements of `self`.
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
-mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
 ```
 
 But we can go further and use a much simpler and more natural summary:
@@ -1093,7 +1095,7 @@ declaration:
 ///
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
-mutating func sort<T>(areInOrder: (T, T)->Bool) { ... }
+mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
 ```
 
 There is one factor we haven't considered in making these changes:
