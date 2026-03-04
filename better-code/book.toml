@@ -10,7 +10,7 @@ build-dir = "book"
 
 [output.html]
 git-repository-url = "https://github.com/stlab/better-code"
-edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/src/{path}"
+edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/{path}"
 site-url = "/better-code/"
 cname = "stlab.github.io"
 
