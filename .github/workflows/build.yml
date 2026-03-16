@@ -50,7 +50,7 @@ jobs:
       # Install Swift for testing Swift code examples in the book (Ubuntu only; setup-swift does not support Windows)
       - name: Setup Swift
         if: runner.os != 'Windows'
-        uses: swift-actions/setup-swift@v3
+        uses: swift-actions/setup-swift@v2
 
       - name: Build with mdBook
         run: mdbook build ./better-code
