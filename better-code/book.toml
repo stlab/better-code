@@ -24,5 +24,8 @@ enable = true
 swift = "#"
 
 # Tests all Swift code blocks during `mdbook build`
+# supported-platforms: Only run on these platforms (python3 sys.platform values); omitted => run on all
 [output.swift-test]
 command = "python3 ../../../scripts/mdbook-swift-test.py"
+# Note: setup-swift@v3 does not support Windows
+supported-platforms = ["linux", "darwin"]

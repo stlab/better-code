@@ -11,6 +11,7 @@ In those blocks,
 Usage (book.toml):
     [output.swift-test]
     command = "python3 path/to/mdbook-swift-test.py"
+    supported-platforms = ["linux", "darwin"]   # optional; sys.platform values to run on
 """
 
 import json
@@ -136,6 +137,19 @@ def line(char: str, count: int = 60) -> str:
 
 def main():
     context = json.load(sys.stdin)
+    cfg = (
+        context.get("config", {})
+        .get("output", {})
+        .get("swift-test", {})
+    )
+    platforms = [str(p).strip() for p in cfg.get("supported-platforms", [])]
+    if platforms and sys.platform not in platforms:
+        print(
+            f"Skipping Swift code example tests ({sys.platform!r} not in supported-platforms)",
+            file=sys.stderr,
+        )
+        sys.exit(0)
+
     book = context.get("book", {})
     blocks = list(
         chain.from_iterable(extract_from_chapter(s) for s in book.get("sections", []))

@@ -47,8 +47,9 @@ jobs:
         if: runner.os == 'Windows'
         run: .\scripts\install-tools.ps1
 
-      # Install Swift for testing Swift code examples in the book
+      # Install Swift for testing Swift code examples in the book (Ubuntu only; setup-swift does not support Windows)
       - name: Setup Swift
+        if: runner.os != 'Windows'
         uses: swift-actions/setup-swift@v3
 
       - name: Build with mdBook
