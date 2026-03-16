@@ -55,7 +55,7 @@ That's a big part of why we say it's practical.
 ## Reasoning about correctness
 
 How can you know whether your program is correct?  Validating
-correctness seldom requires a formal proof—usually the everyday  
+correctness seldom requires a formal proof—usually the everyday
 thinking we do while programming works fine.
 
 ```swift
@@ -102,7 +102,7 @@ we had inlined the sorting code directly into some other function,
 we'd need to leave a comment for maintainers telling them
 that the code was meant to sort. Even with the comment, to
 fully understand the surrounding function, maintainers would
-have to reason through the sorting algorithm's details.  
+have to reason through the sorting algorithm's details.
 The comment itself is a code smell: every time we write a comment
 that describes what the next piece of code is about to do, we should
 ask whether that code can be its own function.
@@ -142,6 +142,8 @@ Hoare used this notation, called a “Hoare triple,”
 which is an assertion that if **precondition** *P* is met, operation
 *S* establishes **postcondition** *Q*.
 
+<!-- This had been using math for pre and post conditions, but I find mixing math and code makes it look like we are talking about different `x` and $x$ variables and equality vs. assignment gets confusing. I think if the operation is expressed in code, the conditions should be expressed in code. -->
+
 For example:
 
 - if we start with `x == 2` (precondition), after `x += 1`, `x == 3` (postcondition):
@@ -156,7 +158,7 @@ For example:
 What makes preconditions and postconditions useful for formal proofs
 is this *sequencing rule*:
 
-> {P}S{Q} ∧ {Q}T{R} ⇒ {P}S;T{R}
+> {P}S{Q} ^ {Q}T{R} => {P}S;T{R}
 
 Given two valid Hoare triples, if the postconditions of the first are
 the preconditions of the second, we can form a new valid triple describing
@@ -329,7 +331,7 @@ When we talk about an instance being “in a good state,” we
 mean that its type's invariants are satisfied.
 
 For example, this type's public interface is like an
-array of pairs, but it stores elements of those pairs separate
+array of pairs, but it stores elements of those pairs in separate
 arrays.[^array-pairs]
 
 [^array-pairs]: You might want to use a type like this one to store
@@ -639,7 +641,7 @@ correctness.
 Then, if the APIs aren't *well*-documented (and designed), there's
 little point in looking at their implementations.  Remember, APIs are
 the connective tissue; they're what every client of a component
-interacts with, and will have effects throughout the codebase.  
+interacts with, and will have effects throughout the codebase.
 A deficient implementation can only do local damage, but a deficient
 contract or design can cause unbounded technical debt.
 
@@ -662,6 +664,7 @@ It's an invariant of your program that a manager ID can't just be
 random; it has to identify an employee that's in the database—that's
 part of what it means for the program to be in a good state, and all
 through the program you have code to ensure that invariant is upheld.
+
 #### Encapsulating invariants
 
 It would be a good idea to identify and document that whole-program
@@ -737,7 +740,7 @@ Now, not every contract is as simple as the ones we've shown so far,
 but simplicity is a goal.  In fact, if you can't write a terse,
 simple, but _complete_ contract for a component, there's a good chance
 it's badly designed.  A classic example is the C library `realloc`
-function, which does at least three different things—allocate, deallocate, and resize 
+function, which does at least three different things—allocate, deallocate, and resize
 dynamic memory—all of which
 need to be described. A better design would have separated these
 functions.  So simple contracts are both easy to digest and easy to
@@ -825,10 +828,10 @@ What are the preconditions for removing an element?  Obviously, there
 needs to be an element to remove.
 
 ```swift,ignore
-  /// Removes and returns the last element.
-  ///
-  /// - Precondition: `self` is non-empty.
-  public mutating func popLast() -> T { ... }
+/// Removes and returns the last element.
+///
+/// - Precondition: `self` is non-empty.
+public mutating func popLast() -> T { ... }
 ```
 
 A client of this method is considered to have a bug unless
@@ -836,30 +839,30 @@ the array has an element.  OK, so what about postconditions?
 
 The postconditions are the effects of the method plus any returned
 result.  If the preconditions are met, but the postconditions are not,
-and the function does not report an error, we'd say the method has a
-bug.  The bug could be in the documentation of course, *which is a
-part of the method*.
+and the function does not report a runtime error, we'd say the method
+has a bug.  The bug could be in the documentation of course, *which is
+a part of the method*.
 
 ```swift,ignore
-  /// Removes and returns the last element.
-  ///
-  /// - Precondition: `self` is non-empty.
-  /// - Postcondition: The length is one less than before
-  ///   the call. Returns the original last element.
- public mutating func popLast() -> T { ... }
+/// Removes and returns the last element.
+///
+/// - Precondition: `self` is non-empty.
+/// - Postcondition: The length is one less than before
+///   the call. Returns the original last element.
+public mutating func popLast() -> T { ... }
 ```
 
 The invariant of this function is the rest of the elements, which are
 unchanged:
 
 ```swift,ignore
-  /// Removes and returns the last element.
-  ///
-  /// - Precondition: `self` is non-empty.
-  /// - Postcondition: The length is one less than before
-  ///   the call. Returns the original last element.
-  /// - Invariant: the values of the remaining elements.
- public mutating func popLast() -> T { ... }
+/// Removes and returns the last element.
+///
+/// - Precondition: `self` is non-empty.
+/// - Postcondition: The length is one less than before
+///   the call. Returns the original last element.
+/// - Invariant: the values of the remaining elements.
+public mutating func popLast() -> T { ... }
 ```
 
 Now, if the postcondition seems a bit glaringly redundant with the
@@ -886,10 +889,10 @@ invariant is also trivially implied.  And that is also very commonly
 omitted.
 
 ```swift,ignore
-  /// Removes and returns the last element.
-  ///
-  /// - Precondition: `self` is non-empty.
- public mutating func popLast() -> T { ... }
+/// Removes and returns the last element.
+///
+/// - Precondition: `self` is non-empty.
+public mutating func popLast() -> T { ... }
 ```
 
 In fact, the precondition is implied by the summary too.  You
@@ -907,8 +910,8 @@ you are going to remove the last element, so the original declaration
 should be sufficient:
 
 ```swift,ignore
-  /// Removes and returns the last element.
- public mutating func popLast() -> T { ... }
+/// Removes and returns the last element.
+public mutating func popLast() -> T { ... }
 ```
 
 In practice, once you are comfortable with this discipline, the
@@ -957,12 +960,14 @@ the elements arranged from least to greatest. The contract gives an
 explicit precondition that isn't implied by the summary: it requires
 that the predicate be a strict weak ordering.
 
+<!-- SRP: this section bothers me. "among others" instead of fully spelling out the requirements, using (i, j + 1) which may not exist, and the n^2 comparisons without calling out the O(n^3) complexity or which properties could be practically checked. Also is "stable" the term we want to use? Regular and deterministic are also candidates. I've tried to rewrite this a couple of times, but it just gets too complex and the main point is lost. -->
+
 _Some_ precondition on the predicate is needed just to make the result
 a meaningful sort with respect to the predicate.  For example, a
 totally unconstrained predicate could return random boolean values,
 and there's no reasonable sense in which the function could be said to
 leave the elements sorted with respect to that.  Therefore the
-predicate at least has to be stable. To leave elements meaningfully
+predicate at least has to be deterministic. To leave elements meaningfully
 sorted, the predicate has to be *transitive*: if it is `true` for
 elements (*i*, *j*), it must also be true for elements (*i*, *j*+1).
 A strict weak ordering has both of these properties, among others.
@@ -1009,19 +1014,19 @@ essential information—but because the statement of effects is tricky,
 this is a case where an example might really help.
 
 ```swift,ignore
-  /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
-  /// self[i])` is false for each `i` in `0 ..< length - 2`.
-  ///
-  ///     var a = [7, 9, 2, 7]
-  ///     a.sort(areInIncreasingOrder: <)
-  ///     print(a)     // prints [2, 7, 7, 9]
-  ///
-  /// - Precondition: `areInIncreasingOrder` is [a strict weak
-  ///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
-  ///   over the elements of `self`.
-  /// - Complexity: at most N log N comparisons, where N is the number
-  ///   of elements.
-  mutating func sort(areInIncreasingOrder: (Element, Element)->Bool) { ... }
+/// Sorts the elements so that `areInIncreasingOrder(self[i+1],
+/// self[i])` is false for each `i` in `0 ..< length - 2`.
+///
+///     var a = [7, 9, 2, 7]
+///     a.sort(areInIncreasingOrder: <)
+///     print(a)     // prints [2, 7, 7, 9]
+///
+/// - Precondition: `areInIncreasingOrder` is [a strict weak
+///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
+///   over the elements of `self`.
+/// - Complexity: at most N log N comparisons, where N is the number
+///   of elements.
+mutating func sort<T>(areInIncreasingOrder: (T, T)->Bool) { ... }
 ```
 
 #### Letting Simplicity Drive Design
@@ -1058,7 +1063,6 @@ func converseOfComplement<T>(_ f: @escaping (T, T)->Bool)
 Therefore, if we have a sorting implementation that works with any
 strict weak order, we can easily convert it to work with any total
 preorder by passing the predicate through `converseOfComplement`.
-
 
 Note that the name of the predicate became simpler: it no longer tests
 that its arguments represent an _increase_.  Instead, it tells us
@@ -1134,7 +1138,7 @@ contract is an engineering decision you will have to make. To reduce
 the risk you could add this assertion[^checks], which will stop the program if
 the ordering is strict-weak:
 
-```
+```swift
 precondition(
   self.isEmpty || areInOrder(first!, first!),
   "Total preorder required; did you pass a strict-weak ordering?")
@@ -1185,7 +1189,6 @@ For example,
 >
 > - Document the performance of every operation that doesn't execute in
 >   constant time and space.
-
 
 It is reasonable to put information in the policies without which the
 project's other documentation would be incomplete or confusing, but

@@ -1,10 +1,19 @@
 {
-    "grammarly.selectors": [
-        {
-            "language": "markdown",
-            "scheme": "file"
-        }
-    ],
     "rewrap.autoWrap.enabled": true,
-    "rewrap.wrappingColumn": 80
+    "rewrap.wrappingColumn": 80,
+    "cSpell.words": [
+        "deinit",
+        "deinitialization",
+        "discardability",
+        "footgun",
+        "Gitter",
+        "inout",
+        "irreflexivity",
+        "postconditions",
+        "preorder",
+        "Subrange",
+        "subranges",
+        "unencapsulated"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }

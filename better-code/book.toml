@@ -10,7 +10,7 @@ build-dir = "book"
 
 [output.html]
 git-repository-url = "https://github.com/stlab/better-code"
-edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/src/{path}"
+edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/{path}"
 site-url = "/better-code/"
 cname = "stlab.github.io"
 
@@ -22,6 +22,8 @@ enable = true
 
 [output.html.code.hidelines]
 swift = "#"
+
+[preprocessor.katex]
 
 # Tests all Swift code blocks during `mdbook build`
 # supported-platforms: Only run on these platforms (python3 sys.platform values); omitted => run on all
