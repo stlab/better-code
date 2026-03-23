@@ -55,7 +55,7 @@ That's a big part of why we say it's practical.
 ## Reasoning about correctness
 
 How can you know whether your program is correct?  Validating
-correctness seldom requires a formal proof—usually the everyday  
+correctness seldom requires a formal proof—usually the everyday
 thinking we do while programming works fine.
 
 ```swift
@@ -102,7 +102,7 @@ we had inlined the sorting code directly into some other function,
 we'd need to leave a comment for maintainers telling them
 that the code was meant to sort. Even with the comment, to
 fully understand the surrounding function, maintainers would
-have to reason through the sorting algorithm's details.  
+have to reason through the sorting algorithm's details.
 The comment itself is a code smell: every time we write a comment
 that describes what the next piece of code is about to do, we should
 ask whether that code can be its own function.
@@ -169,13 +169,13 @@ when we write one statement after the next.
 
 For example, take these two independent lines of code:
 
-```swift
+```swift,ignore
 let m = (h - l) / 2
 ```
 
 and
 
-```swift
+```swift,ignore
 h = l + m
 ```
 
@@ -188,7 +188,7 @@ The following—more useful—triples will help illustrate the sequencing rule:
 
 - **{*l*≤*h*}**`let m = (h - l )/2`**{*m*≥ 0}**, i.e.
 
-  ```swift
+  ```swift,ignore
   // precondition: l <= h
   let m = (h - l) / 2
   // postcondition: m >= 0
@@ -196,7 +196,7 @@ The following—more useful—triples will help illustrate the sequencing rule:
 
 - **{*m*≥0}**`h = l + m`**{*l*≤*h*}**, i.e.
 
-  ```swift
+  ```swift,ignore
   // precondition: m >= 0
   h = l + m
   // postcondition: l <= h
@@ -209,7 +209,7 @@ second postcondition. Thus there's a new valid triple:
 
 **{*l*≤*h*}**`let m = (h -l )/2; h = l + m`**{*l*≤*h*}**, i.e.
 
-```swift
+```swift,ignore
   // precondition: l <= h
   let m = (h - l) / 2
   h = l + m
@@ -238,6 +238,8 @@ there's an *invariant* that no
 element preceding the `i`th one is equal to `x`.
 
 ```swift
+# let a = [1, 2, 3]
+# let x = 1
 var i = 0
 while (i != a.count && a[i] != x) {
   i += 1
@@ -399,10 +401,15 @@ it has an invariant that `xs.count == ys.count`, but if we add this
 initializer, we'd have to weaken that invariant:
 
 ```swift
+# struct PairArray<X, Y> {
+#   private var xs: [X] = []
+#   private var ys: [Y] = []
+#
   /// An instance with the value of `zip(xs, ys)`.
   ///
   /// - Precondition: `xs.count <= ys.count`.
   init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
+# }
 ```
 
 [Note: when sequences of unequal length are `zip`ped, the result
@@ -422,12 +429,17 @@ meaning, the `append` method must account for these new internal
 states.  Here's one way we could do it:
 
 ```swift
+# struct PairArray<X, Y> {
+#   private var xs: [X] = []
+#   private var ys: [Y] = []
+#
   /// Adds `e` to the end.
   public mutating func append(_ e: (X, Y)) {
-    ys.removeRange(xs.count...) // <=====
+    ys.removeSubrange(xs.count...) // <=====
     xs.append(e.0)
     ys.append(e.1)
   }
+# }
 ```
 
 Also, the `count` property needs to be changed to  return `xs.count`
@@ -446,23 +458,33 @@ approaches:
   requiring the `xs` and `ys` arguments to have the same length:
 
   ```swift
+# struct PairArray<X, Y> {
+#   private var xs: [X] = []
+#   private var ys: [Y] = []
+#
     /// An instance with the value of `zip(xs, ys)`.
     ///
     /// - Precondition: `xs.count == ys.count`.
     init(xs: [X], ys: [Y]) { (self.xs, self.ys) = (xs, ys) }
+# }
   ```
 
 - Or, we can remove the precondition entirely and normalize the internal
   representation upon construction:
 
   ```swift
+# struct PairArray<X, Y> {
+#   private var xs: [X] = []
+#   private var ys: [Y] = []
+#
     /// An instance with the value of `zip(xs, ys)`.
     init(xs: [X], ys: [Y]) {
       (self.xs, self.ys) = (xs, ys)
       let l = Swift.min(xs.count, ys.count)
-      self.xs.removeRange(l...)
-      self.ys.removeRange(l...)
+      self.xs.removeSubrange(l...)
+      self.ys.removeSubrange(l...)
     }
+# }
   ```
 
 Either approach is acceptable, and ordinarily one should favor the
@@ -524,15 +546,15 @@ contracts are upheld. [^compile_time_checks]
 compile time, such as Dafny and Lean 4, but we do not think they are
 practical tools for programming at scale.
 
-```swift
+```swift,ignore
 struct MyArray<T> {
-  ...
+  /* ... */
 
   // Returns the `i`th element.
   @requires(i >= 0 && i < self.count)
-  fun getNth(i: Integer): T
+  fun getNth(i: Integer) -> T
 
-  ...
+  /* ... */
 }
 ```
 
@@ -619,7 +641,7 @@ correctness.
 Then, if the APIs aren't *well*-documented (and designed), there's
 little point in looking at their implementations.  Remember, APIs are
 the connective tissue; they're what every client of a component
-interacts with, and will have effects throughout the codebase.  
+interacts with, and will have effects throughout the codebase.
 A deficient implementation can only do local damage, but a deficient
 contract or design can cause unbounded technical debt.
 
@@ -656,26 +678,26 @@ code.  This is one of the most powerful code transformations you can
 make.
 
 ```swift
+# struct SQLDatabase {}
+# struct EmployeeID {}
 /// The employees of a company.
 ///
 /// Invariant: every employee has a manager in the database.
 struct EmployeeDatabase {
   /// The raw storage.
-  private var storage: SQLDatabase;
+  private var storage: SQLDatabase
 
   /// Adds a new employee named `name` with manager `m`, returning the
   /// new employee's ID.
   ///
   /// - Precondition: `m` identifies an employee.
-  public addEmployee(_ name: String, managedBy m: EmployeeID) -> EmployeeID
+  public func addEmployee(_ name: String, managedBy m: EmployeeID) -> EmployeeID { ... }
 
   /// Removes the employee identified by `e`.
   ///
   /// - Precondition: `e` identifies an employee who is not the
   ///   manager of any other employee.
-  public remove(_ e: EmployeeID)
-
-  ...
+  public func remove(_ e: EmployeeID) { ... }
 }
 ```
 
@@ -741,9 +763,8 @@ struct MyArray<T> {
 
   /// The length.
   public var length: Int { ... }
-    .
-    .
-    .
+
+  /* ... */
 
   /// The number of elements that can be stored before storage is
   /// reallocated.
@@ -759,7 +780,7 @@ thing *is* or *does*.
 
 The first one
 
-```swift
+```swift,ignore
 /// A resizable random-access `Collection` of `T`s.
 struct MyArray<T>
 ```
@@ -770,7 +791,7 @@ at the declaration of dynamic array type that holds any number of Ts.
 Now let's look at the documentation for the first method, called
 "popLast."
 
-```swift
+```swift,ignore
   /// Removes and returns the last element.
   public mutating func popLast() -> T { ... }
 ```
@@ -806,7 +827,7 @@ and invariants of `popLast()`.
 What are the preconditions for removing an element?  Obviously, there
 needs to be an element to remove.
 
-```swift
+```swift,ignore
 /// Removes and returns the last element.
 ///
 /// - Precondition: `self` is non-empty.
@@ -822,7 +843,7 @@ and the function does not report a runtime error, we'd say the method
 has a bug.  The bug could be in the documentation of course, *which is
 a part of the method*.
 
-```swift
+```swift,ignore
 /// Removes and returns the last element.
 ///
 /// - Precondition: `self` is non-empty.
@@ -834,7 +855,7 @@ public mutating func popLast() -> T { ... }
 The invariant of this function is the rest of the elements, which are
 unchanged:
 
-```swift
+```swift,ignore
 /// Removes and returns the last element.
 ///
 /// - Precondition: `self` is non-empty.
@@ -867,7 +888,7 @@ we can assume everything else in the program is unchanged, so the
 invariant is also trivially implied.  And that is also very commonly
 omitted.
 
-```swift
+```swift,ignore
 /// Removes and returns the last element.
 ///
 /// - Precondition: `self` is non-empty.
@@ -888,7 +909,7 @@ this case it's not subtle that having a last element is required if
 you are going to remove the last element, so the original declaration
 should be sufficient:
 
-```swift
+```swift,ignore
 /// Removes and returns the last element.
 public mutating func popLast() -> T { ... }
 ```
@@ -910,6 +931,12 @@ Let's take a look at a traditional sorting algorithm on a fictitous
 collection type:
 
 ```swift
+# struct DynamicArray<Element> {}
+# extension Array {
+#   mutating func sort(areInIncreasingOrder: (Element, Element)->Bool) {
+#     self.sort(by: areInIncreasingOrder)
+#   }
+# }
 extension DynamicArray {
   /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
   /// self[i])` is false for each `i` in `0 ..< length - 2`.
@@ -963,7 +990,7 @@ correct, but it's awkward and complex.  To deal with the case where
 elements are equal, the postcondition has to compare adjacent elements
 in reverse order and negate the predicate. If we had just written:
 
-```swift
+```swift,ignore
   /// Sorts the elements so that `areInIncreasingOrder(self[i],
   /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
 ```
@@ -975,7 +1002,7 @@ The term “strict weak ordering,” which is not very well-known or
 understood, is another source of complexity. In fact we should
 probably put a link in the documentation to a definition.
 
-```swift
+```swift,ignore
 /// - Precondition: `areInIncreasingOrder` is [a strict weak
 ///   ordering](https://simple.wikipedia.org/wiki/Strict_weak_ordering)
 ///   over the elements of `self`.
@@ -986,7 +1013,7 @@ documenting more laborious and can actually distract from the
 essential information—but because the statement of effects is tricky,
 this is a case where an example might really help.
 
-```swift
+```swift,ignore
 /// Sorts the elements so that `areInIncreasingOrder(self[i+1],
 /// self[i])` is false for each `i` in `0 ..< length - 2`.
 ///
@@ -1010,7 +1037,7 @@ written to work with `<=` as an argument, producing the same result,
 the summary could have avoided swapping elements in the comparison and
 negating the result:
 
-```swift
+```swift,ignore
 /// Sorts the elements so that `areInOrder(self[i],
 /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
 ```
@@ -1042,7 +1069,7 @@ that its arguments represent an _increase_.  Instead, it tells us
 whether the order is correct.  Because the summary is no longer
 tricky, we can drop the example, and we're left with this:
 
-```swift
+```swift,ignore
 /// Sorts the elements so that `areInOrder(self[i],
 /// self[i+1])` is true for each `i` in `0 ..< length - 2`.
 ///
@@ -1056,7 +1083,7 @@ mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
 
 But we can go further and use a much simpler and more natural summary:
 
-```swift
+```swift,ignore
 /// Sorts the elements so that all adjacent pairs satisfy
 /// `areInOrder`.
 ```
@@ -1088,7 +1115,7 @@ Secondly, the summary has become so simple that we can embed the
 precondition there without overly complicating it, making the final
 declaration:
 
-```swift
+```swift,ignore
 /// Sorts the elements so that all adjacent pairs satisfy the [total
 /// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
 /// `areInOrder`.
@@ -1194,7 +1221,7 @@ extension Collection where Element: Equatable {
   /// - Precondition: `self` contains `x`.
   /// - Complexity: at most N comparisons, where N is the number
   ///   of elements.
-  func offsetFromStart(_ x: Element) -> Int {...}
+  func offsetFromStart(_ x: Element) -> Int { ... }
 }
 ```
 
@@ -1208,14 +1235,14 @@ extension Collection where Element: Equatable {
   /// - Precondition: `self` contains `x`.
   /// - Complexity: at most N comparisons, where N is the number
   ///   of elements.
-  func offsetFromStart(_ x: Element) -> Int {...}
+  func offsetFromStart(_ x: Element) -> Int { ... }
 }
 ```
 
 Before the change, clients had a right to expect this assertion to
 pass:
 
-```swift
+```swift,ignore
 assert(
   c[c.index(c.startIndex, offsetBy: c.offsetFromStart(x))] == 'x`)
 ```
@@ -1234,13 +1261,16 @@ extension Collection where Element: Equatable {
   /// - Precondition: `self` contains `x` and `x` != `first`.
   /// - Complexity: at most N comparisons, where N is the number
   ///   of elements.
-  func offsetFromStart(_ x: Element) -> Int {...}
+  func offsetFromStart(_ x: Element) -> Int { ... }
 }
 ```
 
 After that change, the following line of code has developed a new bug!
 
 ```swift
+# extension Collection where Element: Equatable {
+#   func offsetFromStart(_ x: Element) -> Int { fatalError() }
+# }
 let i = [1, 2, 3].offsetFromStart(1) // 1 == [1, 2, 3].first
 ```
 
@@ -1258,7 +1288,7 @@ extension Collection where Element: Equatable {
   /// - Precondition: `self` contains `x`.
   /// - Complexity: at most N comparisons, where N is the number
   ///   of elements.
-  func offsetFromStart(_ x: Element) -> Int {...}
+  func offsetFromStart(_ x: Element) -> Int { ... }
 }
 ```
 
@@ -1273,7 +1303,7 @@ From there, let's weaken the precondition by simply removing it:
 extension Collection where Element: Equatable {
   /// Returns the number elements between the start and the first
   /// occurrence of the value `x`, or `count` if `x` is not found.
-  func offsetFromStart(_ x: Element) -> Int {...}
+  func offsetFromStart(_ x: Element) -> Int { ... }
 }
 ```
 
@@ -1300,6 +1330,14 @@ Here, the conformance strengthens the performance guarantee given by
 the protocol requirement:
 
 ```swift
+# struct SortedArray<Element>: Collection {
+#   var elements: [Element] = []
+#   var startIndex: Int { elements.startIndex }
+#   var endIndex: Int { elements.endIndex }
+#   subscript(i: Int) -> Element { elements[i] }
+#   func index(after i: Int) -> Int { elements.index(after: i) }
+# }
+#
 protocol Searchable: Collection {
   /// Returns the first position where `x` occurs.
   ///
@@ -1313,7 +1351,7 @@ extension SortedArray: Searchable {
   ///
   /// - Complexity: at most log2(`count`) comparisons and index
   ///   adjustment calls.
-  func index(of x: Element) -> Index
+  func index(of x: Element) -> Index { ... }
 }
 ```
 
@@ -1323,7 +1361,7 @@ stronger guarantees than those specified by the callee.  Take this
 function for instance:
 
 ```swift
-extension Collection {
+extension Collection where Element: Hashable {
   /// Returns a mapping from `bucket(x)` for all elements `x`, to the
   /// set of elements `y` such that `bucket(y) == bucket(x)`.
   ///
@@ -1343,6 +1381,9 @@ that returns only 0 or 1; a strictly stronger postcondition:
     required of the function's *parameter*, `bucket`.
 
 ```swift
+# extension Collection where Element: Hashable {
+#   func bucketed(per bucket: (Element)->Int) -> [Int: Set<Element>] { [:] }
+# }
 (0..<10).bucketed { $0 % 2 }
 ```
 
@@ -1351,6 +1392,9 @@ postcondition is neither identical nor strictly stronger.  That
 violates the requirements of `bucketed`:
 
 ```swift
+# extension Collection where Element: Hashable {
+#   func bucketed(per bucket: (Element)->Int) -> [Int: Set<Element>] { [:] }
+# }
 (0..<10).bucketed { $0 - 2 }
 ```
 
