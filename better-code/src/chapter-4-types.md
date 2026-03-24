@@ -127,6 +127,9 @@ is why `successors_` is private.
 The meaning of a type implies a set of operations.  For example,
 
 ```swift
+# struct Point2D {
+#   let x, y: Float
+# }
 extension Point2D {
   /// Returns the length of the line segment between `self` and
   /// `other`.

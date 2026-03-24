@@ -1138,7 +1138,7 @@ contract is an engineering decision you will have to make. To reduce
 the risk you could add this assertion[^checks], which will stop the program if
 the ordering is strict-weak:
 
-```swift
+```swift,ignore
 precondition(
   self.isEmpty || areInOrder(first!, first!),
   "Total preorder required; did you pass a strict-weak ordering?")
