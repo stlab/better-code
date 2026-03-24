@@ -26,6 +26,7 @@ remove a selected shape from an array. The naive implementation is a loop that
 scans for the shape and erases it.
 
 ```swift
+# struct Shape { var isSelected: Bool }
 /// Removes the selected shape.
 func removeSelected(shapes: inout [Shape]) {
     for i in 0..<shapes.count {
@@ -44,6 +45,7 @@ remaining ones, so the code must handle an additional case.
 
 <!-- bad -->
 ```swift
+# struct Shape { var isSelected: Bool }
 /// Remove all selected shapes.
 func removeAllSelected(shapes: inout [Shape]) {
     var i = 0
@@ -63,6 +65,7 @@ subsequent indices are affected by the removal this removes the fix-up.
 
 <!-- bad -->
 ```swift
+# struct Shape { var isSelected: Bool }
 /// Remove all selected shapes.
 func removeAllSelected(shapes: inout [Shape]) {
     for i in (0..<shapes.count).reversed() {
@@ -120,6 +123,7 @@ Both approaches will preserve the relative
 order of the unselected shapes. Now we can write the code:
 
 ```swift
+# struct Shape { var isSelected: Bool }
 /// Remove all selected shapes.
 func removeAllSelected(shapes: inout [Shape]) {
     var p = 0
@@ -208,6 +212,15 @@ extension MutableCollection {
 Given `halfStablePartition()` we can rewrite `removeAllSelected()`.
 
 ```swift
+# struct Shape { var isSelected: Bool }
+# extension MutableCollection {
+#   /// See the full `halfStablePartition` implementation earlier in this chapter.
+#   mutating func halfStablePartition(
+#     by belongsInSecondPartition: (Element) -> Bool
+#   ) -> Index {
+#     fatalError()
+#   }
+# }
 func removeAllSelected(shapes: inout [Shape]) {
     shapes.removeSubrange(shapes.halfStablePartition(by: { $0.isSelected })...)
 }
@@ -459,7 +472,7 @@ clarity, and enable efficient computation.
 
 <!-- Test to get swift embedded in mdbook, need to build the infrastructure for testing swift code.-->
 ```swift
-{{#include test.swift:2:5}}
+{{#include test.swift}}
 ```
 
 

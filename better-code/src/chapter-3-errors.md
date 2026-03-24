@@ -62,7 +62,7 @@ or misspelled.  Guessing correctly affects not only the quality of the
 error message, but also whether further diagnostics will be
 useful. For example, in this code, the `while` keyword is misspelled:
 
-```swift
+```swift,ignore
 func f(x: inout Int) {
   whilee x < 10 {
     x += 1
@@ -208,12 +208,14 @@ Swift supplies a function for checking that a precondition is upheld,
 which can be used as follows:
 
 ```swift
+# let n = 0
 precondition(n >= 0)
 ```
 
 *or*
 
 ```swift
+# let n = 0
 precondition(n >= 0, "n == \(n); it must be non-negative.")
 ```
 
@@ -243,6 +245,8 @@ checks at function boundaries.  For example, in the binary search
 algorithm mentioned in the previous chapter,
 
 ```swift
+# var l = 0
+# var h = 10
   // precondition: l <= h
   let m = (h - l) / 2
   h = l + m
@@ -258,6 +262,8 @@ help us uncover those flaws during testing of debug builds without
 impacting performance of release builds:
 
 ```swift
+# var l = 0
+# var h = 10
   assert(l <= h)
   let m = (h - l) / 2
   h = l + m
@@ -304,11 +310,12 @@ operations must never be turned off in release builds.
 extension Array {
   /// Exchanges the first and last elements.
   mutating func swapFirstAndLast() {
-    precondition(!self.isEmpty)
-    if count() == 1 { return } // swapping would be a no-op.
-    withUnsafeBufferPointer { b in
-      f = b.baseAddress
-      l = f + b.count - 1
+    precondition(!isEmpty)
+    if count == 1 { return } // swapping would be a no-op.
+    withUnsafeMutableBufferPointer { b in
+      guard let base = b.baseAddress else { return }
+      var f = base
+      var l = base + (b.count - 1)
       swap(&f.pointee, &l.pointee)
     }
   }
@@ -335,14 +342,14 @@ code in an unfinished state):
      /// Returns the number of unused elements when a maximal
      /// number of `n`-element chunks are stored in `self`.
      func excessWhenFilled(withChunksOfSize n: Int) {
-       count() % n // n == 0 would violate the precondition of %
+       count % n // n == 0 would violate the precondition of %
      }
    }
    ```
 
 2. Something your function uses can itself report a runtime error:
 
-   ```swift
+   ```swift,ignore
    extension Array {
      /// Writes a textual representation of `self` to a temporary file
      /// whose location is returned.
@@ -395,11 +402,12 @@ It's appropriate to add a precondition when:
   we should instead propagate the error:
 
    ```swift
+# import Foundation
    extension Array {
      /// Writes a textual representation of `self` to a temporary file
      /// whose location is returned.
      func writeToTempFile(withChunksOfSize n: Int) throws -> URL {
-       let r = FileManager.defaultTemporaryDirectory
+       let r = FileManager.default.temporaryDirectory
          .appendingPathComponent(UUID().uuidString)
        try "\(self)".write(to: r, atomically: false, encoding: .utf8)
        return r
@@ -435,6 +443,9 @@ features to accommodate it without causing this kind of repeated
 boilerplate:
 
 ```swift
+# func thing1ThatCanFail() -> Result<Int, Error> { .success(0) }
+# func thing2ThatCanFail() -> Result<Int, Error> { .success(0) }
+# func _resultPropagationDemo() -> Result<Int, Error> {
 let someValueOrError = thing1ThatCanFail()
 guard case .success(let someValue) = someValueOrError else {
   return someValueOrError
@@ -444,6 +455,8 @@ let otherValueOrError = thing2ThatCanFail()
 guard case .success(let otherValue) = otherValueOrError else {
   return otherValueOrError
 }
+# return .success(otherValue)
+# }
 ```
 
 
@@ -451,6 +464,8 @@ Swift's thrown errors fill that role by propagating errors upward with
 a simple `try` label on an expression containing the call.
 
 ```swift
+# func thing1ThatCanFail() throws -> Int { 0 }
+# func thing2ThatCanFail() throws -> Int { 0 }
 let someValue = try thing1ThatCanFail()
 let otherValue = try thing2ThatCanFail()
 ```
@@ -536,6 +551,8 @@ whose primary home is the summary sentence fragment.[^result-doc]
     as though they just return a `T`:
 
     ```swift
+# import Foundation
+# enum IOError: Error {}
     extension Array {
       /// Writes a textual representation of `self` to a temporary file,
       /// returning its location.
@@ -592,6 +609,7 @@ The following code uses that guarantee to ensure that all the
 allocated buffers are eventually freed.
 
 ```swift
+# struct X {}
 /// Processes each element of `xs` in an order determined by the
 /// [total
 /// preorder](https://en.wikipedia.org/wiki/Weak_ordering#Total_preorders)
@@ -599,11 +617,11 @@ allocated buffers are eventually freed.
 func f(_ xs: [X], orderedBy areInOrder: (X, X) throws -> Bool) rethrows
 {
   var buffers = xs.map { x in
-    (p, UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)) }
-  defer { for _, b in buffers { b.deallocate() } }
+    (x, UnsafeMutablePointer<UInt8>.allocate(capacity: 1024)) }
+  defer { for (_, b) in buffers { b.deallocate() } }
 
-  buffers.sort { !areInOrder($1.0, $0.0) }
-    ...
+  try buffers.sort { !(try areInOrder($1.0, $0.0)) }
+  // ...
 }
 ```
 
@@ -656,6 +674,7 @@ making it a precondition that the comparison is a total preorder, we
 could weaken the postcondition as follows:
 
 ```swift
+# extension Array {
 /// Sorts the elements so that all adjacent pairs satisfy
 /// `areInOrder`, or permutes the elements in an unspecified way if
 /// `areInOrder` is not a [total
@@ -665,6 +684,7 @@ could weaken the postcondition as follows:
 /// - Complexity: at most N log N comparisons, where N is the number
 ///   of elements.
 mutating func sort(areInOrder: (Element, Element)->Bool) { ... }
+# }
 ```
 
 As you can see, this change makes the API more complicated to no
@@ -783,8 +803,10 @@ manage that is with a `defer` block releasing the resources
 immediately after they are allocated:
 
 ```swift
-let f = try FileHandle(forReadingFrom: p)
-defer { f.close() }
+# import Foundation
+# let p = URL(fileURLWithPath: "/tmp/example.txt")
+let f: FileHandle = try .init(forReadingFrom: p)
+defer { try? f.close() }
 // use f
 ```
 
@@ -793,15 +815,16 @@ scope where they were allocated, you can tie them to the `deinit` of
 some type:
 
 ```swift
+# import Foundation
 struct OpenFileHandle: ~Copyable {
   /// The underlying type with unmanaged close functionality
   private let raw: FileHandle
 
   /// An instance for reading from p.
-  init(forReadingFrom p: URL) { raw = .init(forReadingFrom: p) }
+  init(forReadingFrom p: URL) { raw = try! .init(forReadingFrom: p) }
 
   deinit {
-    raw.close()
+    try? raw.close()
   }
 }
 ```
@@ -864,16 +887,20 @@ invariants.  For example, imagine a disk-backed version of `PairArray`
 from the last chapter, where I/O operations can throw:
 
 ```swift
+# struct DiskBackedArray<Element> {
+#   init() {}
+#   mutating func append(_: Element) throws {}
+# }
 /// A disk-backed series of `(X, Y)` pairs, where the `X`s and `Y`s
 /// are stored in separate files.
 struct DiskBackedPairArray<X, Y> {
   // Invariant: `xs.count == ys.count`
 
   /// The first part of each element.
-  private var xs = DiskBackedArray()
+  private var xs: DiskBackedArray<X> = DiskBackedArray()
 
   /// The second part of each element.
-  private var ys = DiskBackedArray()
+  private var ys: DiskBackedArray<Y> = DiskBackedArray()
 
   // ...
 
