@@ -11,12 +11,20 @@ In those blocks,
 Usage (book.toml):
     [output.swift-test]
     command = "python3 path/to/mdbook-swift-test.py"
-    supported-platforms = ["linux", "darwin"]   # optional; sys.platform values to run on
+    supported-platforms = ["linux", "darwin", "win32"]   # optional; sys.platform values to run on
+
+Do not run this script directly in a terminal: mdbook pipes JSON into stdin.
+Use `mdbook build` from the book directory (or `mdbook-swift-test.py --help`).
+
+Debugging (see what mdBook sent):
+    Set MDBOOK_SWIFT_TEST_DUMP_CONTEXT to a file path, then run `mdbook build`.
+    The full renderer context JSON is written there; search for "content" or ```swift.
 """
 
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -79,11 +87,19 @@ CODE_BLOCK = re.compile(
 
 def extract_blocks(content: str, path: str) -> Iterator[CodeBlock]:
     """Yields Swift code blocks from markdown content."""
+    # mdBook may pass CRLF on Windows; the fence regex only matches LF after ```info.
+    if "\r" in content:
+        content = content.replace("\r\n", "\n").replace("\r", "\n")
     for m in CODE_BLOCK.finditer(content):
         attrs = Attributes.parse(m.group(1))
         if attrs.language == "swift":
             start_line = content[: m.start()].count("\n") + 2
-            yield CodeBlock(m.group(2).rstrip("\n"), start_line, path, attrs)
+            yield CodeBlock(m.group(2).rstrip("\n\r"), start_line, path, attrs)
+
+
+def _book_roots(book: dict) -> list:
+    """Top-level spine entries: mdBook 0.5+ uses `items`, older versions use `sections`."""
+    return book.get("items") or book.get("sections", [])
 
 
 def extract_from_chapter(item: dict) -> Iterator[CodeBlock]:
@@ -126,7 +142,7 @@ def compile_swift(source: str) -> TestResult:
 
 def prepare_source(code: str) -> str:
     """A code block's source code with hidden lines revealed and placeholder bodies expanded."""
-    unhidden = "\n".join(unhide_line(line) for line in code.split("\n"))
+    unhidden = "\n".join(unhide_line(line) for line in code.splitlines())
     return re.sub(r"\{\s*\.\.\.\s*\}", "{ fatalError() }", unhidden)
 
 
@@ -135,8 +151,40 @@ def line(char: str, count: int = 60) -> str:
     return char * count
 
 
-def main():
+def _usage_stderr() -> None:
+    print(
+        "mdbook-swift-test.py is an mdbook backend: it reads the book JSON from stdin.\n"
+        "Run from the book directory:\n"
+        "  mdbook build\n"
+        "mdbook will invoke this command when [output.swift-test] is set in book.toml.\n"
+        "On Windows, use the same `command` as in book.toml (e.g. python path\\to\\mdbook-swift-test.py).",
+        file=sys.stderr,
+    )
+
+
+def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
+        print(__doc__.strip(), file=sys.stderr)
+        sys.exit(0)
+
+    # Interactive terminal has no piped JSON; json.load would block until EOF (Ctrl+C).
+    if sys.stdin.isatty():
+        _usage_stderr()
+        sys.exit(2)
+
     context = json.load(sys.stdin)
+
+    dump_path = os.environ.get("MDBOOK_SWIFT_TEST_DUMP_CONTEXT", "").strip()
+    if dump_path:
+        # ensure_ascii=True so lone surrogates from mdBook/Rust still serialize (UTF-8 cannot store them).
+        with open(dump_path, "w", encoding="utf-8") as df:
+            json.dump(context, df, indent=2, ensure_ascii=True)
+        print(
+            f"Wrote mdBook renderer context to {dump_path!r} "
+            "(MDBOOK_SWIFT_TEST_DUMP_CONTEXT)",
+            file=sys.stderr,
+        )
+
     cfg = (
         context.get("config", {})
         .get("output", {})
@@ -150,9 +198,17 @@ def main():
         )
         sys.exit(0)
 
+    # CI and many dev machines have no Swift on Windows; skip instead of failing every block.
+    if sys.platform == "win32" and not shutil.which("swiftc"):
+        print(
+            "Skipping Swift code example tests (swiftc not on PATH; install Swift for Windows to enable)",
+            file=sys.stderr,
+        )
+        sys.exit(0)
+
     book = context.get("book", {})
     blocks = list(
-        chain.from_iterable(extract_from_chapter(s) for s in book.get("sections", []))
+        chain.from_iterable(extract_from_chapter(s) for s in _book_roots(book))
     )
 
     results = [
