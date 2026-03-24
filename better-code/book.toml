@@ -29,5 +29,5 @@ swift = "#"
 # supported-platforms: Only run on these platforms (python3 sys.platform values); omitted => run on all
 [output.swift-test]
 command = "python3 ../../../scripts/mdbook-swift-test.py"
-# Note: setup-swift@v3 does not support Windows
-supported-platforms = ["linux", "darwin"]
+# win32: runs when swiftc is on PATH; otherwise the script skips (e.g. GitHub Actions windows-latest)
+supported-platforms = ["linux", "darwin", "win32"]

@@ -12,10 +12,7 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     outputs:
       artifact-path: ./better-code/book
     steps:
@@ -37,19 +34,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Install mdBook and plugins (Linux)
-        if: runner.os != 'Windows'
+      - name: Install mdBook and plugins
         run: |
           chmod +x scripts/install-tools.sh
           ./scripts/install-tools.sh
 
-      - name: Install mdBook and plugins (Windows)
-        if: runner.os == 'Windows'
-        run: .\scripts\install-tools.ps1
-
-      # Install Swift for testing Swift code examples in the book (Ubuntu only; setup-swift does not support Windows)
       - name: Setup Swift
-        if: runner.os != 'Windows'
         uses: swift-actions/setup-swift@v2
 
       - name: Build with mdBook
@@ -58,6 +48,6 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mdbook-build-${{ matrix.os }}
+          name: mdbook-build-ubuntu-latest
           path: ./better-code/book
           retention-days: 1
