@@ -62,7 +62,7 @@ or misspelled.  Guessing correctly affects not only the quality of the
 error message, but also whether further diagnostics will be
 useful. For example, in this code, the `while` keyword is misspelled:
 
-```swift
+```swift,ignore
 func f(x: inout Int) {
   whilee x < 10 {
     x += 1
