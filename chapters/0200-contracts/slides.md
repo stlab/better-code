@@ -210,6 +210,8 @@ int find(int argc, char* argv[]) {
 ```
 {:data-mark='4-4'}
 
+<!-- DJS: Where do we document? Declaration? Definition? -->
+
 <div markdown=1>
 ✅ Summary paragraph is a sentence *fragment*.
 
@@ -276,6 +278,16 @@ align='center'} Red flag: documentation reads like implementation.
 ## Meaningful APIs  |  Step 1
 
 ```cpp
+/// Return an index in argv to the first element in the subrange of argv starting with the 2nd element that is the same as argv[1], otherwise return argc.
+
+/// Return the index of the second instance of argv[1] in argv or argc if it cannot be found.
+
+/// Returns the index of the first duplicate of argv[1] after argv[1]
+
+/// Returns the index of the first C string equivalent to argv[1] after argv[1], or `argc` if it cannot be found.
+
+
+
 /// Returns the first index of `argv`'s 2nd element in the remainder of `argv`,
 /// or `argc` if it can't be found.
 ///
@@ -287,6 +299,33 @@ int find(int argc, char* argv[]) {
       break;
   }
   return j;
+}
+
+
+struct SearchCommand {
+  std::string needle;
+  std::vector<std::string> haystack;
+};
+
+//
+// In the exceptional case that argc/argv do not meet the parsed format, throw a `std::runtime_error` with a user-readable description of the failure..
+SearchCommand parseArgs(int argc, char ** argv)
+{
+  if (argc < 2) {
+    throw std::runtime_error("missing arguments\n");
+  else
+    return { arv[1], std::vector<std::string>( &argv[2], &argv[argc] ) };
+}
+
+int main(int argc, char ** argv)
+{
+  try {
+    const SearchCommand sc = parseArgs(argc, argv);
+    const std::size_t index = sc.haystack.end() - std::ranges::find( sc.needle, sc.haystack ) ;
+    std::print("%s\n", index);
+  } catch( std::runtime_error & e ) {
+    std::print(stderror, "%s", e.what() );
+  }
 }
 ```
 {:data-mark='1-2|4'}

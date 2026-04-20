@@ -22,6 +22,7 @@ But that's a bit wordy and vague. Boiling it down to its essence,
     * Available tooling
     * Hardware available for deployment
     * Laws of physics
+    * Maintenance and life cycle
 
 And as engineers we have to juggle all of this and make a set of informed
 tradeoffs to find the best solution.  Real-world constraints mean engineers will
@@ -40,7 +41,7 @@ backgrounds from the overleaf/here they are.
 
 #### Truth
 
-One thing we both believe is that in grappling with problems, if you apply
+One thing we believe is that in grappling with problems, if you apply
 yourself, you can discover deep platonic truths.  This course/book is about
 finding deep truths about programming.
 
@@ -52,7 +53,10 @@ definition.  Rather than try to list these properties up front, we're going to
 discover the properties of good code as we go along, by looking at real
 examples.
 
-- we're trying to get to some some universal truths about about good
+DJS: ^In the previous section "we" represented authors. Here it represents the
+reader. They should match.
+
+- We're trying to get to some some universal truths about about good
   programming.
 - We believe these truths exist, but they are always manifest within some system
   of real-world constraints.
@@ -82,7 +86,7 @@ is an engineering reality (tradeoffs!)
 - **DWA** come back to this
 
 ##### Conventions used throughout
-###### Unscalable constructs
+###### Gymcrack constructs
 
 Alternate words for this:
 - Fragile
@@ -91,6 +95,10 @@ Alternate words for this:
 - inexpressive
 - unreadable
 - non-local
+
+DJS: I don't like unscalable. It implies scaling with people, time, or
+computational power. Based on later discussion I think the wording here is
+"dangerous". Things that should not be used without caution or mitigation.
 
 [This is what we were calling “raw.”  Unscalable is far from a perfect word.
 “Raw” connotes “unencapsulated” or “exposed” but Sean was also trying to get at
@@ -101,11 +109,18 @@ which are two separate ideas.  Unscalable is my approximation]
   quickly lead to chaos unless encapsulated.
 - These will break your relationship to your code if not carefully managed.
 
+DJS: Can we be more specific than "break your relationship to your code"? Maybe
+"handicap your ability to reason about"?
+
 - Synchronization primitives
 - Loops
 - Pointers
 - incidental data structures
 - incidental algorithms
+
+DJS: It isn't clear what 'incidental' means at this point in the book. I suggest
+putting a forward reference or rephrasing to what the reader will understand.
+
 - shared state
 
 - House of cards makes a good metaphor.
@@ -113,10 +128,18 @@ which are two separate ideas.  Unscalable is my approximation]
 ##### Pointers to materials
 ##### Useful tools
 
+### Contracts
+
 ### Algorithms
 
 - Let's honor what computers are actually all about: computation.  Algorithms
   are an abstraction of computation. Doing so has consequences:
+                                                  ^^^
+                                                  NPD: costs?
+
+DJS: The "honor" wording is ambiguous. It isn't clear why "honoring what
+computers are all about" has anything to do with naming.
+
   - Naming
   - Documentation
   - Complexity analysis
@@ -128,29 +151,44 @@ which are two separate ideas.  Unscalable is my approximation]
 #### Flow
 
 - Every function is an algorithm
+
 - Trivial example (e.g. find an `int`)
   - do this from `main`
 
 - Find a double
   - Show a precondition (find a `double`; no NaNs).
   - put them in the same program, use the same name as overloads
+    ^^^
+    Find int as well
   - provides a place to document the precondition
   - hinting at no raw loops - show power of identifying the algorithms
   - begin the discussion of documentation practice; identify as a thread that
     will extend through everything we do.
+    ^^^
+    Seems like contracts.
+
+- Use a shorthand to make things more concise.
 
 - Show genericity
   - show lifting of EqualityComparable concept
   - show how genericity aids readability
 
+
+DJS: What follows is a separate section
+DJS: Really need an example for what follows.
+
 - Show simple mutation (e.g. replace first instance).
   - introduce aliasing and how it creates preconditions (copy range to
     overlapping-but-not-identical range), giving us a platform for value
     semantics.
-  - aliasing is an unscalable construct
+  - aliasing is an gymcrack construct
 
 - Understanding the domain
   - The domain has started to become evident (example of discovery)
+        ^^^^^^
+        - Lexicon?
+        - Domain is probably fine.
+        - Domain should be defined.
   - There are other domains (numerics, graphs, ...); we are working with sequences.
   - Discuss properties of sequences, half-open ranges, iterators
 
@@ -169,6 +207,11 @@ which are two separate ideas.  Unscalable is my approximation]
   - Show quadradic (delete by predicate)
   - You want contiguous memory, which has random access
   - You don't want to use the random access (memory works like a tape drive)
+
+DJS: I don't think "memory works like a tape drive" is a model we want folks to
+walk around with. It implies access latency is linear to distance which isn't
+true. There are big step functions here that need to be taken into account.
+
   - A few algorithms like reverse win by using bidirectional traversal \[benchmark\]
   - Complexity goes in the documentation
   - What every programmer should know about memory (Drepper)
