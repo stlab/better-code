@@ -5,7 +5,7 @@
 - An **operation** is any executable program or program fragment, from an integer addition to a whole application.
 
 
-- A **[safety property](https://en.wikipedia.org/wiki/Safety_and_liveness_properties)** is the *impossibility* of some occurrence when an operation is used correctly.  For example, this function upholds the safety property that nothing is printed to the console:
+- A **[safety property](https://en.wikipedia.org/wiki/Safety_and_liveness_properties)** is the *impossibility* of some occurrence *when an operation is used correctly*.  For example, this function upholds the safety property that nothing is printed to the console:
 
   ```swift
   /// Returns `x`.
@@ -46,15 +46,15 @@ To be a safety property, it must *compose*.  That is, when any two operations *P
 
 - **Undefined behavior** is not bounded by any constraints and thus nullifies every safety property.  An operation that can have undefined behavior, or a language that includes such an operation, is never *X* safe for any *X*.  
 
-  Violations of memory safety, type safety, and data race safety have effects that can't be usefully described in terms of any portable programming language. For example, the effects of an out-of-bounds write can be understood when memory is viewed as a linear collection of bytes, but can't be described in terms of distinct variables and constants of many types.  Therefore, in unsafe programming languages, these violations typically cause undefined behavior.[^java-data-race]
+  Violations of memory safety, type safety, and data race safety have effects that can't be usefully described in terms of any portable programming language. For example, the effects of an out-of-bounds write can be understood when memory is viewed as a linear collection of bytes, but can't be described in terms of distinct variables and constants of many types, because portable languages do not specify the layout relationships among distinct stored values.  Therefore, in unsafe programming languages, these violations typically cause undefined behavior.[^java-data-race]
 
 - A **safe operation** will never exhibit undefined behavior, even if preconditions are violated. Safety is often a consequence of type checking (you can't access `x.5` when `x` is a 2-element tuple), but sometimes runtime checks are needed, as when indexing a variable-length array. “Trapping” or otherwise stopping the program when preconditions are violated is one way to achieve safety.
 
 - A **safe language** (such as Java or Haskell) has only safe operations, so all possible programs in the language are safe.  The distinction is important because proving a safety property of arbitrary code is tedious and sometimes very difficult, unless—as with a safe language—all code is safe by construction.
 
-- In practice, “**memory-safe language**” is synonymous with “safe language.” Since undefined behavior invalidates all guarantees (including memory safety), a memory-safe language can have no undefined behavior and is therefore a safe language.  Because the behavior of a memory safety violation can't be defined at the language level, any language without undefined behavior must be memory safe.
+- In practice, “**memory-safe language**” is synonymous with “safe language.” Since undefined behavior invalidates all guarantees (including memory safety), a memory-safe language can have no undefined behavior and is therefore a safe language.  Because the behavior of a memory safety violation can't be defined at the language level (see the discussion after the definition of *undefined behavior*), any safe language must be memory safe.
 
-- A **safe-by-default language** (such as Swift or Rust) contains a minority of unsafe operations that can be easily recognized by tooling and banned or flagged for extra scrutiny in code review. This arrangement provides unconditional safety in most code while allowing the direct use of primitive operations such as pointer dereferencing, without expensive validity checks.  When unsafe operations are used correctly in the implementation details of safe abstractions, the vocabulary of safe operations grow, with little compromise to overall security.  Safe-by-default languages are often referred to as “memory safe” despite the availability of operations that can compromise memory safety.
+- A **safe-by-default language** (such as Swift or Rust) contains a minority of unsafe operations that can be easily recognized by tooling and banned or flagged for extra scrutiny in code review. This arrangement provides unconditional safety in most code while allowing the direct use of primitive operations such as pointer dereferencing, without expensive validity checks.  When unsafe operations are used correctly in the implementation details of safe abstractions, the vocabulary of safe operations grows, with little compromise to overall security.  Safe-by-default languages are often casually referred to as “memory safe” despite the availability of operations that can compromise memory safety.
 
 - The **safe subset of a safe-by-default language** is a safe language.
 
