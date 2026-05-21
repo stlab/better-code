@@ -4,7 +4,8 @@ mdbook backend that verifies Swift code examples compile with `swiftc -typecheck
 
 Code blocks beginning with ```swift are compiled, unless it is ignored (```swift,ignore).
 In those blocks,
-- lines beginning with # are hidden from readers but are compiled.
+- lines of the form "#" or "# " + text are hidden from readers but are compiled.
+  (Swift # directives like #if and #file are unchanged; they have no space after #.)
 - lines beginning with \\# are shown and compiled, including the # (e.g. \\#available(...)).
 - placeholder bodies `{ ... }` are replaced with `{ fatalError() }`.
 
@@ -71,8 +72,9 @@ class TestResult:
     error: str
 
 
-# Hidden setup lines: optional indent, then #, then optional space and rest of line.
-_HIDDEN_LINE = re.compile(r"^(\s*)#(?: (.*))?$")
+# Hidden setup lines: optional indent, then either "#" alone or "# " + content.
+# Does not match #if, #file, #available(...), etc. (no space after #).
+_HIDDEN_LINE = re.compile(r"^(\s*)#(?: (.*)|)$")
 
 
 def unhide_line(line: str) -> str:
@@ -84,6 +86,31 @@ def unhide_line(line: str) -> str:
         prefix, rest = m.group(1), m.group(2)
         return prefix if rest is None else prefix + rest
     return line
+
+
+def _self_test_unhide_line() -> None:
+    """Regression tests for hidden-line detection (run with --self-test)."""
+    cases = [
+        ("# import Foundation", "import Foundation"),
+        ("    # import Foundation", "    import Foundation"),
+        ("#", ""),
+        ("    #", "    "),
+        ("# ", ""),
+        ("# let n = 0", "let n = 0"),
+        ("extension Array {", "extension Array {"),
+        ("\\#available(swift, 5)", "#available(swift, 5)"),
+        # Swift # directives and macros must not be treated as hidden lines
+        ("#if", "#if"),
+        ("#endif", "#endif"),
+        ("#file", "#file"),
+        ("#foo", "#foo"),
+        ("#available(swift, 5)", "#available(swift, 5)"),
+        ("    #if DEBUG", "    #if DEBUG"),
+    ]
+    for inp, want in cases:
+        got = unhide_line(inp)
+        if got != want:
+            raise AssertionError(f"unhide_line({inp!r}) == {got!r}, want {want!r}")
 
 
 # Matches code blocks: ```info\n...content...\n```
@@ -270,6 +297,11 @@ def _usage_stderr() -> None:
 
 
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+        _self_test_unhide_line()
+        print("OK: unhide_line self-test passed", file=sys.stderr)
+        sys.exit(0)
+
     if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
         print(__doc__.strip(), file=sys.stderr)
         sys.exit(0)
