@@ -12,7 +12,6 @@ build-dir = "book"
 git-repository-url = "https://github.com/stlab/better-code"
 edit-url-template = "https://github.com/stlab/better-code/edit/main/better-code/{path}"
 site-url = "/better-code/"
-cname = "stlab.github.io"
 
 [output.html.search]
 enable = true

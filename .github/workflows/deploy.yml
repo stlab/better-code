@@ -19,6 +19,8 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+    with:
+      run-swift-tests: false
     permissions:
       contents: read
 

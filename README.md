@@ -58,7 +58,7 @@ Open http://localhost:3000 in your browser.
 - No deployment; PR check shows build status
 
 **Main Branch:**
-- Builds book using mdBook with versions from `versions.txt`
+- Builds HTML only (no swift-test) using mdBook with versions from `versions.txt`
 - Deploys to GitHub Pages
 - Available at https://stlab.github.io/better-code/
 
@@ -77,7 +77,8 @@ All tool versions are centrally managed in `versions.txt`. To update:
 better-code/          # mdBook source and configuration
 ├── src/             # Markdown chapter files
 ├── book.toml        # mdBook configuration
-└── book/            # Generated HTML (gitignored)
+└── book/            # Generated output (gitignored)
+    └── html/        # HTML when swift-test backend is enabled (PR/CI)
 
 scripts/             # Installation scripts
 ├── install-tools.sh    # Linux/macOS
@@ -96,7 +97,8 @@ archive/             # Legacy Jekyll site (for reference only)
 mdbook build ./better-code
 ```
 
-Output will be in `./better-code/book/`.
+With all backends enabled (default), HTML is in `./better-code/book/html/`.
+An HTML-only build (as on deploy) writes to `./better-code/book/`.
 
 
 ## Legacy Content

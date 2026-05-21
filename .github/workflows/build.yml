@@ -2,6 +2,11 @@ name: Build mdBook
 
 on:
   workflow_call:
+    inputs:
+      run-swift-tests:
+        description: "Run the swift-test backend (HTML lands under book/html/)"
+        type: boolean
+        default: true
     outputs:
       artifact-path:
         description: "Path to the built book artifact"
@@ -14,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      artifact-path: ./better-code/book
+      artifact-path: ${{ inputs.run-swift-tests && './better-code/book/html' || './better-code/book' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -39,7 +44,13 @@ jobs:
           chmod +x scripts/install-tools.sh
           ./scripts/install-tools.sh
 
+      - name: Configure HTML-only build
+        if: ${{ !inputs.run-swift-tests }}
+        working-directory: better-code
+        run: sed -i '/^# Tests all Swift code blocks/,$d' book.toml
+
       - name: Setup Swift
+        if: inputs.run-swift-tests
         uses: swift-actions/setup-swift@v2
 
       - name: Build with mdBook
@@ -49,5 +60,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: mdbook-build-ubuntu-latest
-          path: ./better-code/book
+          path: ${{ inputs.run-swift-tests && './better-code/book/html' || './better-code/book' }}
           retention-days: 1
