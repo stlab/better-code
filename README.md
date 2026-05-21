@@ -54,12 +54,12 @@ Open http://localhost:3000 in your browser.
 ### CI/CD Pipeline
 
 **Pull Requests:**
-- Validates build on Ubuntu and Windows
+- Validates mdBook build on Ubuntu, including Swift code example type-checks
+- Failures are annotated on the changed chapter files in the PR checks UI
 - No deployment; PR check shows build status
 
 **Main Branch:**
-- Builds HTML only (no swift-test) using mdBook with versions from `versions.txt`
-- Deploys to GitHub Pages
+- Builds with Swift code example tests, then deploys HTML to GitHub Pages
 - Available at https://stlab.github.io/better-code/
 
 ### Managing Dependencies

@@ -19,6 +19,10 @@ Use `mdbook build` from the book directory (or `mdbook-swift-test.py --help`).
 Debugging (see what mdBook sent):
     Set MDBOOK_SWIFT_TEST_DUMP_CONTEXT to a file path, then run `mdbook build`.
     The full renderer context JSON is written there; search for "content" or ```swift.
+
+CI (GitHub Actions):
+    When CI=true, skipped tests exit 1. Set MDBOOK_SWIFT_TEST_SKIP_OK=1 to allow skip.
+    Failures emit ::error workflow commands and append to GITHUB_STEP_SUMMARY.
 """
 
 import json
@@ -67,14 +71,18 @@ class TestResult:
     error: str
 
 
+# Hidden setup lines: optional indent, then #, then optional space and rest of line.
+_HIDDEN_LINE = re.compile(r"^(\s*)#(?: (.*))?$")
+
+
 def unhide_line(line: str) -> str:
     """The line with hidden-line prefix stripped or literal # unescaped."""
-    if line.startswith("# "):
-        return line[2:]
-    if line == "#":
-        return ""
     if line.startswith("\\#"):
         return line[1:]
+    m = _HIDDEN_LINE.match(line)
+    if m:
+        prefix, rest = m.group(1), m.group(2)
+        return prefix if rest is None else prefix + rest
     return line
 
 
@@ -151,6 +159,105 @@ def line(char: str, count: int = 60) -> str:
     return char * count
 
 
+def _in_github_actions() -> bool:
+    return os.environ.get("GITHUB_ACTIONS") == "true"
+
+
+def _ci_requires_tests() -> bool:
+    """In CI, skipping tests is a failure unless explicitly allowed."""
+    return os.environ.get("CI") == "true" and os.environ.get(
+        "MDBOOK_SWIFT_TEST_SKIP_OK"
+    ) != "1"
+
+
+def _workflow_escape(message: str) -> str:
+    return message.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+
+
+def _workflow_command(kind: str, message: str, **params: str) -> None:
+    """Emit a GitHub Actions workflow command on stdout (for PR annotations)."""
+    if not _in_github_actions():
+        return
+    param_str = ",".join(
+        f"{key}={value}"
+        for key, value in params.items()
+        if value
+    )
+    body = _workflow_escape(message)
+    if param_str:
+        print(f"::{kind} {param_str}::{body}")
+    else:
+        print(f"::{kind}::{body}")
+
+
+def _log(message: str) -> None:
+    """Log to stderr; mirror to stdout in CI so mdBook logs show Swift test output."""
+    print(message, file=sys.stderr)
+    if _in_github_actions() or _ci_requires_tests():
+        print(message)
+
+
+def _annotation_path(context: dict, chapter_path: str) -> str:
+    """Repo-relative path for GitHub Actions file annotations."""
+    src = context.get("config", {}).get("book", {}).get("src", "src")
+    rel = chapter_path if "/" in chapter_path else f"{src}/{chapter_path}"
+    root = context.get("root", "")
+    workspace = os.environ.get("GITHUB_WORKSPACE", "")
+    if workspace and root:
+        try:
+            book_dir = os.path.relpath(
+                os.path.abspath(root), os.path.abspath(workspace)
+            )
+            return f"{book_dir}/{rel}".replace("\\", "/")
+        except ValueError:
+            pass
+    return rel.replace("\\", "/")
+
+
+def _exit_skip(reason: str) -> None:
+    _log(f"SKIP: {reason}")
+    if _ci_requires_tests():
+        _workflow_command("error", f"Swift tests were not run: {reason}")
+        sys.exit(1)
+    sys.exit(0)
+
+
+def _write_step_summary(
+    *,
+    passed: int,
+    failed_count: int,
+    total: int,
+    skipped: int,
+    failed: list[tuple[CodeBlock, TestResult]],
+    context: dict,
+) -> None:
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY", "").strip()
+    if not summary_path:
+        return
+    lines = [
+        "## Swift code examples",
+        "",
+        f"- **Passed:** {passed}",
+        f"- **Failed:** {failed_count}",
+        f"- **Tested:** {total}",
+        f"- **Ignored:** {skipped}",
+        "",
+    ]
+    if failed:
+        lines.append("### Failures")
+        lines.append("")
+        for block, result in failed:
+            path = _annotation_path(context, block.path)
+            lines.append(f"#### `{path}` (line {block.start_line})")
+            lines.append("")
+            lines.append("```")
+            lines.append(result.error.strip() or "(no compiler output)")
+            lines.append("```")
+            lines.append("")
+    with open(summary_path, "a", encoding="utf-8") as fh:
+        fh.write("\n".join(lines))
+
+
 def _usage_stderr() -> None:
     print(
         "mdbook-swift-test.py is an mdbook backend: it reads the book JSON from stdin.\n"
@@ -192,24 +299,19 @@ def main() -> None:
     )
     platforms = [str(p).strip() for p in cfg.get("supported-platforms", [])]
     if platforms and sys.platform not in platforms:
-        print(
-            f"Skipping Swift code example tests ({sys.platform!r} not in supported-platforms)",
-            file=sys.stderr,
+        _exit_skip(
+            f"{sys.platform!r} not in supported-platforms {platforms!r}"
         )
-        sys.exit(0)
 
-    # CI and many dev machines have no Swift on Windows; skip instead of failing every block.
+    # Local Windows without Swift: skip. CI must not skip (see _exit_skip).
     if sys.platform == "win32" and not shutil.which("swiftc"):
-        print(
-            "Skipping Swift code example tests (swiftc not on PATH; install Swift for Windows to enable)",
-            file=sys.stderr,
-        )
-        sys.exit(0)
+        _exit_skip("swiftc not on PATH (install Swift for Windows to enable)")
 
     book = context.get("book", {})
     blocks = list(
         chain.from_iterable(extract_from_chapter(s) for s in _book_roots(book))
     )
+    ignored = sum(1 for b in blocks if b.attributes.ignore)
 
     results = [
         (block, compile_swift(prepare_source(block.content)))
@@ -218,26 +320,59 @@ def main() -> None:
     ]
     tested = [(block, result) for block, result in results]
     failed = [(block, result) for block, result in tested if not result.ok]
+    passed = len(tested) - len(failed)
 
-    print(line("="), file=sys.stderr)
-    print("Swift Code Example Testing", file=sys.stderr)
-    print(line("="), file=sys.stderr)
-    print(
-        f"\nResults: {len(tested) - len(failed)} passed, {len(failed)} failed, {len(tested)} total",
-        file=sys.stderr,
+    _log(line("="))
+    _log("Swift Code Example Testing")
+    _log(line("="))
+    _log(
+        f"\nResults: {passed} passed, {len(failed)} failed, {len(tested)} total"
+        + (f", {ignored} ignored" if ignored else "")
     )
 
     if failed:
-        print("\n" + line("-"), file=sys.stderr)
-        print("FAILURES:", file=sys.stderr)
-        print(line("-"), file=sys.stderr)
+        _log("\n" + line("-"))
+        _log("FAILURES:")
+        _log(line("-"))
         for block, result in failed:
-            print(
-                f"\nFAIL: {block.path}:{block.start_line}\n{result.error}",
-                file=sys.stderr,
+            rel = _annotation_path(context, block.path)
+            headline = f"FAIL: {rel}:{block.start_line}"
+            _log(f"\n{headline}\n{result.error}")
+            first_line = (result.error.splitlines() or [""])[0].strip()
+            detail = first_line or "Swift example failed to compile"
+            _workflow_command(
+                "error",
+                f"Swift example failed to compile: {detail}",
+                file=rel,
+                line=str(block.start_line),
+                title="swift-test",
             )
 
-    print(line("="), file=sys.stderr)
+    _write_step_summary(
+        passed=passed,
+        failed_count=len(failed),
+        total=len(tested),
+        skipped=ignored,
+        failed=failed,
+        context=context,
+    )
+    _log(line("="))
+
+    if failed:
+        _workflow_command(
+            "error",
+            f"{len(failed)} Swift code example(s) failed to compile "
+            f"({passed}/{len(tested)} passed)",
+        )
+    elif _ci_requires_tests() and len(tested) == 0:
+        _workflow_command("error", "No Swift code examples were tested")
+        sys.exit(1)
+    elif _in_github_actions():
+        _workflow_command(
+            "notice",
+            f"All {passed} Swift code examples passed type-check",
+        )
+
     sys.exit(1 if failed else 0)
 
 

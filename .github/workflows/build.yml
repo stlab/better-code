@@ -53,7 +53,20 @@ jobs:
         if: inputs.run-swift-tests
         uses: swift-actions/setup-swift@v2
 
+      - name: Verify Swift toolchain
+        if: inputs.run-swift-tests
+        run: |
+          swiftc -version
+          echo "Swift code examples will be type-checked during mdbook build."
+
       - name: Build with mdBook
+        if: inputs.run-swift-tests
+        env:
+          CI: true
+        run: mdbook build ./better-code
+
+      - name: Build with mdBook (HTML only)
+        if: ${{ !inputs.run-swift-tests }}
         run: mdbook build ./better-code
 
       - name: Upload build artifact

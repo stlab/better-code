@@ -20,7 +20,7 @@ jobs:
   build:
     uses: ./.github/workflows/build.yml
     with:
-      run-swift-tests: false
+      run-swift-tests: true
     permissions:
       contents: read
 
