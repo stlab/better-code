@@ -18,7 +18,7 @@
 # them in better-code/book.toml. See mdbook documentation for details.
 
 # Core mdBook
-mdbook=0.5.2
+mdbook=0.5.3
 
 # mdBook plugins
 # Note: On Windows, mdbook-katex installs with the duktape backend (limited functionality).
@@ -30,7 +30,9 @@ mdbook-katex=0.10.0-alpha
 
 # Add other tool dependencies here as the project grows
 # Examples:
-# swift=5.9
+
+swift=6.3.2
+
 # python=3.11
 # node=20.10.0
 

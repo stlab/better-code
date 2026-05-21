@@ -63,4 +63,3 @@ Write-Host "`n✓ Installation complete!" -ForegroundColor Green
 Write-Host "`nInstalled versions:" -ForegroundColor Cyan
 mdbook --version
 cargo install --list | Select-String "mdbook"
-

@@ -401,19 +401,19 @@ It's appropriate to add a precondition when:
   *cannot* make sufficient disk space a precondition in this case, so
   we should instead propagate the error:
 
-   ```swift
-# import Foundation
-   extension Array {
-     /// Writes a textual representation of `self` to a temporary file
-     /// whose location is returned.
-     func writeToTempFile(withChunksOfSize n: Int) throws -> URL {
-       let r = FileManager.default.temporaryDirectory
-         .appendingPathComponent(UUID().uuidString)
-       try "\(self)".write(to: r, atomically: false, encoding: .utf8)
-       return r
-     }
-   }
-   ```
+    ```swift
+    # import Foundation
+    extension Array {
+      /// Writes a textual representation of `self` to a temporary file
+      /// whose location is returned.
+      func writeToTempFile(withChunksOfSize n: Int) throws -> URL {
+        let r = FileManager.default.temporaryDirectory
+          .appendingPathComponent(UUID().uuidString)
+        try "\(self)".write(to: r, atomically: false, encoding: .utf8)
+        return r
+      }
+    }
+    ```
 
 - It is **affordable for the caller to ensure** the precondition.  For
   example, when deserializing a data structure you might discover that
@@ -551,8 +551,8 @@ whose primary home is the summary sentence fragment.[^result-doc]
     as though they just return a `T`:
 
     ```swift
-# import Foundation
-# enum IOError: Error {}
+    # import Foundation
+    # enum IOError: Error {}
     extension Array {
       /// Writes a textual representation of `self` to a temporary file,
       /// returning its location.
