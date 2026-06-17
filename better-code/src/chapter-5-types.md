@@ -50,7 +50,7 @@ when the have the same value.
 
 ## Range
 
-We call set of (non-negative) mathematical integers the **notional
+We call the set of mathematical integers the **notional
 range** of `Int64`.  At a high level, we program as though types can
 represent all members of their notional range, but because memory is
 finite and for performance reasons, a type's **range**—the set of
@@ -63,7 +63,6 @@ Floating point operations, on the other hand, give approximate
 results.  Approximation is very difficult to specify and work with, so
 a representability precondition is almost always the preferred
 approach.
-
 
 The value of a `Point2D`
 instance is directly represented by the values of its stored `x` and
