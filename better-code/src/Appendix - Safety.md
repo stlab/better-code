@@ -5,7 +5,7 @@
 - An **operation** is any executable program or program fragment, from an integer addition to a whole application.
 
 
-- A **[safety property](https://en.wikipedia.org/wiki/Safety_and_liveness_properties)** is the *impossibility* of some occurrence *when an operation is used correctly*.  For example, this function upholds the safety property that nothing is printed to the console:
+- A **[safety property](https://en.wikipedia.org/wiki/Safety_and_liveness_properties)** is the *impossibility* of some occurrence *when an operation is used correctly*.  For example, this function preserves the safety property that nothing is printed to the console:
 
   ```swift
   /// Returns `x`.
@@ -16,9 +16,9 @@
     return x
   }
   ```
-To be a safety property, it must *compose*.  That is, when any two operations *P* and *Q* uphold the property, so does *P* followed by *Q*. For example, freedom from data races is a safety property, but freedom from logical races is not, because when two consecutive non-racy mutations are composed into a larger mutation, another thread can observe the partially mutated state between the two steps.
+To be a safety property, it must *compose*.  That is, when any two operations *P* and *Q* preserve the property, so does *P* followed by *Q*. For example, freedom from data races is a safety property, but freedom from logical races is not, because when two consecutive non-racy mutations are composed into a larger mutation, another thread can observe the partially mutated state between the two steps.
 
-- A **[liveness property](https://en.wikipedia.org/wiki/Safety_and_liveness_properties)** is the *guarantee* of some occurrence when an operation is used correctly.  For example, this function upholds the liveness property that it eventually returns:
+- A **[liveness property](https://en.wikipedia.org/wiki/Safety_and_liveness_properties)** is the *guarantee* of some occurrence when an operation is used correctly.  For example, this function preserves the liveness property that it eventually returns:
 
   ```swift
   /// Returns `x`.
@@ -30,9 +30,9 @@ To be a safety property, it must *compose*.  That is, when any two operations *P
   }
   ```
 
-- An ***X* safe operation** upholds some safety property *X* **even if preconditions are violated**. [^qualification]  For example, when `a` is an array, `a[0] = 3` never modifies a variable not mentioned in the expression, even if `a` is empty (which violates the precondition of `a[0]`).  We might say that the operation is “expression-mutation safe.” 
+- An ***X* safe operation** preserves some safety property *X* **even if preconditions are violated**. [^qualification]  For example, when `a` is an array, `a[0] = 3` never modifies a variable not mentioned in the expression, even if `a` is empty (which violates the precondition of `a[0]`).  We might say that the operation is “expression-mutation safe.” 
 
-[^qualification]: note this important distinction—an operation can uphold the memory safety property but not be memory-safe by this definition, because the former depends on preconditions being satisfied but the latter does not.
+[^qualification]: note this important distinction—an operation can preserve the memory safety property but not be memory-safe by this definition, because the former depends on preconditions being satisfied but the latter does not.
 
 - An ***X* safe language** is one where all primitive operations are *X safe*.  It follows that all non-primitive operations—and all possible programs in the language—are *X safe*. A language subset, such as “Swift programs in which no identifier contains the substring `Unsafe` or `unsafe`,” can be considered a language.
 
