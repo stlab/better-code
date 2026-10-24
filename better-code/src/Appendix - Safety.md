@@ -16,11 +16,11 @@
     flight path after having left it.  “The spaceship never left its planned flight path” is a safety property,
     because once the spaceship leaves its planned path, the property is false forever. 
 
-  - A **liveness property** is a Lamport property that can potentially eventually be satisfied starting from
-    any trace.  For example, “the CPU temperature has always been less than 100 Celsius” is not a liveness
-    property, because a trace that violates that property can never be extended to one that satisfies it.
-    ”The CPU temperature is 100 Celsius“ is a liveness property, because no matter the current temperature,
-    it can become 100 Celsius sometime in the future.
+  - A **liveness property** is a Lamport property that can eventually be satisfied starting from
+    any arbitrary trace.  For example, “nothing is printed to the console” is not
+    a liveness property, because there exist traces (those that have printed to the console) that
+    cannot be extended to satisfy it.  “"Hello, world" is printed to the console” is a liveness
+    property, because no matter what has come before, the program can print “Hello, world”.
     
 - An **operation** is any executable program or program fragment, from an integer addition to a whole application.
 
@@ -39,7 +39,7 @@
   }
   ```
 
-  And this function upholds the liveness property that the program has terminated, because given a trace where
+  And this function upholds the liveness property that the program terminates, because given a trace where
   termination is reachable, a legal application of `identity2` maintains that property:
 
   ```swift
@@ -52,7 +52,8 @@
   }
   ```
 
-- The upholding of any Lamport property *composes*.  That is, when any two operations *f* and *g* uphold the property, so does *f* followed by *g*.
+- The upholding of any Lamport property *composes*.  That is, when any two operations *f* and *g* uphold the property,
+  so does *f* followed by *g*.
 
 - An ***X* safe operation** upholds some safety property *X* **even if preconditions are violated**. [^qualification]  For example, when `a` is an array with bounds checking, `a[0] = 3` never modifies a variable not mentioned in the expression, even if `a` is empty (which violates the precondition of `a[0]`).  We might say that the operation is “expression-mutation safe.” The composition of any two *X*-safe operations is *X*-safe.
 
